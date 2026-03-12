@@ -79,12 +79,23 @@ class ToolRegistry:
         # 导入基础工具
         from .file_tools import ReadFileTool, WriteFileTool, ListDirTool
         from .bash_tool import BashTool
+        from .git_tools import GitTool, GitStatusTool, GitDiffTool, GitCommitTool
+        from .test_runner import RunTestTool
         
-        # 注册
+        # 注册基础工具
         self.register(BashTool())
         self.register(ReadFileTool())
         self.register(WriteFileTool())
         self.register(ListDirTool())
+        
+        # 注册 Git 工具
+        self.register(GitTool())
+        self.register(GitStatusTool())
+        self.register(GitDiffTool())
+        self.register(GitCommitTool())
+        
+        # 注册测试工具
+        self.register(RunTestTool())
         
         logger.info(f"已注册 {len(self.tools)} 个默认工具")
     

@@ -82,7 +82,7 @@ class ToolRegistry:
         from .git_tools import GitTool, GitStatusTool, GitDiffTool, GitCommitTool
         from .test_runner import RunTestTool
         from .smart_edit import SmartEditTool, InsertTextTool, DeleteLinesTool
-        from .edit_history import UndoTool, RedoTool, HistoryTool
+        from .edit_history_tools import UndoTool, RedoTool, HistoryTool
         from .regex_edit import RegexReplaceTool, RegexSearchTool, RegexValidateTool
         
         # 注册基础工具

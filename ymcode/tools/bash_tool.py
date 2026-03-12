@@ -8,6 +8,7 @@ Bash Tool - Bash 命令执行工具
 
 import asyncio
 import subprocess
+from typing import Dict
 from .base import BaseTool
 
 

@@ -237,9 +237,10 @@ class EditHistory:
 class EditHistoryManager:
     """编辑历史管理器（工具类）"""
     
-    def __init__(self):
+    def __init__(self, history_dir=None):
         """初始化"""
-        self.history = EditHistory()
+        from pathlib import Path
+        self.history = EditHistory(history_dir=history_dir or Path.home() / ".ymcode" / "edit_history")
     
     def record_edit(self, file_path: str, old_content: str, new_content: str, operation: str = "replace") -> str:
         """

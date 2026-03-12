@@ -127,9 +127,9 @@ class TestEditHistory:
 class TestEditHistoryManager:
     """编辑历史管理器测试"""
     
-    def test_record_edit(self):
+    def test_record_edit(self, tmp_path):
         """测试记录编辑"""
-        manager = EditHistoryManager()
+        manager = EditHistoryManager(history_dir=tmp_path)
         
         record_id = manager.record_edit(
             file_path="/test/file.txt",
@@ -141,9 +141,9 @@ class TestEditHistoryManager:
         assert record_id is not None
         assert len(record_id) == 8  # UUID 前 8 位
     
-    def test_undo_last_edit(self):
+    def test_undo_last_edit(self, tmp_path):
         """测试撤销最后编辑"""
-        manager = EditHistoryManager()
+        manager = EditHistoryManager(history_dir=tmp_path)
         
         # 记录编辑
         manager.record_edit(
@@ -159,9 +159,9 @@ class TestEditHistoryManager:
         assert result["success"] is True
         assert result["old_content"] == "old"
     
-    def test_get_edit_history(self):
+    def test_get_edit_history(self, tmp_path):
         """测试获取编辑历史"""
-        manager = EditHistoryManager()
+        manager = EditHistoryManager(history_dir=tmp_path)
         
         # 记录多条编辑
         for i in range(3):

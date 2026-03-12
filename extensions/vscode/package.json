@@ -1,0 +1,94 @@
+{
+  "name": "ym-code",
+  "displayName": "YM-CODE - AI Programming Assistant",
+  "description": "Next Generation AI Programming Assistant - 全面对标 Claude Code",
+  "version": "0.2.0",
+  "publisher": "ym-code-team",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:ym-code.run",
+    "onCommand:ym-code.explain",
+    "onCommand:ym-code.review"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ym-code.run",
+        "title": "YM-CODE: Run AI Agent"
+      },
+      {
+        "command": "ym-code.explain",
+        "title": "YM-CODE: Explain Code"
+      },
+      {
+        "command": "ym-code.review",
+        "title": "YM-CODE: Review Code"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorHasSelection",
+          "command": "ym-code.explain",
+          "group": "ym-code@1"
+        },
+        {
+          "when": "editorHasSelection",
+          "command": "ym-code.review",
+          "group": "ym-code@2"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "ym-code.run",
+        "key": "ctrl+shift+y",
+        "mac": "cmd+shift+y"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simple-f/YM-CODE.git"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "coding",
+    "assistant",
+    "claude",
+    "code-review",
+    "code-explanation"
+  ],
+  "author": "YM-CODE Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/simple-f/YM-CODE/issues"
+  },
+  "homepage": "https://github.com/simple-f/YM-CODE#readme"
+}

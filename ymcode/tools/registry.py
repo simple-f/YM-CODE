@@ -81,6 +81,7 @@ class ToolRegistry:
         from .bash_tool import BashTool
         from .git_tools import GitTool, GitStatusTool, GitDiffTool, GitCommitTool
         from .test_runner import RunTestTool
+        from .smart_edit import SmartEditTool, InsertTextTool, DeleteLinesTool
         
         # 注册基础工具
         self.register(BashTool())
@@ -96,6 +97,11 @@ class ToolRegistry:
         
         # 注册测试工具
         self.register(RunTestTool())
+        
+        # 注册智能编辑工具
+        self.register(SmartEditTool())
+        self.register(InsertTextTool())
+        self.register(DeleteLinesTool())
         
         logger.info(f"已注册 {len(self.tools)} 个默认工具")
     

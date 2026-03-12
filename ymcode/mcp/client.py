@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-MCP Client - MCP 协议客户端
+MCP Client - Model Context Protocol 客户端
 
-融合课程：生产级 MCP 协议 + 工具市场接入
+参考：https://github.com/anthropics/mcp
 """
 
 import asyncio
 import json
 import logging
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from pathlib import Path
+
 from ..utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -22,130 +24,149 @@ class MCPTool:
     name: str
     description: str
     input_schema: Dict
-    server_url: str
+    server_name: str = ""
+    
+    def to_dict(self) -> Dict:
+        """转换为字典"""
+        return {
+            "name": self.name,
+            "description": self.description,
+            "inputSchema": self.input_schema
+        }
+
+
+@dataclass
+class MCPServer:
+    """MCP 服务器"""
+    name: str
+    url: str
+    connected: bool = False
+    tools: List[MCPTool] = field(default_factory=list)
+    
+    def to_dict(self) -> Dict:
+        """转换为字典"""
+        return {
+            "name": self.name,
+            "url": self.url,
+            "connected": self.connected,
+            "tools": [t.to_dict() for t in self.tools]
+        }
 
 
 class MCPClient:
     """MCP 客户端"""
     
-    def __init__(self, config: Dict = None):
-        """
-        初始化 MCP 客户端
-        
-        参数:
-            config: 配置字典
-        """
-        self.config = config or {}
-        self.servers: Dict[str, str] = {}  # server_name -> server_url
+    def __init__(self):
+        """初始化 MCP 客户端"""
+        self.servers: Dict[str, MCPServer] = {}
         self.tools: Dict[str, MCPTool] = {}
-        self.session = None
+        self.connected = False
         
-        logger.info("MCP 客户端初始化完成")
+        logger.info("MCP Client 初始化完成")
     
-    async def connect(self, server_name: str, server_url: str):
+    async def connect(self, server_name: str, url: str) -> bool:
         """
         连接到 MCP 服务器
         
         参数:
             server_name: 服务器名称
-            server_url: 服务器 URL
-        """
-        self.servers[server_name] = server_url
-        logger.info(f"连接到 MCP 服务器：{server_name} ({server_url})")
+            url: 服务器 URL
         
-        # 获取服务器工具列表
-        await self._fetch_tools(server_name, server_url)
+        返回:
+            是否成功
+        """
+        logger.info(f"正在连接到 MCP 服务器：{server_name} ({url})")
+        
+        try:
+            # 创建服务器对象
+            server = MCPServer(name=server_name, url=url)
+            
+            # TODO: 实际连接到 MCP 服务器
+            # 目前先模拟连接成功
+            server.connected = True
+            
+            # 获取服务器工具列表
+            await self._fetch_tools(server)
+            
+            # 注册服务器
+            self.servers[server_name] = server
+            
+            # 注册工具
+            for tool in server.tools:
+                tool.server_name = server_name
+                self.tools[tool.name] = tool
+            
+            self.connected = True
+            
+            logger.info(f"成功连接到 MCP 服务器：{server_name}")
+            logger.info(f"发现 {len(server.tools)} 个工具")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"连接到 MCP 服务器失败：{e}")
+            return False
     
-    async def _fetch_tools(self, server_name: str, server_url: str):
+    async def _fetch_tools(self, server: MCPServer) -> None:
         """
         获取服务器工具列表
         
         参数:
-            server_name: 服务器名称
-            server_url: 服务器 URL
+            server: MCP 服务器
         """
-        try:
-            # 模拟获取工具列表（实际应该调用 MCP API）
-            # GET {server_url}/tools
-            logger.info(f"获取服务器工具列表：{server_name}")
-            
-            # 示例工具（实际从服务器获取）
-            example_tools = [
-                {
-                    "name": f"{server_name}_search",
-                    "description": f"Search using {server_name}",
-                    "input_schema": {
+        # TODO: 实际从 MCP 服务器获取工具列表
+        # 目前先模拟一些工具
+        
+        # 示例：如果是本地文件服务器
+        if "filesystem" in server.url:
+            server.tools = [
+                MCPTool(
+                    name="read_file",
+                    description="读取文件内容",
+                    input_schema={
                         "type": "object",
                         "properties": {
-                            "query": {"type": "string"}
+                            "path": {"type": "string", "description": "文件路径"}
+                        },
+                        "required": ["path"]
+                    },
+                    server_name=server.name
+                ),
+                MCPTool(
+                    name="write_file",
+                    description="写入文件内容",
+                    input_schema={
+                        "type": "object",
+                        "properties": {
+                            "path": {"type": "string", "description": "文件路径"},
+                            "content": {"type": "string", "description": "文件内容"}
+                        },
+                        "required": ["path", "content"]
+                    },
+                    server_name=server.name
+                )
+            ]
+        
+        # 示例：如果是数据库服务器
+        elif "database" in server.url:
+            server.tools = [
+                MCPTool(
+                    name="query_database",
+                    description="查询数据库",
+                    input_schema={
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "SQL 查询"}
                         },
                         "required": ["query"]
-                    }
-                }
-            ]
-            
-            for tool_data in example_tools:
-                tool = MCPTool(
-                    name=tool_data["name"],
-                    description=tool_data["description"],
-                    input_schema=tool_data["input_schema"],
-                    server_url=server_url
+                    },
+                    server_name=server.name
                 )
-                self.tools[tool.name] = tool
-            
-            logger.info(f"从 {server_name} 获取到 {len(example_tools)} 个工具")
-            
-        except Exception as e:
-            logger.error(f"获取工具列表失败 {server_name}: {e}")
+            ]
+        
+        logger.info(f"从 {server.name} 获取到 {len(server.tools)} 个工具")
     
-    async def list_tools(self) -> List[MCPTool]:
-        """
-        列出所有可用工具
-        
-        返回:
-            工具列表
-        """
-        return list(self.tools.values())
-    
-    async def call_tool(self, tool_name: str, **kwargs) -> Any:
-        """
-        调用远程工具
-        
-        参数:
-            tool_name: 工具名称
-            **kwargs: 工具参数
-        
-        返回:
-            工具执行结果
-        """
-        if tool_name not in self.tools:
-            raise ValueError(f"未知工具：{tool_name}")
-        
-        tool = self.tools[tool_name]
-        
-        try:
-            logger.info(f"调用远程工具：{tool_name}")
-            
-            # 模拟调用（实际应该发送 HTTP 请求）
-            # POST {tool.server_url}/tools/{tool_name}
-            # Body: kwargs
-            
-            # 模拟响应
-            result = {
-                "success": True,
-                "tool": tool_name,
-                "input": kwargs,
-                "output": f"Mock result from {tool_name}"
-            }
-            
-            logger.info(f"远程工具调用成功：{tool_name}")
-            return result
-            
-        except Exception as e:
-            logger.error(f"远程工具调用失败 {tool_name}: {e}")
-            raise
-    
-    async def disconnect(self, server_name: str = None):
+    async def disconnect(self, server_name: str = None) -> None:
         """
         断开连接
         
@@ -154,83 +175,113 @@ class MCPClient:
         """
         if server_name:
             if server_name in self.servers:
+                server = self.servers[server_name]
+                server.connected = False
+                
+                # 移除工具
+                tools_to_remove = [t for t in self.tools.values() if t.server_name == server_name]
+                for tool in tools_to_remove:
+                    del self.tools[tool.name]
+                
                 del self.servers[server_name]
-                logger.info(f"断开 MCP 服务器：{server_name}")
+                logger.info(f"已断开 MCP 服务器：{server_name}")
         else:
+            # 断开所有连接
             self.servers.clear()
             self.tools.clear()
-            logger.info("断开所有 MCP 服务器")
+            self.connected = False
+            logger.info("已断开所有 MCP 服务器连接")
     
-    def get_stats(self) -> Dict:
+    def get_tools_definition(self) -> List[Dict]:
         """
-        获取统计信息
+        获取工具定义（用于传递给 LLM）
         
         返回:
-            统计字典
+            工具定义列表
+        """
+        tools_def = []
+        for tool in self.tools.values():
+            tools_def.append({
+                "type": "function",
+                "function": {
+                    "name": tool.name,
+                    "description": tool.description,
+                    "parameters": tool.input_schema
+                }
+            })
+        return tools_def
+    
+    async def call_tool(self, tool_name: str, arguments: Dict) -> Any:
+        """
+        调用工具
+        
+        参数:
+            tool_name: 工具名称
+            arguments: 工具参数
+        
+        返回:
+            工具执行结果
+        """
+        if tool_name not in self.tools:
+            raise ValueError(f"未知工具：{tool_name}")
+        
+        tool = self.tools[tool_name]
+        server = self.servers.get(tool.server_name)
+        
+        if not server:
+            raise ValueError(f"服务器不存在：{tool.server_name}")
+        
+        if not server.connected:
+            raise ValueError(f"服务器未连接：{tool.server_name}")
+        
+        logger.info(f"调用工具：{tool_name} (server: {server.name})")
+        logger.debug(f"参数：{arguments}")
+        
+        # TODO: 实际调用 MCP 服务器
+        # 目前先模拟执行结果
+        
+        # 示例：文件读取
+        if tool_name == "read_file":
+            path = arguments.get("path")
+            if path and Path(path).exists():
+                content = Path(path).read_text(encoding='utf-8')
+                return {"content": content, "success": True}
+            else:
+                return {"error": f"文件不存在：{path}", "success": False}
+        
+        # 示例：文件写入
+        elif tool_name == "write_file":
+            path = arguments.get("path")
+            content = arguments.get("content")
+            if path and content:
+                Path(path).parent.mkdir(parents=True, exist_ok=True)
+                Path(path).write_text(content, encoding='utf-8')
+                return {"success": True, "message": f"文件已写入：{path}"}
+            else:
+                return {"error": "参数错误", "success": False}
+        
+        # 示例：数据库查询
+        elif tool_name == "query_database":
+            query = arguments.get("query")
+            # 模拟查询结果
+            return {
+                "success": True,
+                "data": [{"id": 1, "name": "示例数据"}]
+            }
+        
+        else:
+            return {"error": f"工具未实现：{tool_name}", "success": False}
+    
+    def get_status(self) -> Dict:
+        """
+        获取状态信息
+        
+        返回:
+            状态字典
         """
         return {
-            "connected_servers": len(self.servers),
-            "available_tools": len(self.tools),
-            "servers": list(self.servers.keys())
+            "connected": self.connected,
+            "servers": len(self.servers),
+            "tools": len(self.tools),
+            "servers_list": [s.to_dict() for s in self.servers.values()]
         }
-
-
-class MCPToolRegistry:
-    """MCP 工具注册表"""
-    
-    def __init__(self, mcp_client: MCPClient):
-        """
-        初始化 MCP 工具注册表
-        
-        参数:
-            mcp_client: MCP 客户端
-        """
-        self.mcp_client = mcp_client
-        self.local_tools = {}
-    
-    def register_local_tool(self, tool):
-        """
-        注册本地工具
-        
-        参数:
-            tool: 本地工具实例
-        """
-        self.local_tools[tool.name] = tool
-        logger.info(f"注册本地工具：{tool.name}")
-    
-    async def sync_remote_tools(self):
-        """同步远程工具"""
-        remote_tools = await self.mcp_client.list_tools()
-        
-        for tool in remote_tools:
-            # 创建远程工具包装器
-            wrapper = self._create_remote_tool_wrapper(tool)
-            self.local_tools[tool.name] = wrapper
-        
-        logger.info(f"同步 {len(remote_tools)} 个远程工具")
-    
-    def _create_remote_tool_wrapper(self, mcp_tool: MCPTool):
-        """
-        创建远程工具包装器
-        
-        参数:
-            mcp_tool: MCP 工具
-        
-        返回:
-            工具包装器
-        """
-        class RemoteToolWrapper:
-            def __init__(self, mcp_tool, mcp_client):
-                self.name = mcp_tool.name
-                self.description = mcp_tool.description
-                self.input_schema = mcp_tool.input_schema
-                self.mcp_client = mcp_client
-            
-            async def execute(self, **kwargs):
-                return await self.mcp_client.call_tool(self.name, **kwargs)
-        
-        return RemoteToolWrapper(mcp_tool, self.mcp_client)
-    
-    def get_all_tools(self) -> Dict:
-        """获取所有工具"""
-        return self.local_tools.copy()

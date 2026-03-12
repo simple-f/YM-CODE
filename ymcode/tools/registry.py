@@ -117,6 +117,21 @@ class ToolRegistry:
         
         logger.info(f"已注册 {len(self.tools)} 个默认工具")
     
+    def get_tools_definition(self) -> List[Dict]:
+        """获取工具定义（用于传递给 LLM）"""
+        tools_def = []
+        for tool in self.tools.values():
+            if hasattr(tool, 'get_input_schema'):
+                tools_def.append({
+                    "type": "function",
+                    "function": {
+                        "name": tool.name,
+                        "description": tool.description,
+                        "parameters": tool.get_input_schema()
+                    }
+                })
+        return tools_def
+    
     def __len__(self) -> int:
         """返回工具数量"""
         return len(self.tools)

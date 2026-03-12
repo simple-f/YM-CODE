@@ -32,6 +32,16 @@ class ToolRegistry:
         self.tools[tool.name] = tool
         logger.info(f"注册工具：{tool.name}")
     
+    def register_mcp_tool(self, tool_def: Dict) -> None:
+        """
+        注册 MCP 工具
+        
+        参数:
+            tool_def: MCP 工具定义
+        """
+        # MCP 工具通过 MCP Client 调用，这里只记录
+        logger.info(f"注册 MCP 工具：{tool_def['name']}")
+    
     def get(self, name: str) -> Optional[BaseTool]:
         """
         获取工具

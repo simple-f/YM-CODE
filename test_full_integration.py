@@ -30,8 +30,8 @@ async def test_skills():
     self_improve = SelfImprovementSkill()
     memory = MemorySkill()
     
-    print(f"✅ SelfImprovementSkill: {self_improve.description}")
-    print(f"✅ MemorySkill: {memory.description}")
+    print(f"[PASS] SelfImprovementSkill: {self_improve.description}")
+    print(f"[PASS] MemorySkill: {memory.description}")
     
     # 测试 SelfImprovementSkill
     print("\n[1.2] 测试 SelfImprovementSkill...")
@@ -40,13 +40,13 @@ async def test_skills():
         "skill_name": "conversation",
         "feedback": "回答很详细，继续保持"
     })
-    print(f"✅ 自我提升：{result['success']}")
+    print(f"[PASS] 自我提升：{result['success']}")
     
     result = await self_improve.execute({
         "action": "query",
         "query": "conversation"
     })
-    print(f"✅ 查询知识库：{result['count']} 条结果")
+    print(f"[PASS] 查询知识库：{result['count']} 条结果")
     
     # 测试 MemorySkill
     print("\n[1.3] 测试 MemorySkill...")
@@ -55,21 +55,21 @@ async def test_skills():
         "session_id": "test_session",
         "content": "这是一条测试记忆"
     })
-    print(f"✅ 保存记忆：{result['memory_id']}")
+    print(f"[PASS] 保存记忆：{result['memory_id']}")
     
     result = await memory.execute({
         "action": "load",
         "session_id": "test_session"
     })
-    print(f"✅ 加载记忆：{result['count']} 条")
+    print(f"[PASS] 加载记忆：{result['count']} 条")
     
     result = await memory.execute({
         "action": "search",
         "query": "测试"
     })
-    print(f"✅ 搜索记忆：{result['count']} 条结果")
+    print(f"[PASS] 搜索记忆：{result['count']} 条结果")
     
-    print("\n✅ Skills 系统测试通过")
+    print("\n[PASS] Skills 系统测试通过")
 
 
 async def test_mcp_server():
@@ -91,7 +91,7 @@ async def test_mcp_server():
     })
     
     status = mcp_server.get_status()
-    print(f"✅ MCP Server 状态：{status['skills_count']} 个技能，{status['tools_count']} 个工具")
+    print(f"[PASS] MCP Server 状态：{status['skills_count']} 个技能，{status['tools_count']} 个工具")
     
     # 获取工具定义
     print("\n[2.3] 获取工具定义...")
@@ -109,7 +109,7 @@ async def test_mcp_server():
         "skill_name": "mcp_integration",
         "feedback": "MCP 集成很完善"
     })
-    print(f"✅ 调用自我提升：{result['success']}")
+    print(f"[PASS] 调用自我提升：{result['success']}")
     
     # 调用记忆保存
     result = await mcp_server.call_tool("skill_memory", {
@@ -117,9 +117,9 @@ async def test_mcp_server():
         "session_id": "mcp_test",
         "content": "MCP 测试记忆"
     })
-    print(f"✅ 调用记忆保存：{result['memory_id']}")
+    print(f"[PASS] 调用记忆保存：{result['memory_id']}")
     
-    print("\n✅ MCP Skills Server 测试通过")
+    print("\n[PASS] MCP Skills Server 测试通过")
 
 
 async def test_agent_integration():
@@ -140,20 +140,20 @@ async def test_agent_integration():
     agent.register_skill("self_improvement", SelfImprovementSkill())
     agent.register_skill("memory", MemorySkill())
     
-    print(f"✅ 注册 {len(agent.skills)} 个技能")
+    print(f"[PASS] 注册 {len(agent.skills)} 个技能")
     
     # 初始化 Skills 系统
     print("\n[3.3] 初始化 Skills 系统...")
     agent.initialize_skills()
     
-    print(f"✅ Skills 系统初始化完成")
+    print(f"[PASS] Skills 系统初始化完成")
     
     # 测试 Agent 运行（Mock 模式）
     print("\n[3.4] 测试 Agent 运行...")
     result = await agent.run("你好，请介绍一下自己")
-    print(f"✅ Agent 响应：{result[:100]}...")
+    print(f"[PASS] Agent 响应：{result[:100]}...")
     
-    print("\n✅ Agent 集成测试通过")
+    print("\n[PASS] Agent 集成测试通过")
 
 
 async def test_industry_standards():
@@ -185,7 +185,7 @@ async def test_industry_standards():
         assert schema.get("type") == "object", "Schema 类型错误"
         assert "properties" in schema, "缺少 properties"
     
-    print("✅ MCP 协议符合性测试通过")
+    print("[PASS] MCP 协议符合性测试通过")
     
     # 2. Skills 设计规范
     print("\n[4.2] Skills 设计规范...")
@@ -202,7 +202,7 @@ async def test_industry_standards():
     assert len(skill.description) > 10, "描述太短"
     assert len(skill.description) < 200, "描述太长"
     
-    print("✅ Skills 设计规范测试通过")
+    print("[PASS] Skills 设计规范测试通过")
     
     # 3. 错误处理
     print("\n[4.3] 错误处理...")
@@ -211,7 +211,7 @@ async def test_industry_standards():
         await mcp_server.call_tool("skill_nonexistent", {})
         assert False, "应该抛出异常"
     except Exception as e:
-        print(f"✅ 错误处理正确：{type(e).__name__}")
+        print(f"[PASS] 错误处理正确：{type(e).__name__}")
     
     # 4. 异步支持
     print("\n[4.4] 异步支持...")
@@ -219,7 +219,7 @@ async def test_industry_standards():
     import inspect
     assert inspect.iscoroutinefunction(skill.execute), "execute 必须是异步函数"
     
-    print("✅ 异步支持测试通过")
+    print("[PASS] 异步支持测试通过")
     
     # 5. 持久化
     print("\n[4.5] 持久化...")
@@ -228,9 +228,9 @@ async def test_industry_standards():
     assert hasattr(memory, "_save_long_term_memory"), "缺少持久化方法"
     assert hasattr(memory, "_load_long_term_memory"), "缺少加载方法"
     
-    print("✅ 持久化测试通过")
+    print("[PASS] 持久化测试通过")
     
-    print("\n✅ 行业标准符合性测试全部通过")
+    print("\n[PASS] 行业标准符合性测试全部通过")
 
 
 async def main():
@@ -254,20 +254,20 @@ async def main():
         await test_industry_standards()
         
         print("\n" + "=" * 60)
-        print("🎉 所有测试通过！")
+        print("所有测试通过！")
         print("=" * 60)
         
         # 生成测试报告
-        print("\n📊 测试报告:")
-        print("  - Skills 系统：✅ 通过")
-        print("  - MCP Server: ✅ 通过")
-        print("  - Agent 集成：✅ 通过")
-        print("  - 行业标准：✅ 通过")
+        print("\n测试报告:")
+        print("  - Skills 系统：[PASS]")
+        print("  - MCP Server: [PASS]")
+        print("  - Agent 集成：[PASS]")
+        print("  - 行业标准：[PASS]")
         print("\n总体评分：100/100")
         
     except Exception as e:
         print("\n" + "=" * 60)
-        print("❌ 测试失败！")
+        print("测试失败！")
         print("=" * 60)
         print(f"错误：{e}")
         import traceback

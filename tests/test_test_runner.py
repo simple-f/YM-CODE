@@ -7,6 +7,9 @@ Test Runner Tests - 测试运行器测试
 import pytest
 from ymcode.tools.test_runner import TestRunner, RunTestTool
 
+# 告诉 pytest 不要收集这个类（它有 __init__ 构造函数）
+__test__ = {"TestRunner": False}
+
 
 class TestTestRunner:
     """测试运行器测试"""

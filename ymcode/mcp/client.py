@@ -280,8 +280,93 @@ class MCPClient:
             状态字典
         """
         return {
-            "connected": self.connected,
-            "servers": len(self.servers),
-            "tools": len(self.tools),
-            "servers_list": [s.to_dict() for s in self.servers.values()]
+            "connected_servers": len(self.servers),
+            "available_tools": len(self.tools),
+            "servers": list(self.servers.keys()),
+            "connected": self.connected
         }
+
+
+class MCPToolRegistry:
+    """MCP 工具注册表 - 统一管理本地和远程工具"""
+    
+    def __init__(self, mcp_client: MCPClient):
+        """
+        初始化工具注册表
+        
+        参数:
+            mcp_client: MCP 客户端实例
+        """
+        self.mcp_client = mcp_client
+        self.tools: Dict[str, Any] = {}
+        logger.info("MCPToolRegistry 初始化完成")
+    
+    def register_local_tool(self, tool: Any) -> None:
+        """
+        注册本地工具
+        
+        参数:
+            tool: 工具实例（必须有 name 和 execute 方法）
+        """
+        if hasattr(tool, 'name') and hasattr(tool, 'execute'):
+            self.tools[tool.name] = tool
+            logger.info(f"注册本地工具：{tool.name}")
+        else:
+            logger.error(f"工具无效：缺少 name 或 execute 属性")
+    
+    async def sync_remote_tools(self) -> None:
+        """
+        同步远程 MCP 工具
+        """
+        # 从 MCP Client 同步工具
+        for tool_name, tool in self.mcp_client.tools.items():
+            # 创建工具包装器
+            wrapper = self._create_tool_wrapper(tool)
+            self.tools[tool_name] = wrapper
+            logger.info(f"同步远程工具：{tool_name}")
+    
+    def _create_tool_wrapper(self, mcp_tool: MCPTool) -> Any:
+        """
+        创建 MCP 工具包装器
+        
+        参数:
+            mcp_tool: MCP 工具定义
+        
+        返回:
+            工具包装器实例
+        """
+        class MCPToolWrapper:
+            def __init__(wrapper_self, tool: MCPTool, client: MCPClient):
+                wrapper_self.tool = tool
+                wrapper_self.client = client
+                wrapper_self.name = tool.name
+                wrapper_self.description = tool.description
+            
+            async def execute(wrapper_self, **kwargs) -> Dict:
+                return await wrapper_self.client.call_tool(
+                    wrapper_self.tool.name, 
+                    kwargs
+                )
+        
+        return MCPToolWrapper(mcp_tool, self.mcp_client)
+    
+    def get_all_tools(self) -> Dict[str, Any]:
+        """
+        获取所有工具
+        
+        返回:
+            工具字典
+        """
+        return self.tools
+    
+    def get_tool(self, name: str) -> Optional[Any]:
+        """
+        获取指定工具
+        
+        参数:
+            name: 工具名称
+        
+        返回:
+            工具实例
+        """
+        return self.tools.get(name)

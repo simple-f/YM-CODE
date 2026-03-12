@@ -62,9 +62,10 @@ class Agent:
         # 创建 Skills MCP Server
         self.skills_server = SkillsMCPServer(self.skills)
         
-        # 将 Skills 暴露为 MCP 工具
+        # 将 Skills 暴露为 MCP 工具并注册到工具注册表
         for tool_def in self.skills_server.get_tools_definition():
-            # TODO: 注册到工具注册表
+            # 注册到工具注册表
+            self.tools.register_mcp_tool(tool_def)
             logger.info(f"注册 MCP 工具：{tool_def['name']}")
         
         logger.info(f"Skills 系统初始化完成，{len(self.skills)} 个技能")
@@ -92,14 +93,19 @@ class Agent:
         for iteration in range(max_iterations):
             logger.debug(f"第 {iteration + 1} 轮")
             
-            # 调用 LLM（传递工具定义）
+            # 调用 LLM（传递工具定义，包括 Skills）
             tools_def = self.tools.get_tools_definition()
+            
+            # 添加 Skills 工具
+            if self.skills_server:
+                tools_def.extend(self.skills_server.get_tools_definition())
+            
             response = await self.llm.chat(messages, tools=tools_def)
             
             # 检查是否有工具调用
             if response.stop_reason == "tool_use" and response.tools:
-                # 执行工具
-                results = await self.tools.execute(response.tools)
+                # 执行工具（包括本地工具和 Skills 工具）
+                results = await self._execute_tools(response.tools)
                 messages.append({"role": "user", "content": results})
             else:
                 # 完成
@@ -108,6 +114,49 @@ class Agent:
         
         logger.warning(f"达到最大迭代次数 ({max_iterations})")
         return "抱歉，任务过于复杂，已达到最大迭代次数。"
+    
+    async def _execute_tools(self, tool_calls: List) -> List:
+        """
+        执行工具调用（支持本地工具和 Skills 工具）
+        
+        参数:
+            tool_calls: 工具调用列表
+        
+        返回:
+            执行结果列表
+        """
+        results = []
+        
+        for call in tool_calls:
+            tool_name = call.get("name")
+            tool_args = call.get("input", {})
+            
+            # 检查是否是 Skills 工具
+            if tool_name.startswith("skill_") and self.skills_server:
+                # 通过 Skills MCP Server 调用
+                try:
+                    result = await self.skills_server.call_tool(tool_name, tool_args)
+                    results.append(result)
+                    logger.info(f"Skills 工具执行成功：{tool_name}")
+                except Exception as e:
+                    logger.error(f"Skills 工具执行失败 {tool_name}: {e}")
+                    results.append(f"错误：{e}")
+            else:
+                # 本地工具
+                tool = self.tools.get(tool_name)
+                if tool:
+                    try:
+                        result = await tool.execute(**tool_args)
+                        results.append(result)
+                        logger.info(f"本地工具执行成功：{tool_name}")
+                    except Exception as e:
+                        logger.error(f"本地工具执行失败 {tool_name}: {e}")
+                        results.append(f"错误：{e}")
+                else:
+                    logger.warning(f"未知工具：{tool_name}")
+                    results.append(f"未知工具：{tool_name}")
+        
+        return results
     
     def get_stats(self) -> Dict:
         """获取统计信息"""

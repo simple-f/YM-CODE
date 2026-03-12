@@ -83,6 +83,7 @@ class ToolRegistry:
         from .test_runner import RunTestTool
         from .smart_edit import SmartEditTool, InsertTextTool, DeleteLinesTool
         from .edit_history import UndoTool, RedoTool, HistoryTool
+        from .regex_edit import RegexReplaceTool, RegexSearchTool, RegexValidateTool
         
         # 注册基础工具
         self.register(BashTool())
@@ -108,6 +109,11 @@ class ToolRegistry:
         self.register(UndoTool())
         self.register(RedoTool())
         self.register(HistoryTool())
+        
+        # 注册正则表达式工具
+        self.register(RegexReplaceTool())
+        self.register(RegexSearchTool())
+        self.register(RegexValidateTool())
         
         logger.info(f"已注册 {len(self.tools)} 个默认工具")
     

@@ -66,7 +66,7 @@ class Agent:
             # 检查是否完成
             if response.stop_reason != "tool_use":
                 logger.info(f"完成，迭代 {iteration + 1} 轮")
-                return response.text
+                return response.content
             
             # 执行工具
             results = await self.tools.execute(response.tools)

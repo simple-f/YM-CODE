@@ -27,10 +27,10 @@
 
 ```bash
 # 进入项目目录
-cd C:\Users\Administrator\.openclaw\workspace-ai2\shared\YM-CODE
+cd /path/to/YM-CODE
 
 # 添加远程仓库（替换为你的仓库地址）
-git remote add origin https://github.com/simple-f/YM-CODE.git
+git remote add origin https://github.com/your-username/YM-CODE.git
 
 # 推送到 GitHub
 git push -u origin master

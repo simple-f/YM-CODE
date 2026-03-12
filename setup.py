@@ -12,10 +12,16 @@ from pathlib import Path
 
 # 读取 README
 this_directory = Path(__file__).parent
-long_description = (this_directory / "README.md").read_text(encoding="utf-8")
+try:
+    long_description = (this_directory / "README.md").read_text(encoding="utf-8")
+except UnicodeDecodeError:
+    long_description = (this_directory / "README.md").read_text(encoding="gbk")
 
 # 读取 requirements
-requirements = (this_directory / "requirements.txt").read_text().splitlines()
+try:
+    requirements = (this_directory / "requirements.txt").read_text(encoding="utf-8").splitlines()
+except UnicodeDecodeError:
+    requirements = (this_directory / "requirements.txt").read_text(encoding="gbk").splitlines()
 requirements = [r.strip() for r in requirements if r.strip() and not r.startswith("#")]
 
 setup(

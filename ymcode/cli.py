@@ -177,15 +177,20 @@ class YMCodeCLI:
         console.print("[yellow]感谢使用 YM-CODE！[/yellow]")
 
 
-async def main():
-    """主函数"""
+def main():
+    """主函数（入口）"""
+    try:
+        asyncio.run(_async_main())
+    except KeyboardInterrupt:
+        console.print("\n[yellow]再见！[/yellow]")
+        sys.exit(0)
+
+
+async def _async_main():
+    """异步主函数"""
     cli = YMCodeCLI()
     await cli.run()
 
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        console.print("\n[yellow]再见！[/yellow]")
-        sys.exit(0)
+    main()

@@ -1,0 +1,2 @@
+[console_scripts]
+ym-code = ymcode.cli:main

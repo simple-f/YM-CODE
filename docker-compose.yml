@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  ym-code:
+    build: .
+    container_name: ym-code
+    volumes:
+      # 挂载工作目录
+      - ./workspace:/workspace
+      # 持久化数据
+      - ymcode-data:/root/.ymcode
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
+    stdin_open: true
+    tty: true
+    working_dir: /workspace
+
+volumes:
+  ymcode-data:

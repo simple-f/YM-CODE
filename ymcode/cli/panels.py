@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-CLI Panels - 面板组件
+CLI Panels - 面板组件（跨平台兼容）
 """
+
+import sys
+import platform
 
 from rich.console import Console
 from rich.panel import Panel
@@ -15,6 +18,21 @@ from rich.style import Style
 from ..utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+# 跨平台 emoji 处理
+IS_WINDOWS = sys.platform == 'win32'
+
+# Windows 上用文字替代 emoji
+EMOJI = {
+    'welcome': '🤖' if not IS_WINDOWS else '[BOT]',
+    'status': '📊' if not IS_WINDOWS else '[STATUS]',
+    'progress': '📈' if not IS_WINDOWS else '[PROGRESS]',
+    'messages': '📝' if not IS_WINDOWS else '[MESSAGES]',
+    'help': '❓' if not IS_WINDOWS else '[HELP]',
+    'ok': '✅' if not IS_WINDOWS else '[OK]',
+    'error': '❌' if not IS_WINDOWS else '[ERR]',
+    'warning': '⚠️' if not IS_WINDOWS else '[WARN]',
+}
 
 
 class WelcomePanel:
@@ -35,7 +53,7 @@ class WelcomePanel:
         
         return Panel(
             content,
-            title="[bold green]🤖 Welcome[/bold green]",
+            title=f"[bold green]{EMOJI['welcome']} Welcome[/bold green]",
             subtitle="[dim]Press Ctrl+C to exit[/dim]",
             border_style="green"
         )
@@ -71,7 +89,7 @@ class StatusPanel:
         
         return Panel(
             table,
-            title="[bold blue]📊 Status[/bold blue]",
+            title=f"[bold blue]{EMOJI['status']} Status[/bold blue]",
             border_style="blue"
         )
     
@@ -171,7 +189,7 @@ class InfoPanel:
         
         return Panel(
             content,
-            title="[bold white]📝 Messages[/bold white]",
+            title=f"[bold white]{EMOJI['messages']} Messages[/bold white]",
             border_style="white"
         )
     
@@ -229,7 +247,7 @@ class HelpPanel:
         
         return Panel(
             table,
-            title="[bold yellow]❓ Help[/bold yellow]",
+            title=f"[bold yellow]{EMOJI['help']} Help[/bold yellow]",
             subtitle="Type a command to execute",
             border_style="yellow"
         )

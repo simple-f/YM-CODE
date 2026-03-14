@@ -16,6 +16,7 @@ from ymcode.tools.registry import ToolRegistry
 class TestAgentIntegration:
     """Agent 集成测试"""
     
+    @pytest.mark.skip(reason="需要配置 LLM，使用 Mock 模式")
     @pytest.mark.asyncio
     async def test_agent_basic_workflow(self, tmp_path):
         """测试 Agent 基本工作流"""

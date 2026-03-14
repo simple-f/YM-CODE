@@ -11,6 +11,7 @@ from .self_improvement import SelfImprovementSkill
 from .database import DatabaseSkill
 from .formatter import FormatterSkill
 from .docker import DockerSkill
+from .skill_marketplace import SkillMarketplace, WebBrowserSkill
 from .openclaw_bridge import OpenClawSkillBridge, OpenClawBridgeSkill, list_openclaw_skills, create_bridge
 
 __all__ = [
@@ -28,6 +29,9 @@ __all__ = [
     "DatabaseSkill",
     "FormatterSkill",
     "DockerSkill",
+    # 市场和浏览
+    "SkillMarketplace",
+    "WebBrowserSkill",
     # OpenClaw 桥接
     "OpenClawSkillBridge",
     "OpenClawBridgeSkill",

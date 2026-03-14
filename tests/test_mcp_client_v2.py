@@ -7,6 +7,7 @@ MCP Client v2 测试脚本
 
 import asyncio
 import sys
+import pytest
 from pathlib import Path
 
 # 添加项目路径
@@ -24,6 +25,9 @@ from ymcode.mcp import (
 from ymcode.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+# 标记所有异步测试
+pytestmark = pytest.mark.asyncio
 
 
 class TestResults:

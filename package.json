@@ -1,0 +1,44 @@
+{
+  "name": "ym-code",
+  "version": "0.1.0",
+  "description": "YM-CODE - AI Programming Assistant",
+  "main": "ymcode/__init__.py",
+  "bin": {
+    "ym-code": "./bin/ym-code"
+  },
+  "scripts": {
+    "start": "python -m ymcode.cli.app",
+    "dev": "python -m ymcode.cli.app --dev",
+    "test": "python -m pytest tests/",
+    "test:coverage": "python -m pytest tests/ --cov=ymcode --cov-report=html",
+    "lint": "python -m flake8 ymcode/",
+    "format": "python -m black ymcode/",
+    "typecheck": "python -m mypy ymcode/",
+    "docs": "python -m mkdocs serve",
+    "build": "python setup.py sdist bdist_wheel",
+    "publish": "twine upload dist/*"
+  },
+  "keywords": [
+    "ai",
+    "programming",
+    "assistant",
+    "code-generation",
+    "claude-code"
+  ],
+  "author": "YM-CODE Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ym-code/ym-code.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ym-code/ym-code/issues"
+  },
+  "homepage": "https://github.com/ym-code/ym-code#readme",
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

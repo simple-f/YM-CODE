@@ -1,0 +1,159 @@
+# YM-CODE 技能配置
+# 定义你的技能组合
+
+# ====================
+# 技能包管理
+# ====================
+
+packages:
+  # 核心技能包（必选）
+  core:
+    enabled: true
+    skills:
+      - search:           # 搜索技能
+          aliases: [find, lookup]
+          config:
+            default_source: web
+            max_results: 10
+      
+      - http:             # HTTP 技能
+          aliases: [request, fetch, api]
+          config:
+            default_timeout: 30
+            follow_redirects: true
+      
+      - shell:            # Shell 技能
+          aliases: [cmd, terminal, command]
+          config:
+            allowed_commands: [ls, cat, grep, git, npm, pip, python, node]
+            default_timeout: 60
+      
+      - code_analysis:    # 代码分析技能
+          aliases: [analyze, review, lint]
+          config:
+            default_language: python
+            auto_detect: true
+  
+  # 开发技能包（推荐）
+  development:
+    enabled: true
+    skills:
+      - database:         # 数据库技能
+          aliases: [db, sql, mysql, postgres]
+          config:
+            default_type: mysql
+            connection_pool: true
+      
+      - formatter:        # 格式化技能
+          aliases: [format, prettify, beautify]
+          config:
+            default_indent: 4
+            auto_format: false
+      
+      - docker:           # Docker 技能
+          aliases: [container, image, compose]
+          config:
+            docker_host: "unix:///var/run/docker.sock"
+  
+  # 记忆技能包（推荐）
+  memory:
+    enabled: true
+    skills:
+      - memory:           # 记忆管理
+          aliases: [remember, recall]
+          config:
+            auto_save: true
+            compression: true
+      
+      - self_improvement: # 自我改进
+          aliases: [learn, improve, evolve]
+          config:
+            auto_learn: true
+            feedback_loop: true
+
+# ====================
+# 自定义技能
+# ====================
+
+custom:
+  # 示例：添加自定义技能
+  # my-skill:
+  #   path: "~/.ym-code/skills/my-skill"
+  #   enabled: true
+  #   config:
+  #     custom_setting: value
+
+# ====================
+# 技能组合（Workflow）
+# ====================
+
+workflows:
+  # 代码审查工作流
+  code-review:
+    description: "自动代码审查流程"
+    steps:
+      - skill: code_analysis
+        action: analyze
+      - skill: shell
+        action: execute
+        command: "git diff"
+      - skill: memory
+        action: save
+        key: "last_review"
+  
+  # 新项目初始化工作流
+  new-project:
+    description: "新项目初始化流程"
+    steps:
+      - skill: shell
+        action: execute
+        command: "mkdir -p project && cd project"
+      - skill: shell
+        action: execute
+        command: "git init"
+      - skill: memory
+        action: save
+        key: "project_root"
+        value: "${PWD}"
+
+# ====================
+# 技能优先级
+# ====================
+
+priority:
+  # 高优先级技能（优先加载）
+  high:
+    - search
+    - shell
+  
+  # 正常优先级
+  normal:
+    - http
+    - code_analysis
+    - database
+    - formatter
+    - docker
+  
+  # 低优先级（按需加载）
+  low:
+    - memory
+    - self_improvement
+
+# ====================
+# 技能别名
+# ====================
+
+aliases:
+  # 全局别名映射
+  "help": "search"
+  "fix": "code_analysis"
+  "run": "shell"
+  "save": "memory"
+  "learn": "self_improvement"
+
+# ---
+# 提示：
+# 1. 修改配置后运行 `ym-code skills reload` 重载
+# 2. 使用 `ym-code skills list` 查看已加载技能
+# 3. 使用 `ym-code workflows run <name>` 运行工作流
+# ---

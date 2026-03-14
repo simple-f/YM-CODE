@@ -1,0 +1,42 @@
+# YM-CODE 项目配置文件
+# 放在项目根目录，覆盖全局配置
+
+# 项目特定配置
+project:
+  name: "ym-code"
+  type: "python"
+  language: "python"
+  
+# 启用的技能（项目级别）
+skills:
+  enabled:
+    - code_analysis
+    - shell
+    - formatter
+
+# 项目上下文
+context:
+  # 自动索引项目文件
+  auto_index: true
+  
+  # 忽略的文件/目录
+  ignore:
+    - node_modules/
+    - __pycache__/
+    - .git/
+    - dist/
+    - build/
+    - "*.pyc"
+    - "*.pyo"
+
+# 项目特定命令
+commands:
+  test: "python -m pytest tests/"
+  lint: "python -m flake8 ymcode/"
+  format: "python -m black ymcode/"
+  build: "python setup.py sdist bdist_wheel"
+
+# 环境变量（项目级别）
+env:
+  YM_CODE_PROJECT: "true"
+  YM_CODE_DEBUG: "false"

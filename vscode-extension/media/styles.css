@@ -1,0 +1,232 @@
+/* YM-CODE 样式 */
+
+:root {
+    --bg-color: var(--vscode-editor-background);
+    --text-color: var(--vscode-editor-foreground);
+    --border-color: var(--vscode-widget-border);
+    --button-bg: var(--vscode-button-background);
+    --button-fg: var(--vscode-button-foreground);
+    --button-hover: var(--vscode-button-hoverBackground);
+    --input-bg: var(--vscode-input-background);
+    --input-border: var(--vscode-input-border);
+    --user-msg-bg: var(--vscode-chat-requestBackground);
+    --assistant-msg-bg: var(--vscode-editor-background);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+    color: var(--vscode-editor-foreground);
+    background-color: var(--vscode-editor-background);
+    line-height: 1.6;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 16px;
+}
+
+.header {
+    text-align: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 16px;
+}
+
+.header h1 {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: var(--vscode-descriptionForeground);
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    padding: 8px;
+    background: var(--input-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.message {
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.user {
+    background: var(--user-msg-bg);
+    border-left: 3px solid var(--button-bg);
+}
+
+.message.assistant {
+    background: var(--assistant-msg-bg);
+    border-left: 3px solid var(--vscode-editor-foreground);
+}
+
+.message-content {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.welcome-message {
+    padding: 20px;
+    text-align: center;
+    color: var(--vscode-descriptionForeground);
+}
+
+.welcome-message ul {
+    text-align: left;
+    display: inline-block;
+    margin: 16px 0;
+}
+
+.welcome-message li {
+    margin: 8px 0;
+}
+
+.input-area {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+textarea {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-family: var(--vscode-font-family);
+    font-size: var(--vscode-font-size);
+    resize: none;
+}
+
+textarea:focus {
+    outline: 1px solid var(--button-bg);
+}
+
+.send-button {
+    padding: 12px 24px;
+    background: var(--button-bg);
+    color: var(--button-fg);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.send-button:hover {
+    background: var(--button-hover);
+}
+
+.send-button:active {
+    transform: scale(0.98);
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    font-size: 12px;
+    color: var(--vscode-descriptionForeground);
+}
+
+.clear-button {
+    padding: 6px 12px;
+    background: transparent;
+    color: var(--vscode-descriptionForeground);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.clear-button:hover {
+    background: var(--user-msg-bg);
+}
+
+/* 代码块样式 */
+pre {
+    background: var(--vscode-textCodeBlock-background);
+    padding: 12px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+
+code {
+    font-family: var(--vscode-editor-font-family);
+    font-size: var(--vscode-editor-font-size);
+}
+
+/* 加载动画 */
+.loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+}
+
+.loading::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--button-bg);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--input-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--vscode-scrollbarSlider-hoverBackground);
+}

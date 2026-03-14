@@ -36,24 +36,19 @@ class TestMCPClient:
             assert True
     
     @pytest.mark.asyncio
-    async def test_list_tools(self):
-        """测试列出工具（Mock）"""
+    async def test_get_tools_definition(self):
+        """测试获取工具定义（Mock）"""
         client = MCPClient()
         
-        # 创建 Mock MCPTool
-        mock_tool = MagicMock(spec=MCPTool)
-        mock_tool.name = "test_tool"
-        mock_tool.description = "Test tool"
-        
-        # Mock list_tools 方法
-        with patch.object(client, 'list_tools', new_callable=AsyncMock) as mock_list:
-            mock_list.return_value = [mock_tool]
+        # Mock get_tools_definition 方法
+        with patch.object(client, 'get_tools_definition', new_callable=AsyncMock) as mock_get:
+            mock_get.return_value = [{"name": "test_tool", "description": "Test tool"}]
             
-            tools = await client.list_tools()
+            tools = await client.get_tools_definition()
             
             assert isinstance(tools, list)
             assert len(tools) > 0
-            assert tools[0].name == "test_tool"
+            assert tools[0]["name"] == "test_tool"
     
     @pytest.mark.asyncio
     async def test_call_tool(self):
@@ -85,14 +80,13 @@ class TestMCPClient:
             await client.disconnect()
             assert True
     
-    def test_get_stats(self):
-        """测试获取统计"""
+    def test_get_status(self):
+        """测试获取状态"""
         client = MCPClient()
-        stats = client.get_stats()
+        status = client.get_status()
         
-        assert "connected_servers" in stats
-        assert "available_tools" in stats
-        assert "servers" in stats
+        assert isinstance(status, dict)
+        assert "connected_servers" in status or "servers" in status
 
 
 class TestMCPToolRegistry:

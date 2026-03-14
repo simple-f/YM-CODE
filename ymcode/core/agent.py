@@ -34,7 +34,9 @@ class Agent:
         self.config = config or {}
         self.llm = LLMClient(self.config)
         self.tools = ToolRegistry()
-        self.memory = SessionManager(self.config)
+        # 修复：SessionManager 需要 storage_path 字符串，不是 config dict
+        storage_path = self.config.get('storage_path', None)
+        self.memory = SessionManager(storage_path)
         self.state = StateManager()
         
         # Skills 系统
@@ -83,8 +85,13 @@ class Agent:
         """
         logger.info(f"开始处理：{user_input[:50]}...")
         
-        # 加载会话
-        messages = self.memory.get_session(session_id)
+        # 加载会话（不存在则创建）
+        session = self.memory.get_session(session_id)
+        if not session:
+            session = self.memory.create_session()
+            self.memory.current_session_id = session_id
+        
+        messages = session.messages
         messages.append({"role": "user", "content": user_input})
         
         # 循环

@@ -24,7 +24,7 @@ from ymcode.mcp import get_registry as get_mcp_registry
 from ymcode.skills import get_registry as get_skills_registry
 
 
-class TestResults:
+class ResultsTracker:
     """测试结果追踪（兼容旧测试）"""
     
     def __init__(self):
@@ -45,18 +45,57 @@ class TestResults:
         """打印总结"""
         total = self.passed + self.failed
         rate = (self.passed / total * 100) if total > 0 else 0
-        return {
-            "total": total,
-            "passed": self.passed,
-            "failed": self.failed,
-            "rate": rate
-        }
+        # Use format() to avoid f-string % issues
+        print("\n📊 测试结果：{}/{} 通过 ({:.1f}%)".format(self.passed, total, rate))
+        
+        if self.failed > 0:
+            print("\n❌ 失败的测试:")
+            for d in self.details:
+                if not d["passed"]:
+                    print("  - {}: {}".format(d['name'], d['details']))
+        else:
+            print("\n🎉 全部通过！")
+        return self.summary()
 
 
 @pytest.fixture
 def results():
     """提供测试结果追踪器"""
-    return TestResults()
+    return ResultsTracker()
+
+
+@pytest.fixture
+def all_skills():
+    """提供所有技能实例"""
+    from ymcode.skills import get_all_skills
+    return get_all_skills()
+
+
+@pytest.fixture
+def mcp_skills_server(all_skills):
+    """提供 MCP Skills Server 实例"""
+    from ymcode.mcp.skills_server import SkillsMCPServer
+    server = SkillsMCPServer(all_skills)
+    return server
+
+
+@pytest.fixture
+def mock_docker_available():
+    """Mock Docker 可用性（如果未安装）"""
+    import shutil
+    from unittest.mock import patch, MagicMock
+    
+    if not shutil.which('docker'):
+        # Docker 未安装，使用 Mock
+        with patch('ymcode.skills.docker_skill.DockerClient') as mock:
+            mock_client = MagicMock()
+            mock_client.containers.list.return_value = []
+            mock_client.images.list.return_value = []
+            mock.return_value = mock_client
+            yield mock
+    else:
+        # Docker 已安装，不使用 Mock
+        yield None
 
 
 @pytest.fixture
@@ -141,40 +180,6 @@ def mcp_registry():
 def skills_registry():
     """提供 Skills Registry 实例"""
     return get_skills_registry()
-
-
-@pytest.fixture
-def all_skills():
-    """提供所有技能实例"""
-    from ymcode.skills import get_all_skills
-    return get_all_skills()
-
-
-@pytest.fixture
-def mcp_skills_server(all_skills):
-    """提供 MCP Skills Server 实例"""
-    from ymcode.mcp.skills_server import SkillsMCPServer
-    server = SkillsMCPServer(all_skills)
-    return server
-
-
-@pytest.fixture
-def mock_docker_available():
-    """Mock Docker 可用性（如果未安装）"""
-    import shutil
-    from unittest.mock import patch, MagicMock
-    
-    if not shutil.which('docker'):
-        # Docker 未安装，使用 Mock
-        with patch('ymcode.skills.docker_skill.DockerClient') as mock:
-            mock_client = MagicMock()
-            mock_client.containers.list.return_value = []
-            mock_client.images.list.return_value = []
-            mock.return_value = mock_client
-            yield mock
-    else:
-        # Docker 已安装，不使用 Mock
-        yield None
 
 
 @pytest.fixture

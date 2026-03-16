@@ -27,35 +27,30 @@ def test_mcp_server():
     """测试 MCP 服务器"""
     print("\n[TEST] Starting MCP Skills Server...\n")
     
-    try:
-        # 1. 获取所有技能
-        print("1. Loading all skills...")
-        skills = get_all_skills()
-        print(f"   [OK] Loaded {len(skills)} skills")
-        
-        # 2. 创建 MCP 服务器
-        print("\n2. Creating MCP server...")
-        server = SkillsMCPServer(skills)
-        print(f"   [OK] MCP server started")
-        print(f"   [INFO] Available tools: {len(server.server.tools)}")
-        
-        # 列出所有工具
-        print("\n   Tools list:")
-        for i, tool in enumerate(server.server.tools[:10], 1):
-            desc = tool.description[:50] if tool.description else "No description"
-            print(f"     {i}. {tool.name}: {desc}...")
-        
-        if len(server.server.tools) > 10:
-            print(f"     ... and {len(server.server.tools) - 10} more tools")
-        
-        print("\n[SUCCESS] MCP server test passed!\n")
-        return True
-        
-    except Exception as e:
-        print(f"\n[ERROR] MCP server test failed: {e}\n")
-        import traceback
-        traceback.print_exc()
-        return False
+    # 1. 获取所有技能
+    print("1. Loading all skills...")
+    skills = get_all_skills()
+    assert len(skills) > 0, "应该加载至少一个技能"
+    print(f"   [OK] Loaded {len(skills)} skills")
+    
+    # 2. 创建 MCP 服务器
+    print("\n2. Creating MCP server...")
+    server = SkillsMCPServer(skills)
+    assert server is not None, "MCP 服务器应该成功创建"
+    assert len(server.server.tools) > 0, "应该有至少一个可用工具"
+    print(f"   [OK] MCP server started")
+    print(f"   [INFO] Available tools: {len(server.server.tools)}")
+    
+    # 列出所有工具
+    print("\n   Tools list:")
+    for i, tool in enumerate(server.server.tools[:10], 1):
+        desc = tool.description[:50] if tool.description else "No description"
+        print(f"     {i}. {tool.name}: {desc}...")
+    
+    if len(server.server.tools) > 10:
+        print(f"     ... and {len(server.server.tools) - 10} more tools")
+    
+    print("\n[SUCCESS] MCP server test passed!\n")
 
 
 if __name__ == "__main__":

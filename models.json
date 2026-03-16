@@ -2,25 +2,101 @@
   "models": {
     "qwen3.5-plus": {
       "name": "通义千问 3.5 Plus",
+      "provider": "dashscope",
       "base_url": "https://coding.dashscope.aliyuncs.com/v1",
       "api_key_env": "DASHSCOPE_API_KEY",
       "max_tokens": 8000,
       "description": "通义千问 3.5 Plus 模型（最新，推荐）"
     },
-    "qwen3-plus": {
-      "name": "通义千问 3 Plus",
-      "base_url": "https://coding.dashscope.aliyuncs.com/v1",
-      "api_key_env": "DASHSCOPE_API_KEY",
-      "max_tokens": 8000,
-      "description": "通义千问 3 Plus 模型"
-    },
     "qwen-plus": {
       "name": "通义千问 Plus",
+      "provider": "dashscope",
       "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
       "api_key_env": "DASHSCOPE_API_KEY",
       "max_tokens": 8000,
       "description": "通义千问 Plus 模型（通用）"
+    },
+    "gpt-4": {
+      "name": "GPT-4",
+      "provider": "openai",
+      "base_url": "https://api.openai.com/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "max_tokens": 8000,
+      "description": "OpenAI GPT-4 模型"
+    },
+    "gpt-3.5-turbo": {
+      "name": "GPT-3.5 Turbo",
+      "provider": "openai",
+      "base_url": "https://api.openai.com/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "max_tokens": 4000,
+      "description": "OpenAI GPT-3.5 Turbo 模型（快速，经济）"
+    },
+    "moonshot-v1-8k": {
+      "name": "Moonshot v1 8K",
+      "provider": "moonshot",
+      "base_url": "https://api.moonshot.cn/v1",
+      "api_key_env": "MOONSHOT_API_KEY",
+      "max_tokens": 8000,
+      "description": "月之暗面 Moonshot v1 8K 模型"
+    },
+    "glm-4": {
+      "name": "智谱 GLM-4",
+      "provider": "zhipu",
+      "base_url": "https://open.bigmodel.cn/api/paas/v4",
+      "api_key_env": "ZHIPU_API_KEY",
+      "max_tokens": 8000,
+      "description": "智谱 AI GLM-4 模型"
+    },
+    "deepseek-chat": {
+      "name": "DeepSeek Chat",
+      "provider": "deepseek",
+      "base_url": "https://api.deepseek.com/v1",
+      "api_key_env": "DEEPSEEK_API_KEY",
+      "max_tokens": 8000,
+      "description": "深度求索 DeepSeek Chat 模型"
+    },
+    "baichuan2-turbo": {
+      "name": "百川 2 Turbo",
+      "provider": "baichuan",
+      "base_url": "https://api.baichuan-ai.com/v1",
+      "api_key_env": "BAICHUAN_API_KEY",
+      "max_tokens": 8000,
+      "description": "百川智能 Baichuan2 Turbo 模型"
     }
   },
-  "default": "qwen3.5-plus"
+  "providers": {
+    "dashscope": {
+      "name": "阿里云百炼",
+      "website": "https://dashscope.console.aliyun.com/",
+      "docs": "https://help.aliyun.com/zh/dashscope/"
+    },
+    "openai": {
+      "name": "OpenAI",
+      "website": "https://platform.openai.com/",
+      "docs": "https://platform.openai.com/docs/"
+    },
+    "moonshot": {
+      "name": "月之暗面",
+      "website": "https://platform.moonshot.cn/",
+      "docs": "https://platform.moonshot.cn/docs/"
+    },
+    "zhipu": {
+      "name": "智谱 AI",
+      "website": "https://open.bigmodel.cn/",
+      "docs": "https://open.bigmodel.cn/dev/api"
+    },
+    "deepseek": {
+      "name": "深度求索",
+      "website": "https://www.deepseek.com/",
+      "docs": "https://platform.deepseek.com/api-docs/"
+    },
+    "baichuan": {
+      "name": "百川智能",
+      "website": "https://www.baichuan-ai.com/",
+      "docs": "https://platform.baichuan-ai.com/docs/"
+    }
+  },
+  "default": "qwen3.5-plus",
+  "fallback": "qwen-plus"
 }

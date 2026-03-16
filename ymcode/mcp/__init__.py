@@ -1,22 +1,21 @@
-# MCP module - MCP 协议客户端
-
+﻿# Comment
 from .client import MCPClient, MCPTool, MCPServer
 from .client_v2 import MCPClientV2
 from .server_registry import MCPServerRegistry, MCPServerConfig, get_registry
 from .prompts import MCPPromptTemplates, PromptTemplate, get_templates, render_template
 
 __all__ = [
-    # v1
+    # Comment
     "MCPClient",
     "MCPTool", 
     "MCPServer",
-    # v2
+    # Comment
     "MCPClientV2",
-    # Registry
+    # Comment
     "MCPServerRegistry",
     "MCPServerConfig",
     "get_registry",
-    # Prompts
+    # Comment
     "MCPPromptTemplates",
     "PromptTemplate",
     "get_templates",

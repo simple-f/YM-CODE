@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+﻿#!/usr/bin/env python3
+# Comment
 """
-YM-CODE 团队协作模块
+YM-CODE 鍥㈤槦鍗忎綔妯″潡
 """
 
 from .permissions import (
@@ -19,14 +19,14 @@ from .collaboration import (
 )
 
 __all__ = [
-    # 权限管理
+    # Comment
     "Role",
     "Permission",
     "TeamMember",
     "TeamManager",
     "AccessControl",
     
-    # 协作功能
+    # Comment
     "Comment",
     "Task",
     "TaskManager",

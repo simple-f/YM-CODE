@@ -1,5 +1,4 @@
-# Project module - 项目上下文理解
-
+﻿# Comment
 from .analyzer import ProjectAnalyzer
 from .indexer import CodeIndexer
 from .dependencies import DependencyAnalyzer

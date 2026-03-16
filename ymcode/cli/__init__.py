@@ -1,5 +1,4 @@
-# CLI module - 命令行界面
-
+﻿# Comment
 from .app import YMCodeApp, main
 from .panels import WelcomePanel, StatusPanel, ProgressPanel
 from .banner import show_welcome, get_welcome_banner

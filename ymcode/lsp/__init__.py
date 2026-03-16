@@ -1,5 +1,4 @@
-# LSP module - Language Server Protocol 客户端
-
+﻿# Comment
 from .client import LSPClient
 from .completion import CompletionEngine
 from .languages.python import PythonCompletion

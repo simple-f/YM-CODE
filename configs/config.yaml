@@ -12,9 +12,9 @@ redis:
 
 server:
   host: 0.0.0.0
-  port: 18770
-  debug: false
-  workers: 4
+  port: 18771
+  debug: true
+  workers: 1
 
 worker:
   count: 4

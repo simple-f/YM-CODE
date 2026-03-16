@@ -1,4 +1,4 @@
-# Skills module - 技能系统
+﻿# Comment
 from .base import BaseSkill
 from .registry import SkillRegistry, get_registry
 from .search import SearchSkill
@@ -25,7 +25,7 @@ __all__ = [
     "SkillRegistry",
     "get_registry",
     "get_all_skills",
-    # 核心技能
+    # Comment
     "SearchSkill",
     "HTTPSkill",
     "ShellSkill",
@@ -39,13 +39,13 @@ __all__ = [
     "SelfImprovementSkill",
     "ChatSkill",
     "LLMSkill",
-    # 开发工具
+    # Comment
     "DatabaseSkill",
     "FormatterSkill",
     "DockerSkill",
-    # 市场和浏览
+    # Comment
     "SkillMarketplace",
-    # OpenClaw 桥接
+    # Comment
     "OpenClawSkillBridge",
     "OpenClawBridgeSkill",
     "list_openclaw_skills",
@@ -55,10 +55,10 @@ __all__ = [
 
 def get_all_skills() -> dict:
     """
-    获取所有已注册的技能
+    鑾峰彇鎵€鏈夊凡娉ㄥ唽鐨勬妧鑳?
     
-    返回:
-        技能字典 {skill_name: skill_instance}
+    杩斿洖:
+        鎶€鑳藉瓧鍏?{skill_name: skill_instance}
     """
     from ..utils.logger import get_logger
     logger = get_logger(__name__)
@@ -66,12 +66,12 @@ def get_all_skills() -> dict:
     registry = get_registry()
     skills = {}
     
-    # 实例化所有技能类
+    # Comment
     for name, skill_class in registry.skill_classes.items():
         try:
             skill = skill_class()
             skills[skill.name] = skill
         except Exception as e:
-            logger.warning(f"实例化技能失败 {name}: {e}")
+            logger.warning(f"瀹炰緥鍖栨妧鑳藉け璐?{name}: {e}")
     
     return skills

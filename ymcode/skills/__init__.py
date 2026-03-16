@@ -12,7 +12,7 @@ from .formatter import FormatterSkill
 from .docker import DockerSkill
 from .chat import ChatSkill
 from .llm import LLMSkill
-from .skill_marketplace import SkillMarketplace, WebBrowserSkill
+from .skill_marketplace import SkillMarketplace
 from .openclaw_bridge import OpenClawSkillBridge, OpenClawBridgeSkill, list_openclaw_skills, create_bridge
 
 __all__ = [
@@ -35,7 +35,6 @@ __all__ = [
     "DockerSkill",
     # 市场和浏览
     "SkillMarketplace",
-    "WebBrowserSkill",
     # OpenClaw 桥接
     "OpenClawSkillBridge",
     "OpenClawBridgeSkill",

@@ -20,6 +20,8 @@ from pydantic import BaseModel
 # 导入 YM-CODE 模块
 from ..utils.logger import get_logger
 from ..skills import get_registry as get_skills_registry
+from ..skills.skill_marketplace import get_skill_marketplace
+from ..workspace import get_workspace_manager, create_workspace, add_agent_to_current_workspace
 from ..skills.llm import LLMSkill
 from ..storage import get_store, init_store
 
@@ -485,3 +487,13 @@ if __name__ == "__main__":
         port=PORT,
         reload=DEBUG
     )
+
+@app.get("/agent-config.html")
+async def agent_config():
+    """Agent 配置页面"""
+    return FileResponse(Path(__file__).parent.parent / "web" / "agent-config.html")
+
+@app.get("/")
+async def root():
+    """根路径"""
+    return FileResponse(Path(__file__).parent.parent / "web" / "index.html")

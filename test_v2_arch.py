@@ -1,160 +1,165 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-v2.0 架构测试
-
-测试各模块是否正常整合
+v2.0 Architecture Test
+Test all modules integration
 """
 
 import sys
+import os
+
+# Set UTF-8 encoding
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+
 from pathlib import Path
 
-# 添加项目路径
+# Add project path
 sys.path.insert(0, str(Path(__file__).parent))
 
 print("=" * 60)
-print("YM-CODE v2.0 架构测试")
+print("YM-CODE v2.0 Architecture Test")
 print("=" * 60)
 print()
 
-# 测试 1: 导入核心模块
-print("测试 1: 导入核心模块")
+# Test 1: Import core modules
+print("Test 1: Import Core Modules")
 try:
     from backend.main import app
-    print("  ✅ FastAPI 应用")
+    print("  [OK] FastAPI App")
 except Exception as e:
-    print(f"  ❌ FastAPI 应用：{e}")
+    print(f"  [FAIL] FastAPI App: {e}")
 
 try:
     from backend.api.task_api import router as task_router
-    print("  ✅ 任务 API")
+    print("  [OK] Task API")
 except Exception as e:
-    print(f"  ❌ 任务 API: {e}")
+    print(f"  [FAIL] Task API: {e}")
 
 try:
     from backend.api.plugin_api import router as plugin_router
-    print("  ✅ 插件 API")
+    print("  [OK] Plugin API")
 except Exception as e:
-    print(f"  ❌ 插件 API: {e}")
+    print(f"  [FAIL] Plugin API: {e}")
 
 print()
 
-# 测试 2: 导入 LLM 模块
-print("测试 2: 导入 LLM 模块")
+# Test 2: Import LLM modules
+print("Test 2: Import LLM Modules")
 try:
     from backend.core.llm.llm_client import LLMClient
-    print("  ✅ LLM 客户端")
+    print("  [OK] LLM Client")
 except Exception as e:
-    print(f"  ❌ LLM 客户端：{e}")
+    print(f"  [FAIL] LLM Client: {e}")
 
 try:
     from backend.core.llm.api_model import APIModel
-    print("  ✅ API 模型")
+    print("  [OK] API Model")
 except Exception as e:
-    print(f"  ❌ API 模型：{e}")
+    print(f"  [FAIL] API Model: {e}")
 
 print()
 
-# 测试 3: 导入记忆模块
-print("测试 3: 导入记忆模块")
+# Test 3: Import memory modules
+print("Test 3: Import Memory Modules")
 try:
     from backend.services.memory.session import SessionManager
-    print("  ✅ Session 管理")
+    print("  [OK] Session Manager")
 except Exception as e:
-    print(f"  ❌ Session 管理：{e}")
+    print(f"  [FAIL] Session Manager: {e}")
 
 try:
     from backend.services.memory.context import ContextManager
-    print("  ✅ 上下文管理")
+    print("  [OK] Context Manager")
 except Exception as e:
-    print(f"  ❌ 上下文管理：{e}")
+    print(f"  [FAIL] Context Manager: {e}")
 
 print()
 
-# 测试 4: 导入 Agent 模块
-print("测试 4: 导入 Agent 模块")
+# Test 4: Import Agent modules
+print("Test 4: Import Agent Modules")
 try:
     from backend.agents.builder import BuilderAgent
-    print("  ✅ Builder Agent")
+    print("  [OK] Builder Agent")
 except Exception as e:
-    print(f"  ❌ Builder Agent: {e}")
+    print(f"  [FAIL] Builder Agent: {e}")
 
 try:
     from backend.agents.reviewer import ReviewerAgent
-    print("  ✅ Reviewer Agent")
+    print("  [OK] Reviewer Agent")
 except Exception as e:
-    print(f"  ❌ Reviewer Agent: {e}")
+    print(f"  [FAIL] Reviewer Agent: {e}")
 
 try:
     from backend.agents.agent_manager import AgentManager
-    print("  ✅ Agent 管理器")
+    print("  [OK] Agent Manager")
 except Exception as e:
-    print(f"  ❌ Agent 管理器：{e}")
+    print(f"  [FAIL] Agent Manager: {e}")
 
 print()
 
-# 测试 5: 导入技能模块
-print("测试 5: 导入技能模块")
+# Test 5: Import skill modules
+print("Test 5: Import Skill Modules")
 try:
     from backend.plugins.skills.code_analyzer import CodeAnalyzerSkill
-    print("  ✅ 代码分析技能")
+    print("  [OK] Code Analyzer Skill")
 except Exception as e:
-    print(f"  ❌ 代码分析技能：{e}")
+    print(f"  [FAIL] Code Analyzer Skill: {e}")
 
 try:
     from backend.plugins.skills.code_runner import CodeRunnerSkill
-    print("  ✅ 代码运行技能")
+    print("  [OK] Code Runner Skill")
 except Exception as e:
-    print(f"  ❌ 代码运行技能：{e}")
+    print(f"  [FAIL] Code Runner Skill: {e}")
 
 try:
     from backend.plugins.skills.git_integration import GitIntegrationSkill
-    print("  ✅ Git 集成技能")
+    print("  [OK] Git Integration Skill")
 except Exception as e:
-    print(f"  ❌ Git 集成技能：{e}")
+    print(f"  [FAIL] Git Integration Skill: {e}")
 
 try:
     from backend.plugins.skills.multi_language import MultiLanguageSkill
-    print("  ✅ 多语言技能")
+    print("  [OK] Multi Language Skill")
 except Exception as e:
-    print(f"  ❌ 多语言技能：{e}")
+    print(f"  [FAIL] Multi Language Skill: {e}")
 
 try:
     from backend.plugins.skills.batch_project import BatchProjectSkill
-    print("  ✅ 批量处理技能")
+    print("  [OK] Batch Project Skill")
 except Exception as e:
-    print(f"  ❌ 批量处理技能：{e}")
+    print(f"  [FAIL] Batch Project Skill: {e}")
 
 print()
 
-# 测试 6: 导入服务模块
-print("测试 6: 导入服务模块")
+# Test 6: Import service modules
+print("Test 6: Import Service Modules")
 try:
     from backend.services.task_service import TaskService
-    print("  ✅ 任务服务")
+    print("  [OK] Task Service")
 except Exception as e:
-    print(f"  ❌ 任务服务：{e}")
+    print(f"  [FAIL] Task Service: {e}")
 
 try:
     from backend.services.workspace_service import WorkspaceService
-    print("  ✅ 工作区服务")
+    print("  [OK] Workspace Service")
 except Exception as e:
-    print(f"  ❌ 工作区服务：{e}")
+    print(f"  [FAIL] Workspace Service: {e}")
 
 print()
 
-# 测试 7: 导入管理器
-print("测试 7: 导入管理器")
+# Test 7: Import managers
+print("Test 7: Import Managers")
 try:
     from backend.plugins.plugin_manager import PluginManager
-    print("  ✅ 插件管理器")
+    print("  [OK] Plugin Manager")
 except Exception as e:
-    print(f"  ❌ 插件管理器：{e}")
+    print(f"  [FAIL] Plugin Manager: {e}")
 
 print()
 
 print("=" * 60)
-print("测试完成！")
+print("Test Complete!")
 print("=" * 60)
 print()
-print("v2.0 架构完整度：95% ✅")
-print("所有核心模块已整合！")
+print("v2.0 Architecture Integrity: 95%")
+print("All core modules integrated!")

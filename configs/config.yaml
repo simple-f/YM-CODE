@@ -1,0 +1,48 @@
+# YM-CODE 配置文件
+
+database:
+  url: postgresql://localhost/ymcode
+  pool_size: 10
+  echo: false
+
+redis:
+  url: redis://localhost:6379
+  db: 0
+  password: null
+
+server:
+  host: 0.0.0.0
+  port: 18770
+  debug: false
+  workers: 4
+
+worker:
+  count: 4
+  max_tasks: 100
+  queue: redis
+  timeout: 300
+
+plugins:
+  path: ./plugins
+  auto_load: true
+  enabled:
+    - web_search
+    - code_runner
+    - file_manager
+
+agents:
+  enabled:
+    - planner
+    - coder
+    - reviewer
+    - executor
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/ymcode.log
+
+features:
+  task_scheduler: true
+  plugin_marketplace: false
+  web_ui: true

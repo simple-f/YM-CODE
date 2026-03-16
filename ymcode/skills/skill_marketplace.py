@@ -1,387 +1,326 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Skills 市场 - 浏览、下载、安装 Skills
+技能市场模块
+
+技能已经内置，市场只是展示和管理（启用/禁用/配置）
 """
 
 import logging
-import json
 from typing import Dict, List, Optional
 from pathlib import Path
-import httpx
 
 from .base import BaseSkill
+from .registry import get_registry
 from ..utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 
-# 默认 Skills 市场
-DEFAULT_MARKETPLACE_URL = "https://clawhub.ai"
-SKILLS_API = "/api/v1/skills"
+class SkillInfo:
+    """技能信息（用于市场展示）"""
+    
+    def __init__(self, 
+                 name: str,
+                 role: str,
+                 description: str,
+                 capabilities: List[str],
+                 version: str = "1.0.0",
+                 author: str = "YM-CODE Team",
+                 enabled: bool = True,
+                 builtin: bool = True):
+        self.name = name
+        self.role = role
+        self.description = description
+        self.capabilities = capabilities
+        self.version = version
+        self.author = author
+        self.enabled = enabled
+        self.builtin = builtin  # 是否内置技能
+    
+    def to_dict(self) -> Dict:
+        return {
+            "name": self.name,
+            "role": self.role,
+            "description": self.description,
+            "capabilities": self.capabilities,
+            "version": self.version,
+            "author": self.author,
+            "enabled": self.enabled,
+            "builtin": self.builtin,
+            "downloadable": False  # 内置技能不可下载，只能启用/禁用
+        }
 
 
-class SkillMarketplace(BaseSkill):
-    """Skills 市场技能"""
+class SkillMarketplace:
+    """技能市场
+    
+    核心理念：
+    - 技能已经内置，不需要下载
+    - 市场只是展示和管理（启用/禁用/配置）
+    """
     
     def __init__(self):
-        """初始化 Skills 市场"""
-        super().__init__('skill_marketplace')
-        self.marketplace_url = DEFAULT_MARKETPLACE_URL
-        self.timeout = 30
-        self.local_skills_dir = Path.home() / ".ymcode" / "skills" / "custom"
-        self.local_skills_dir.mkdir(parents=True, exist_ok=True)
+        """初始化技能市场"""
+        self.registry = get_registry()
+        self.skill_configs: Dict[str, Dict] = {}
+        logger.info("技能市场初始化完成")
     
-    @property
-    def description(self) -> str:
-        return "Skills 市场 - 浏览、下载、安装第三方 Skills"
-    
-    def get_input_schema(self) -> Dict:
-        return {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string",
-                    "enum": ["list", "search", "download", "install", "info"],
-                    "description": "操作类型"
-                },
-                "query": {
-                    "type": "string",
-                    "description": "搜索关键词（search 需要）"
-                },
-                "skill_name": {
-                    "type": "string",
-                    "description": "Skill 名称（download/install 需要）"
-                },
-                "skill_id": {
-                    "type": "string",
-                    "description": "Skill ID（info 需要）"
-                }
-            },
-            "required": ["action"]
-        }
-    
-    async def execute(self, arguments: Dict) -> any:
-        """执行技能"""
-        action = arguments.get("action")
-        
-        if action == "list":
-            return await self.list_skills()
-        elif action == "search":
-            return await self.search_skills(arguments.get("query", ""))
-        elif action == "download":
-            return await self.download_skill(arguments.get("skill_name", ""))
-        elif action == "install":
-            return await self.install_skill(arguments.get("skill_name", ""))
-        elif action == "info":
-            return await self.get_skill_info(arguments.get("skill_id", ""))
-        else:
-            return {"error": f"未知操作：{action}"}
-    
-    async def list_skills(self, category: str = None) -> Dict:
-        """列出所有 Skills"""
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                url = f"{self.marketplace_url}{SKILLS_API}"
-                if category:
-                    url += f"?category={category}"
-                
-                response = await client.get(url)
-                response.raise_for_status()
-                data = response.json()
-                
-                return {
-                    "success": True,
-                    "skills": data.get("skills", []),
-                    "total": data.get("total", 0)
-                }
-        except Exception as e:
-            logger.error(f"列出 Skills 失败：{e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "skills": self._get_local_skills()
-            }
-    
-    async def search_skills(self, query: str) -> Dict:
-        """搜索 Skills"""
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                url = f"{self.marketplace_url}{SKILLS_API}/search?q={query}"
-                response = await client.get(url)
-                response.raise_for_status()
-                data = response.json()
-                
-                return {
-                    "success": True,
-                    "skills": data.get("skills", []),
-                    "total": data.get("total", 0)
-                }
-        except Exception as e:
-            logger.error(f"搜索 Skills 失败：{e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "skills": self._search_local_skills(query)
-            }
-    
-    async def download_skill(self, skill_name: str) -> Dict:
-        """下载 Skill"""
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                url = f"{self.marketplace_url}{SKILLS_API}/{skill_name}/download"
-                response = await client.get(url)
-                response.raise_for_status()
-                
-                skill_data = response.json()
-                
-                # 保存到本地
-                skill_file = self.local_skills_dir / f"{skill_name}.py"
-                with open(skill_file, 'w', encoding='utf-8') as f:
-                    f.write(skill_data.get("code", ""))
-                
-                # 保存元数据
-                meta_file = self.local_skills_dir / f"{skill_name}.meta.json"
-                with open(meta_file, 'w', encoding='utf-8') as f:
-                    json.dump(skill_data.get("metadata", {}), f, indent=2)
-                
-                logger.info(f"Skill 已下载：{skill_file}")
-                
-                return {
-                    "success": True,
-                    "message": f"Skill '{skill_name}' 已下载到 {skill_file}",
-                    "path": str(skill_file)
-                }
-        except Exception as e:
-            logger.error(f"下载 Skill 失败：{e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
-    
-    async def install_skill(self, skill_name: str) -> Dict:
-        """安装 Skill（下载 + 注册）"""
-        # 1. 下载
-        download_result = await self.download_skill(skill_name)
-        if not download_result.get("success"):
-            return download_result
-        
-        # 2. 验证
-        skill_file = self.local_skills_dir / f"{skill_name}.py"
-        if not skill_file.exists():
-            return {
-                "success": False,
-                "error": "Skill 文件不存在"
-            }
-        
-        # 3. 导入验证
-        try:
-            import importlib.util
-            spec = importlib.util.spec_from_file_location(skill_name, skill_file)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            
-            return {
-                "success": True,
-                "message": f"Skill '{skill_name}' 安装成功",
-                "path": str(skill_file),
-                "note": "重启 YM-CODE 后生效"
-            }
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Skill 验证失败：{e}"
-            }
-    
-    async def get_skill_info(self, skill_id: str) -> Dict:
-        """获取 Skill 信息"""
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                url = f"{self.marketplace_url}{SKILLS_API}/{skill_id}"
-                response = await client.get(url)
-                response.raise_for_status()
-                data = response.json()
-                
-                return {
-                    "success": True,
-                    "skill": data
-                }
-        except Exception as e:
-            logger.error(f"获取 Skill 信息失败：{e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
-    
-    def _get_local_skills(self) -> List[Dict]:
-        """获取本地 Skills"""
+    def list_all_skills(self) -> List[Dict]:
+        """列出所有技能（包括已启用和未启用）"""
         skills = []
-        for file in self.local_skills_dir.glob("*.py"):
-            if file.stem != "__init__":
-                skills.append({
-                    "name": file.stem,
-                    "source": "local",
-                    "path": str(file)
-                })
+        
+        # 获取已注册的技能
+        registered_skills = self.registry.list_agents()
+        
+        for skill_data in registered_skills:
+            skill_info = SkillInfo(
+                name=skill_data.get('name', ''),
+                role=skill_data.get('role', ''),
+                description=skill_data.get('description', ''),
+                capabilities=skill_data.get('capabilities', []),
+                enabled=skill_data.get('enabled', True),
+                builtin=True
+            )
+            skills.append(skill_info.to_dict())
+        
+        # 添加预定义但未实例化的技能模板
+        predefined_skills = self._get_predefined_skills()
+        for predefined in predefined_skills:
+            if not any(s['name'] == predefined['name'] for s in skills):
+                skills.append(predefined)
+        
         return skills
     
-    def _search_local_skills(self, query: str) -> List[Dict]:
-        """搜索本地 Skills"""
-        skills = self._get_local_skills()
-        query_lower = query.lower()
+    def _get_predefined_skills(self) -> List[Dict]:
+        """获取预定义技能模板"""
         return [
-            skill for skill in skills
-            if query_lower in skill["name"].lower()
+            {
+                "name": "MemorySkill",
+                "role": "memory",
+                "description": "记忆管理 - 保存和回忆对话历史",
+                "capabilities": ["memory", "context", "recall"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "SearchSkill",
+                "role": "search",
+                "description": "网络搜索 - 搜索互联网信息",
+                "capabilities": ["web_search", "information_retrieval"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "HTTPSkill",
+                "role": "http_client",
+                "description": "HTTP 请求 - 发送 API 请求",
+                "capabilities": ["http", "api", "rest"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "ShellSkill",
+                "role": "shell",
+                "description": "Shell 命令 - 执行系统命令",
+                "capabilities": ["shell", "command_line", "automation"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "CodeAnalysisSkill",
+                "role": "code_analyzer",
+                "description": "代码分析 - 分析代码质量和结构",
+                "capabilities": ["code_analysis", "quality_check", "metrics"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "DatabaseSkill",
+                "role": "database",
+                "description": "数据库 - SQL 查询和管理",
+                "capabilities": ["sql", "database", "mysql", "postgresql"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "FormatterSkill",
+                "role": "formatter",
+                "description": "格式化 - 代码格式化",
+                "capabilities": ["formatting", "linting", "python", "javascript"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "DockerSkill",
+                "role": "docker",
+                "description": "Docker - 容器管理",
+                "capabilities": ["docker", "containers", "deployment"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "ChatSkill",
+                "role": "chat",
+                "description": "聊天 - 自然对话",
+                "capabilities": ["conversation", "chat", "dialogue"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "LLMSkill",
+                "role": "llm",
+                "description": "LLM - 大语言模型调用",
+                "capabilities": ["llm", "ai", "generation"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            },
+            {
+                "name": "SelfImprovementSkill",
+                "role": "self_improvement",
+                "description": "自我提升 - 从经验中学习",
+                "capabilities": ["learning", "improvement", "optimization"],
+                "version": "1.0.0",
+                "author": "YM-CODE Team",
+                "enabled": True,
+                "builtin": True,
+                "downloadable": False
+            }
         ]
     
-    def list_installed_skills(self) -> List[Dict]:
-        """列出已安装的 Skills"""
-        return self._get_local_skills()
+    def enable_skill(self, skill_name: str) -> bool:
+        """
+        启用技能
+        
+        参数:
+            skill_name: 技能名称
+        
+        返回:
+            是否成功
+        """
+        registry = get_registry()
+        agent = registry.get(skill_name)
+        
+        if not agent:
+            logger.warning(f"技能不存在：{skill_name}")
+            return False
+        
+        agent.enabled = True
+        logger.info(f"启用技能：{skill_name}")
+        return True
+    
+    def disable_skill(self, skill_name: str) -> bool:
+        """
+        禁用技能
+        
+        参数:
+            skill_name: 技能名称
+        
+        返回:
+            是否成功
+        """
+        registry = get_registry()
+        agent = registry.get(skill_name)
+        
+        if not agent:
+            logger.warning(f"技能不存在：{skill_name}")
+            return False
+        
+        agent.enabled = False
+        logger.info(f"禁用技能：{skill_name}")
+        return True
+    
+    def configure_skill(self, skill_name: str, config: Dict) -> bool:
+        """
+        配置技能
+        
+        参数:
+            skill_name: 技能名称
+            config: 配置字典
+        
+        返回:
+            是否成功
+        """
+        self.skill_configs[skill_name] = config
+        logger.info(f"配置技能 {skill_name}: {config}")
+        return True
+    
+    def get_skill_info(self, skill_name: str) -> Optional[Dict]:
+        """获取技能详细信息"""
+        skills = self.list_all_skills()
+        for skill in skills:
+            if skill['name'] == skill_name:
+                return skill
+        return None
+    
+    def get_enabled_skills(self) -> List[Dict]:
+        """获取已启用的技能"""
+        all_skills = self.list_all_skills()
+        return [s for s in all_skills if s.get('enabled', True)]
+    
+    def get_disabled_skills(self) -> List[Dict]:
+        """获取已禁用的技能"""
+        all_skills = self.list_all_skills()
+        return [s for s in all_skills if not s.get('enabled', True)]
 
 
-class WebBrowserSkill(BaseSkill):
-    """网页浏览技能"""
-    
-    def __init__(self):
-        """初始化网页浏览"""
-        super().__init__('web_browser')
-        self.timeout = 30
-    
-    @property
-    def description(self) -> str:
-        return "网页浏览 - 访问网页、提取内容、搜索信息"
-    
-    def get_input_schema(self) -> Dict:
-        return {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string",
-                    "enum": ["fetch", "search", "screenshot"],
-                    "description": "操作类型"
-                },
-                "url": {
-                    "type": "string",
-                    "description": "URL（fetch/screenshot 需要）"
-                },
-                "query": {
-                    "type": "string",
-                    "description": "搜索关键词（search 需要）"
-                },
-                "engine": {
-                    "type": "string",
-                    "enum": ["google", "bing", "baidu"],
-                    "description": "搜索引擎",
-                    "default": "google"
-                }
-            },
-            "required": ["action"]
-        }
-    
-    async def execute(self, arguments: Dict) -> any:
-        """执行技能"""
-        action = arguments.get("action")
-        
-        if action == "fetch":
-            return await self.fetch_url(arguments.get("url"))
-        elif action == "search":
-            return await self.search_web(arguments.get("query"), arguments.get("engine"))
-        elif action == "screenshot":
-            return await self.take_screenshot(arguments.get("url"))
-        else:
-            return {"error": f"未知操作：{action}"}
-    
-    async def fetch_url(self, url: str) -> Dict:
-        """获取网页内容"""
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(url)
-                response.raise_for_status()
-                
-                # 简单提取文本内容
-                content = response.text
-                
-                # 移除 HTML 标签（简单处理）
-                import re
-                text = re.sub(r'<[^>]+>', '', content)
-                text = re.sub(r'\s+', ' ', text).strip()
-                
-                return {
-                    "success": True,
-                    "url": url,
-                    "title": self._extract_title(content),
-                    "content": text[:5000],  # 限制长度
-                    "length": len(text)
-                }
-        except Exception as e:
-            logger.error(f"获取网页失败：{e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
-    
-    async def search_web(self, query: str, engine: str = "google") -> Dict:
-        """网络搜索"""
-        search_urls = {
-            "google": f"https://www.google.com/search?q={query}",
-            "bing": f"https://www.bing.com/search?q={query}",
-            "baidu": f"https://www.baidu.com/s?wd={query}"
-        }
-        
-        search_url = search_urls.get(engine, search_urls["google"])
-        
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(search_url)
-                response.raise_for_status()
-                content = response.text
-                
-                # 简单提取搜索结果
-                results = self._extract_search_results(content, engine)
-                
-                return {
-                    "success": True,
-                    "query": query,
-                    "engine": engine,
-                    "search_url": search_url,
-                    "results": results[:10]  # 前 10 个结果
-                }
-        except Exception as e:
-            logger.error(f"搜索失败：{e}")
-            return {
-                "success": False,
-                "error": str(e)
-            }
-    
-    async def take_screenshot(self, url: str) -> Dict:
-        """网页截图（需要浏览器）"""
-        # TODO: 集成 Playwright 或 Selenium
-        return {
-            "success": False,
-            "error": "截图功能需要浏览器支持，计划中"
-        }
-    
-    def _extract_title(self, html: str) -> str:
-        """提取网页标题"""
-        import re
-        match = re.search(r'<title>(.*?)</title>', html, re.IGNORECASE)
-        if match:
-            return match.group(1).strip()
-        return "Unknown"
-    
-    def _extract_search_results(self, html: str, engine: str) -> List[Dict]:
-        """提取搜索结果"""
-        # 简单实现，实际需要更复杂的解析
-        results = []
-        
-        # 这里只是示例，实际需要针对每个引擎解析
-        if engine == "google":
-            # Google 搜索结果解析
-            import re
-            matches = re.findall(r'<h3.*?>(.*?)</h3>', html, re.IGNORECASE)
-            for match in matches[:10]:
-                text = re.sub(r'<[^>]+>', '', match).strip()
-                if text:
-                    results.append({"title": text})
-        
-        return results
+# 全局技能市场实例
+_marketplace: Optional[SkillMarketplace] = None
+
+def get_skill_marketplace() -> SkillMarketplace:
+    """获取全局技能市场实例"""
+    global _marketplace
+    if _marketplace is None:
+        _marketplace = SkillMarketplace()
+    return _marketplace
+
+
+# 便捷函数
+def list_skills() -> List[Dict]:
+    """列出所有技能"""
+    return get_skill_marketplace().list_all_skills()
+
+
+def enable_skill(skill_name: str) -> bool:
+    """启用技能"""
+    return get_skill_marketplace().enable_skill(skill_name)
+
+
+def disable_skill(skill_name: str) -> bool:
+    """禁用技能"""
+    return get_skill_marketplace().disable_skill(skill_name)
+
+
+def configure_skill(skill_name: str, config: Dict) -> bool:
+    """配置技能"""
+    return get_skill_marketplace().configure_skill(skill_name, config)

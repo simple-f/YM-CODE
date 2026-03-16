@@ -1,420 +1,369 @@
-# YM-CODE 整体架构文档
+# YM-CODE 代码架构规范
 
-> 2026-03-13 版本
-
----
-
-## 📊 架构概览
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      YM-CODE 架构                            │
-├─────────────────────────────────────────────────────────────┤
-│                                                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
-│  │   VSCode     │  │    CLI       │  │    API       │      │
-│  │   Plugin     │  │   Interface  │  │   Server     │      │
-│  │   (待开发)    │  │              │  │              │      │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘      │
-│         │                  │                  │              │
-│         └──────────────────┼──────────────────┘              │
-│                            │                                  │
-│                   ┌────────▼────────┐                        │
-│                   │   Core Agent    │                        │
-│                   │   (核心引擎)     │                        │
-│                   └────────┬────────┘                        │
-│                            │                                  │
-│         ┌──────────────────┼──────────────────┐              │
-│         │                  │                  │              │
-│  ┌──────▼───────┐  ┌──────▼───────┐  ┌──────▼───────┐      │
-│  │    MCP       │  │    LSP       │  │   Skills     │      │
-│  │   Client     │  │  Completion  │  │   System     │      │
-│  │   ✅ 完成     │  │  ✅ 完成      │  │   ✅ 完成     │      │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘      │
-│         │                  │                  │              │
-│         │         ┌────────▼────────┐        │              │
-│         │         │   Project       │        │              │
-│         │         │   Context       │        │              │
-│         │         │   ✅ 完成        │        │              │
-│         │         └─────────────────┘        │              │
-│         │                                     │              │
-│    ┌────▼────┐                         ┌─────▼──────┐       │
-│    │ External│                         │   Built-in │       │
-│    │ Servers │                         │   Skills   │       │
-│    └─────────┘                         └────────────┘       │
-│                                                               │
-└─────────────────────────────────────────────────────────────┘
-```
+**版本：** v0.7.0  
+**时间：** 2026-03-16  
+**目标：** 清晰、整洁、易维护
 
 ---
 
-## 🏗️ 核心模块
+## 🏗️ 架构分层
 
-### 1. MCP Client v2 ✅
-
-**位置：** `ymcode/mcp/`
-
-**功能：**
-- 连接外部 MCP 服务器（文件系统、Git、数据库等）
-- 工具动态发现和注册
-- Prompt 模板注入
-- 资源管理
-
-**核心文件：**
-```
-ymcode/mcp/
-├── client_v2.py           # MCP 客户端（STDIO 传输）
-├── server_registry.py     # 服务器注册表（6 个内置配置）
-├── prompts.py             # Prompt 模板（8 个模板）
-├── integration_example.py # 集成示例
-└── protocol.py            # 协议定义
-```
-
-**测试状态：** 19/19 通过 (100%)
-
----
-
-### 2. LSP 代码补全 ✅
-
-**位置：** `ymcode/lsp/`
-
-**功能：**
-- LSP 协议客户端
-- Python/JavaScript 智能补全
-- 代码片段支持
-- 悬停信息
-
-**核心文件：**
-```
-ymcode/lsp/
-├── client.py              # LSP 客户端
-├── completion.py          # 补全引擎
-└── languages/
-    ├── python.py          # Python 补全
-    └── javascript.py      # JavaScript 补全
-```
-
-**测试状态：** 15/20 通过 (75%)
-
----
-
-### 3. Skills 系统 ✅
-
-**位置：** `ymcode/skills/`
-
-**功能：**
-- 技能注册表
-- 内置技能（搜索、HTTP、Shell、代码分析）
-- MCP 工具定义生成
-- 动态技能加载
-
-**核心文件：**
-```
-ymcode/skills/
-├── base.py                # 技能基类
-├── registry.py            # 技能注册表
-├── search.py              # 搜索技能
-├── http.py                # HTTP 技能
-├── shell.py               # Shell 技能
-├── code_analysis.py       # 代码分析技能
-├── memory.py              # 记忆技能（已有）
-└── self_improvement.py    # 自我改进（已有）
-```
-
-**测试状态：** 22/23 通过 (95.7%)
-
----
-
-### 4. 项目上下文理解 ✅
-
-**位置：** `ymcode/project/`
-
-**功能：**
-- 项目结构分析
-- 依赖关系检测
-- 代码索引
-- 符号查找
-
-**核心文件：**
-```
-ymcode/project/
-├── analyzer.py            # 项目结构分析器
-├── dependencies.py        # 依赖关系分析器
-└── indexer.py             # 代码索引器
-```
-
-**测试状态：** 17/18 通过 (94.4%)
-
----
-
-## 📁 完整目录结构
+### 核心分层
 
 ```
 YM-CODE/
-├── ymcode/
-│   ├── core/              # 核心引擎
-│   │   ├── agent.py       # Agent 主引擎
-│   │   ├── llm.py         # LLM 接口
-│   │   └── config.py      # 配置管理
-│   │
-│   ├── mcp/               # MCP 客户端 ✅
-│   │   ├── client_v2.py
-│   │   ├── server_registry.py
-│   │   ├── prompts.py
-│   │   └── ...
-│   │
-│   ├── lsp/               # LSP 补全 ✅
-│   │   ├── client.py
-│   │   ├── completion.py
-│   │   └── languages/
-│   │
-│   ├── skills/            # Skills 系统 ✅
-│   │   ├── base.py
-│   │   ├── registry.py
-│   │   ├── search.py
-│   │   ├── http.py
-│   │   ├── shell.py
-│   │   ├── code_analysis.py
-│   │   └── ...
-│   │
-│   ├── project/           # 项目上下文 ✅
-│   │   ├── analyzer.py
-│   │   ├── dependencies.py
-│   │   └── indexer.py
-│   │
-│   ├── tools/             # 内置工具
-│   │   ├── file_tools.py  # 文件操作
-│   │   ├── code_tools.py  # 代码工具
-│   │   └── ...
-│   │
-│   ├── memory/            # 记忆系统
-│   │   ├── memory.py      # 长期记忆
-│   │   └── context.py     # 上下文管理
-│   │
-│   └── utils/             # 工具函数
-│       ├── logger.py      # 日志
-│       └── helpers.py     # 辅助函数
+├── 核心层 (core/)        # 核心引擎，不依赖具体功能
+│   ├── LLM 客户端
+│   ├── Agent 引擎
+│   ├── 上下文管理
+│   └── 状态管理
 │
-├── tests/                 # 测试套件
-│   ├── test_mcp_client_v2.py      ✅ 19/19
-│   ├── test_lsp_completion.py     ✅ 15/20
-│   ├── test_skills.py             ✅ 22/23
-│   └── test_project_context.py    ✅ 17/18
+├── 功能层 (skills/)      # 技能系统，实现具体能力
+│   ├── 基础技能
+│   ├── 开发技能
+│   └── 扩展技能
 │
-├── docs/                  # 文档
-│   ├── MCP_CLIENT_V2_SUMMARY.md
-│   ├── LSP_COMPLETION_SUMMARY.md
-│   ├── SKILLS_SYSTEM_SUMMARY.md
-│   ├── PROJECT_CONTEXT_SUMMARY.md
-│   └── ARCHITECTURE.md (本文件)
+├── 工具层 (tools/)       # 工具函数，被技能调用
+│   ├── 文件工具
+│   ├── Git 工具
+│   └── 测试工具
 │
-├── shared/YM-CODE/        # 共享资源
-│   ├── README.md
-│   ├── TASKS.md           # 任务清单
-│   ├── INSTALL.md         # 安装指南
-│   └── QUICKSTART.md      # 快速开始
+├── 接口层 (api/, cli/)   # 对外接口
+│   ├── REST API
+│   ├── Web 界面
+│   └── CLI 工具
 │
-└── a2a-router/            # A2A 路由器
-    ├── index.js           # 主路由器
-    ├── mcp/               # MCP 集成
-    └── ...
+└── 支持层 (utils/)       # 辅助功能
+    ├── 日志
+    ├── 配置
+    └── 工具函数
 ```
 
 ---
 
-## 🔄 数据流
+## 📁 目录结构规范
 
-### 典型工作流程
-
-```
-用户请求
-    │
-    ▼
-┌─────────────────┐
-│  CLI / API      │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Core Agent     │
-│  (协调器)        │
-└────────┬────────┘
-         │
-    ┌────┴────┬────────────┬────────────┐
-    │         │            │            │
-    ▼         ▼            ▼            ▼
-┌──────┐ ┌──────┐    ┌──────────┐ ┌────────┐
-│ MCP  │ │ LSP  │    │  Skills  │ │Project │
-│      │ │      │    │          │ │Context │
-└──┬───┘ └──┬───┘    └────┬─────┘ └───┬────┘
-   │        │             │           │
-   │        │             │           │
-   ▼        ▼             ▼           ▼
-外部服务   代码补全      内置技能    项目分析
-```
-
----
-
-## 📊 模块依赖关系
+### 标准模块结构
 
 ```
-                    Core Agent
-                       │
-        ┌──────────────┼──────────────┐
-        │              │              │
-       MCP            LSP          Skills
-        │              │              │
-        │              │              │
-    External        Languages     Registry
-    Servers                        │
-                            ┌─────┴─────┐
-                            │           │
-                         Search      HTTP
-                            │
-                         Shell
-                            │
-                       CodeAnalysis
-                            │
-                       ProjectContext
+module_name/
+├── __init__.py        # 模块导出
+├── base.py            # 基类定义
+├── core.py            # 核心实现
+├── config.py          # 配置管理
+├── utils.py           # 工具函数
+└── tests/             # 测试文件
+    ├── test_core.py
+    └── test_utils.py
 ```
 
----
+### 文件命名规范
 
-## 📈 开发进度
+**✅ 好的命名：**
+- `llm_client.py` - 清晰表达用途
+- `context_manager.py` - 明确功能
+- `code_analyzer.py` - 一目了然
 
-### 已完成模块（4/5 高优先级）
-
-| 模块 | 状态 | 测试 | 代码量 | 文档 |
-|------|------|------|--------|------|
-| MCP Client v2 | ✅ | 19/19 (100%) | ~1130 行 | ✅ |
-| LSP 代码补全 | ✅ | 15/20 (75%) | ~1400 行 | ✅ |
-| Skills 系统 | ✅ | 22/23 (95.7%) | ~1450 行 | ✅ |
-| 项目上下文 | ✅ | 17/18 (94.4%) | ~1180 行 | ✅ |
-| **总计** | **4/4** | **73/80 (91.3%)** | **~5160 行** | **4 份** |
-
-### 待开发模块
-
-| 模块 | 优先级 | 预计工作量 |
-|------|--------|-----------|
-| VSCode 插件 | 🔴 高 | 3-4 天 |
-| 数据库工具 | 🟡 中 | 1-2 天 |
-| Docker 工具 | 🟡 中 | 1-2 天 |
-| 代码格式化 | 🟡 中 | 1 天 |
+**❌ 避免的命名：**
+- `utils.py` - 太泛，应该具体化
+- `helper.py` - 不够明确
+- `temp.py` - 临时文件不应提交
 
 ---
 
-## 🛠️ 技术栈
+## 🎨 代码风格规范
 
-### 后端（Python）
+### 1. 导入规范
 
-- **Python 3.10+** - 主要语言
-- **asyncio** - 异步编程
-- **aiohttp** - HTTP 客户端
-- **pygls** - LSP 支持（可选）
+```python
+# 顺序：标准库 → 第三方 → 本地模块
+import os
+import sys
+from typing import Dict, List
 
-### 前端（待开发）
+import requests
+from fastapi import FastAPI
 
-- **TypeScript** - VSCode 插件
-- **React** - Web UI（可选）
+from ..utils.logger import get_logger
+from .base import BaseSkill
+```
 
-### 外部集成
+### 2. 类设计
 
-- **MCP Protocol** - 外部工具
-- **LSP Protocol** - 语言服务器
-- **HTTP/REST** - API 集成
+```python
+class BaseSkill:
+    """技能基类（所有技能必须继承）"""
+    
+    def __init__(self, name: str):
+        self.name = name
+    
+    @property
+    def description(self) -> str:
+        """技能描述（必须实现）"""
+        raise NotImplementedError
+    
+    async def execute(self, arguments: Dict) -> Any:
+        """执行技能（必须实现）"""
+        raise NotImplementedError
+```
 
----
+### 3. 函数设计
 
-## 🎯 核心设计原则
+```python
+# ✅ 好的函数
+def process_user_message(message: str, context: Dict) -> str:
+    """处理用户消息"""
+    pass
 
-1. **模块化** - 每个功能独立模块，松耦合
-2. **可扩展** - 插件式架构，易于添加新功能
-3. **异步优先** - 全面使用 asyncio
-4. **测试驱动** - 每个模块都有完整测试
-5. **文档完善** - 代码 + 文档双重交付
+# ❌ 避免的函数
+def do_something(data, flag=False, **kwargs):  # 参数不明确
+    pass
+```
 
----
+### 4. 错误处理
 
-## 📝 配置文件示例
+```python
+# ✅ 好的错误处理
+try:
+    result = await self.model.chat(prompt)
+    return result
+except ModelError as e:
+    logger.error(f"模型调用失败：{e}")
+    return {"error": str(e)}
+except Exception as e:
+    logger.error(f"未知错误：{e}")
+    raise
 
-### YM-CODE 配置 (`~/.ymcode/config.json`)
-
-```json
-{
-  "mcp": {
-    "servers": [
-      {
-        "name": "filesystem",
-        "type": "stdio",
-        "command": "npx",
-        "args": ["-y", "@modelcontextprotocol/server-filesystem"]
-      }
-    ]
-  },
-  "lsp": {
-    "python": {
-      "command": "pyright-langserver",
-      "args": ["--stdio"]
-    },
-    "javascript": {
-      "command": "typescript-language-server",
-      "args": ["--stdio"]
-    }
-  },
-  "skills": {
-    "enabled": ["search", "http", "shell", "code_analysis"],
-    "shell": {
-      "allowed_commands": ["ls", "cat", "grep", "git"]
-    }
-  }
-}
+# ❌ 避免的错误处理
+try:
+    do_something()
+except:  # 捕获所有异常
+    pass  # 静默失败
 ```
 
 ---
 
-## 🚀 快速开始
+## 📝 文档规范
 
-### 安装
+### 1. 模块文档
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+LLM 客户端模块
+
+提供统一的 LLM 调用接口，支持 API 和本地模型。
+
+使用示例:
+    >>> from ymcode.core.llm_client import LLMClient
+    >>> client = LLMClient()
+    >>> response = client.chat("你好")
+"""
+```
+
+### 2. 类文档
+
+```python
+class ContextManager:
+    """
+    上下文管理器
+    
+    自动处理长上下文，支持压缩和分片。
+    
+    属性:
+        max_tokens (int): 最大 token 数
+        compression_threshold (float): 压缩阈值
+    
+    使用示例:
+        >>> manager = ContextManager(max_tokens=8000)
+        >>> processed = manager.process(context)
+    """
+```
+
+### 3. 函数文档
+
+```python
+def process_context(context: Any, max_tokens: int = 8000) -> Any:
+    """
+    处理上下文
+    
+    参数:
+        context: 原始上下文
+        max_tokens: 最大 token 数
+    
+    返回:
+        处理后的上下文
+    
+    异常:
+        ValueError: 当上下文格式错误时
+    """
+```
+
+---
+
+## 🧪 测试规范
+
+### 1. 测试文件组织
+
+```
+tests/
+├── unit/              # 单元测试
+│   ├── test_llm.py
+│   ├── test_skills.py
+│   └── test_tools.py
+│
+├── integration/       # 集成测试
+│   ├── test_api.py
+│   └── test_workspace.py
+│
+└── e2e/              # 端到端测试
+    └── test_full_workflow.py
+```
+
+### 2. 测试命名
+
+```python
+# ✅ 好的命名
+def test_llm_client_chat():
+    """测试 LLM 聊天功能"""
+    pass
+
+def test_context_manager_compress():
+    """测试上下文压缩功能"""
+    pass
+
+# ❌ 避免的命名
+def test1():  # 不明确
+    pass
+
+def test_stuff():  # 太泛
+    pass
+```
+
+### 3. 测试结构
+
+```python
+import pytest
+from ymcode.core.llm_client import LLMClient
+
+class TestLLMClient:
+    """LLM 客户端测试"""
+    
+    def test_chat_success(self):
+        """测试聊天成功"""
+        client = LLMClient()
+        response = client.chat("你好")
+        assert response is not None
+    
+    def test_chat_with_context(self):
+        """测试带上下文的聊天"""
+        client = LLMClient()
+        context = [{"role": "user", "content": "之前的问题"}]
+        response = client.chat("继续", context)
+        assert response is not None
+```
+
+---
+
+## 🔄 重构指南
+
+### 何时重构
+
+**✅ 应该重构的情况：**
+- 函数超过 50 行
+- 类超过 300 行
+- 文件超过 500 行
+- 重复代码出现 3 次以上
+- 一个类有超过 7 个方法
+
+**❌ 不需要重构的情况：**
+- 代码能工作且清晰
+- 重构风险大于收益
+- 即将被替换的旧代码
+
+### 重构步骤
+
+1. **确保测试覆盖** - 先写测试
+2. **小步重构** - 每次只改一点
+3. **频繁测试** - 每步都验证
+4. **提交代码** - 重构完成就提交
+
+---
+
+## 📊 代码质量指标
+
+### 复杂度指标
+
+| 指标 | 目标值 | 警告值 |
+|------|--------|--------|
+| 函数行数 | < 50 | > 100 |
+| 类行数 | < 300 | > 500 |
+| 文件行数 | < 500 | > 1000 |
+| 圈复杂度 | < 10 | > 20 |
+| 测试覆盖 | > 80% | < 60% |
+
+### 检查工具
 
 ```bash
-# 克隆项目
-git clone https://github.com/ym-code/ym-code.git
-cd ym-code
+# 安装工具
+pip install pylama radon coverage
 
-# 安装依赖
-pip install -e .
+# 检查代码质量
+pylama ymcode/
 
-# 运行测试
-python -m pytest tests/
-```
+# 检查复杂度
+radon cc ymcode/ -a
 
-### 使用
-
-```bash
-# CLI 模式
-ym-code "帮我分析这个项目"
-
-# API 模式
-ym-code serve --port 8080
-
-# 交互模式
-ym-code interactive
+# 检查测试覆盖
+coverage run -m pytest
+coverage report
 ```
 
 ---
 
-## 📖 相关文档
+## 🎯 维护清单
 
-- [MCP Client v2 开发总结](./MCP_CLIENT_V2_SUMMARY.md)
-- [LSP 代码补全开发总结](./LSP_COMPLETION_SUMMARY.md)
-- [Skills 系统开发总结](./SKILLS_SYSTEM_SUMMARY.md)
-- [项目上下文开发总结](./PROJECT_CONTEXT_SUMMARY.md)
-- [任务清单](../TASKS.md)
-- [安装指南](../INSTALL.md)
-- [快速开始](../QUICKSTART.md)
+### 每日维护
+
+- [ ] 清理临时文件
+- [ ] 检查日志输出
+- [ ] 审查代码提交
+
+### 每周维护
+
+- [ ] 运行代码质量检查
+- [ ] 更新依赖
+- [ ] 清理废弃代码
+
+### 每月维护
+
+- [ ] 重构复杂模块
+- [ ] 更新文档
+- [ ] 性能优化
 
 ---
 
-_最后更新：2026-03-13_
+## ✅ 检查清单
 
-_作者：YM-CODE Team_
+### 提交前检查
+
+- [ ] 代码通过质量检查
+- [ ] 测试全部通过
+- [ ] 文档已更新
+- [ ] 无临时文件
+- [ ] 无调试代码
+
+### 发布前检查
+
+- [ ] 所有功能测试通过
+- [ ] 性能测试通过
+- [ ] 文档完整
+- [ ] 变更日志更新
+- [ ] 版本号更新
+
+---
+
+**最后更新：** 2026-03-16  
+**维护者：** YM-CODE Team  
+**状态：** ✅ 生效中

@@ -23,6 +23,25 @@ logger = get_logger(__name__)
 class ShellSkill(BaseSkill):
     """Shell 命令执行技能"""
     
+    # 安全路径白名单
+    SAFE_PATHS = [
+        os.path.expanduser('~'),
+        os.path.join(os.path.expanduser('~'), 'projects'),
+        os.path.join(os.path.expanduser('~'), 'workspace'),
+        '/tmp',
+        '/var/tmp',
+    ]
+    
+    # 敏感文件保护
+    SENSITIVE_FILES = [
+        '.env',
+        'id_rsa',
+        'id_rsa.pub',
+        '.ssh/authorized_keys',
+        '/etc/passwd',
+        '/etc/shadow',
+    ]
+    
     # 危险命令黑名单
     DANGEROUS_COMMANDS = [
         'rm -rf /',
@@ -32,6 +51,10 @@ class ShellSkill(BaseSkill):
         'mkfs',
         'wget.*\\|.*sh',
         'curl.*\\|.*sh',
+        'sudo',
+        'su ',
+        'chmod 777',
+        'chown root',
     ]
     
     # 允许的命令白名单
@@ -91,6 +114,53 @@ class ShellSkill(BaseSkill):
     @property
     def description(self) -> str:
         return "Shell 命令执行技能 - 安全地执行系统命令"
+    
+    def _validate_command(self, command: str) -> tuple:
+        """
+        验证命令安全性
+        
+        返回:
+            (is_safe: bool, reason: str)
+        """
+        import re
+        
+        # 1. 检查黑名单
+        for dangerous in self.DANGEROUS_COMMANDS:
+            if re.search(dangerous, command, re.IGNORECASE):
+                return False, f"包含危险命令：{dangerous}"
+        
+        # 2. 检查敏感文件
+        for sensitive in self.SENSITIVE_FILES:
+            if sensitive in command:
+                return False, f"访问敏感文件：{sensitive}"
+        
+        # 3. 检查命令白名单（第一个单词）
+        cmd = command.split()[0].lower()
+        # 处理 Windows 命令
+        if self.os_type == 'Windows':
+            cmd = cmd.lower()
+        if cmd not in self.ALLOWED_COMMANDS:
+            return False, f"未授权命令：{cmd}"
+        
+        return True, "验证通过"
+    
+    def _validate_path(self, path: str) -> tuple:
+        """
+        验证路径安全性
+        
+        返回:
+            (is_safe: bool, reason: str)
+        """
+        import os
+        
+        abs_path = os.path.abspath(os.path.expanduser(path))
+        
+        # 检查是否在安全路径内
+        is_safe = any(abs_path.startswith(safe) for safe in self.SAFE_PATHS)
+        if not is_safe:
+            return False, f"路径不在白名单内：{abs_path}"
+        
+        return True, "路径安全"
     
     def get_input_schema(self) -> Dict:
         return {

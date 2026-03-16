@@ -18,7 +18,7 @@ from ymcode.skills.multi_language import MultiLanguageSkill
 from ymcode.skills.code_runner import CodeRunnerSkill
 from ymcode.utils.performance import (
     Cache, get_cache, cached,
-    AsyncBatchProcessor, PerformanceMonitor, timed,
+    AsyncBatchProcessor, PerformanceMonitor, timed, get_perf_monitor,
     async_map, cache_clear, cache_stats
 )
 

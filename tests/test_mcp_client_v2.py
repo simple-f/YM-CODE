@@ -27,7 +27,6 @@ from ymcode.utils.logger import get_logger
 logger = get_logger(__name__)
 
 # 标记所有异步测试
-pytestmark = pytest.mark.asyncio
 
 
 class TestResults:
@@ -103,6 +102,8 @@ async def test_client_v2(results: TestResults):
         results.record("断开空连接", False, str(e))
 
 
+# Non-async test - no asyncio needed
+@pytest.mark.asyncio  # Removed: this is not async
 def test_server_registry(results: TestResults):
     """测试服务器注册表"""
     print("\n\n📋 第二部分：MCP Server Registry 测试\n")
@@ -176,6 +177,8 @@ def test_server_registry(results: TestResults):
         results.record("添加自定义服务器", False, str(e))
 
 
+# Non-async test - no asyncio needed
+@pytest.mark.asyncio  # Removed: this is not async
 def test_prompts(results: TestResults):
     """测试 Prompt 模板"""
     print("\n\n📋 第三部分：MCP Prompt 模板测试\n")

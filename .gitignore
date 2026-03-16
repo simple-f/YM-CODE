@@ -1,5 +1,23 @@
 # Python
+# Python 缓存
 __pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*~
+
+# 构建产物
+build/
+dist/
+*.egg-info/
+.eggs/
 *.py[cod]
 *$py.class
 *.so

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent 配置 - YM-CODE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1419;
+            color: #e7e9ea;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #8b98a5;
+            font-size: 14px;
+        }
+        
+        .workspace-section {
+            background: #161b22;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title .icon {
+            font-size: 24px;
+        }
+        
+        .workspace-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-size: 14px;
+            color: #8b98a5;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            padding: 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #e7e9ea;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #238636;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2ea043;
+        }
+        
+        .btn-secondary {
+            background: #21262d;
+            color: #e7e9ea;
+            border: 1px solid #30363d;
+        }
+        
+        .btn-secondary:hover {
+            background: #30363d;
+        }
+        
+        .agent-selection {
+            margin-top: 30px;
+        }
+        
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .agent-card {
+            background: #0d1117;
+            border: 2px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .agent-card:hover {
+            border-color: #58a6ff;
+            transform: translateY(-2px);
+        }
+        
+        .agent-card.selected {
+            border-color: #238636;
+            background: rgba(35, 134, 54, 0.1);
+        }
+        
+        .agent-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .agent-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .agent-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .agent-role {
+            font-size: 12px;
+            color: #8b98a5;
+            background: #21262d;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .agent-description {
+            font-size: 14px;
+            color: #8b98a5;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .agent-capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .capability-tag {
+            font-size: 12px;
+            color: #58a6ff;
+            background: rgba(88, 166, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(88, 166, 255, 0.2);
+        }
+        
+        .agent-checkbox {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #30363d;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .agent-card.selected .agent-checkbox {
+            background: #238636;
+            border-color: #238636;
+        }
+        
+        .action-bar {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #30363d;
+        }
+        
+        .current-agents {
+            margin-top: 30px;
+        }
+        
+        .current-agent-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .current-agent-tag {
+            background: #238636;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .remove-agent {
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .remove-agent:hover {
+            opacity: 1;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b98a5;
+        }
+        
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Agent 配置</h1>
+            <p>为你的工作区选择和配置 Agent 团队</p>
+        </div>
+        
+        <!-- 工作区信息 -->
+        <div class="workspace-section">
+            <h2 class="section-title">
+                <span class="icon">📁</span>
+                工作区信息
+            </h2>
+            <div class="workspace-form">
+                <div class="form-group">
+                    <label>工作区名称</label>
+                    <input type="text" id="workspaceName" placeholder="例如：电商系统开发" value="新项目">
+                </div>
+                <div class="form-group">
+                    <label>工作区描述</label>
+                    <textarea id="workspaceDesc" rows="2" placeholder="简要描述你的项目"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Agent 选择 -->
+        <div class="workspace-section agent-selection">
+            <h2 class="section-title">
+                <span class="icon">👥</span>
+                选择 Agent
+                <span style="font-size: 14px; color: #8b98a5; margin-left: 10px;">(点击卡片选择)</span>
+            </h2>
+            
+            <div class="agent-grid" id="agentGrid">
+                <!-- Agent 卡片将通过 JS 动态加载 -->
+            </div>
+            
+            <div class="current-agents">
+                <h3 style="font-size: 16px; margin-bottom: 10px;">已选择的 Agent:</h3>
+                <div class="current-agent-list" id="currentAgents">
+                    <div class="empty-state" style="padding: 20px;">
+                        还没有选择任何 Agent，请从上方选择
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-bar">
+                <button class="btn btn-primary" onclick="saveWorkspace()">
+                    💾 保存工作区配置
+                </button>
+                <button class="btn btn-secondary" onclick="loadAgents()">
+                    🔄 刷新 Agent 列表
+                </button>
+                <button class="btn btn-secondary" onclick="clearSelection()">
+                    🗑️ 清除所有选择
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:18770/api';
+        let selectedAgents = new Set();
+        let allAgents = [];
+        
+        // 页面加载时获取 Agent 列表
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAgents();
+        });
+        
+        // 加载 Agent 列表
+        async function loadAgents() {
+            try {
+                const response = await fetch(`${API_BASE}/skills/list`);
+                const data = await response.json();
+                
+                allAgents = data.skills || [];
+                renderAgents();
+            } catch (error) {
+                console.error('加载 Agent 失败:', error);
+                alert('加载 Agent 失败，请确保服务已启动');
+            }
+        }
+        
+        // 渲染 Agent 卡片
+        function renderAgents() {
+            const grid = document.getElementById('agentGrid');
+            
+            if (allAgents.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="icon">📭</div>
+                        <p>没有找到可用的 Agent</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = allAgents.map(agent => `
+                <div class="agent-card" 
+                     data-name="${agent.name}" 
+                     onclick="toggleAgent('${agent.name}')">
+                    <div class="agent-checkbox">
+                        ${selectedAgents.has(agent.name) ? '✓' : ''}
+                    </div>
+                    <div class="agent-card-header">
+                        <div class="agent-icon">🤖</div>
+                        <div>
+                            <div class="agent-name">${agent.name}</div>
+                            <div class="agent-role">${agent.role}</div>
+                        </div>
+                    </div>
+                    <div class="agent-description">${agent.description || '暂无描述'}</div>
+                    <div class="agent-capabilities">
+                        ${(agent.capabilities || []).slice(0, 5).map(cap => 
+                            `<span class="capability-tag">${cap}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 切换 Agent 选择
+        function toggleAgent(agentName) {
+            if (selectedAgents.has(agentName)) {
+                selectedAgents.delete(agentName);
+            } else {
+                selectedAgents.add(agentName);
+            }
+            
+            // 更新 UI
+            document.querySelectorAll('.agent-card').forEach(card => {
+                const name = card.dataset.name;
+                if (selectedAgents.has(name)) {
+                    card.classList.add('selected');
+                    card.querySelector('.agent-checkbox').textContent = '✓';
+                } else {
+                    card.classList.remove('selected');
+                    card.querySelector('.agent-checkbox').textContent = '';
+                }
+            });
+            
+            updateCurrentAgents();
+        }
+        
+        // 更新已选择 Agent 列表
+        function updateCurrentAgents() {
+            const container = document.getElementById('currentAgents');
+            
+            if (selectedAgents.size === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        还没有选择任何 Agent，请从上方选择
+                    </div>
+                `;
+                return;
+            }
+            
+            const agents = allAgents.filter(a => selectedAgents.has(a.name));
+            container.innerHTML = agents.map(agent => `
+                <div class="current-agent-tag">
+                    ${agent.name}
+                    <span class="remove-agent" onclick="toggleAgent('${agent.name}'); event.stopPropagation();">✕</span>
+                </div>
+            `).join('');
+        }
+        
+        // 保存工作区配置
+        async function saveWorkspace() {
+            const name = document.getElementById('workspaceName').value.trim();
+            const description = document.getElementById('workspaceDesc').value.trim();
+            
+            if (!name) {
+                alert('请输入工作区名称');
+                return;
+            }
+            
+            if (selectedAgents.size === 0) {
+                alert('请至少选择一个 Agent');
+                return;
+            }
+            
+            try {
+                // 1. 创建工作区
+                const workspaceResponse = await fetch(`${API_BASE}/workspace/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description })
+                });
+                
+                const workspace = await workspaceResponse.json();
+                
+                // 2. 添加 Agent 到工作区
+                for (const agentName of selectedAgents) {
+                    await fetch(`${API_BASE}/workspace/add-agent`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            workspace_id: workspace.id,
+                            agent_name: agentName
+                        })
+                    });
+                }
+                
+                alert(`工作区 "${name}" 创建成功！\n已添加 ${selectedAgents.size} 个 Agent`);
+                
+                // 跳转到工作区
+                window.location.href = `/workspace/${workspace.id}`;
+                
+            } catch (error) {
+                console.error('保存失败:', error);
+                alert('保存失败：' + error.message);
+            }
+        }
+        
+        // 清除所有选择
+        function clearSelection() {
+            selectedAgents.clear();
+            renderAgents();
+            updateCurrentAgents();
+        }
+    </script>
+</body>
+</html>

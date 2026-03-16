@@ -202,7 +202,7 @@ YM_CODE_FEATURE_WEB_TERMINAL=true
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-username/ym-code.git
+git clone https://github.com/simple-f/ym-code.git
 cd ym-code
 
 # 安装开发依赖

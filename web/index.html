@@ -27,9 +27,33 @@
             padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             text-align: center;
+            position: relative;
         }
         .sidebar-header h1 { font-size: 20px; margin-bottom: 5px; }
         .sidebar-header p { font-size: 12px; opacity: 0.8; }
+        
+        /* 新建项目按钮 */
+        .new-project-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .new-project-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
         
         .nav-menu { flex: 1; padding: 10px; }
         .nav-item {
@@ -377,10 +401,14 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
+            transition: all 0.2s;
         }
         .btn-install {
-            background: #667eea;
+            background: #28a745;
             color: white;
+        }
+        .btn-install:hover {
+            background: #218838;
         }
         .btn-installed {
             background: #28a745;
@@ -390,6 +418,9 @@
         .btn-uninstall {
             background: #dc3545;
             color: white;
+        }
+        .btn-uninstall:hover {
+            background: #c82333;
         }
         
         /* 加载动画 */
@@ -547,9 +578,27 @@
                     </div>
                 </div>
                 
-                <!-- 技能市场面板 -->
+                <!-- 技能管理面板 -->
                 <div class="panel" id="skillsPanel">
-                    <div class="skills-grid" id="skillsGrid"></div>
+                    <div style="padding: 20px;">
+                        <h2 style="margin-bottom: 10px;">🛠️ 技能管理</h2>
+                        <p style="color: #8b98a5; margin-bottom: 20px;">所有技能已内置，无需下载。你可以启用/禁用或配置技能。</p>
+                        <div class="skills-grid" id="skillsGrid"></div>
+                    </div>
+                </div>
+                
+                <!-- Agent 配置面板 -->
+                <div class="panel" id="agentsPanel">
+                    <div style="padding: 20px;">
+                        <h2 style="margin-bottom: 10px;">👥 Agent 配置</h2>
+                        <p style="color: #8b98a5; margin-bottom: 20px;">为当前工作区配置 Agent 团队</p>
+                        <div style="text-align: center; padding: 40px;">
+                            <button class="btn" onclick="window.open('agent-config.html', '_blank')" style="background: #667eea; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;">
+                                🚀 打开 Agent 配置界面
+                            </button>
+                            <p style="margin-top: 20px; color: #8b98a5;">或访问：<code style="background: #0f3460; padding: 5px 10px; border-radius: 4px;">http://localhost:18770/agent-config.html</code></p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -828,21 +877,34 @@
             const container = document.getElementById('skillsGrid');
             container.innerHTML = '';
             
+            if (skills.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #8b98a5; padding: 40px;">暂无技能</div>';
+                return;
+            }
+            
             skills.forEach(skill => {
                 const card = document.createElement('div');
                 card.className = 'skill-card';
+                const enabled = skill.enabled !== false;
                 card.innerHTML = `
                     <div class="skill-card-header">
                         <div class="skill-icon">🛠️</div>
                         <div class="skill-name">${skill.name}</div>
+                        <span style="margin-left: auto; font-size: 12px; padding: 4px 8px; background: ${enabled ? '#28a745' : '#dc3545'}; border-radius: 4px;">
+                            ${enabled ? '已启用' : '已禁用'}
+                        </span>
                     </div>
                     <div class="skill-desc">${skill.description || '暂无描述'}</div>
                     <div class="skill-meta">
-                        <span>版本：${skill.version || '1.0.0'}</span>
-                        <span>作者：${skill.author || '官方'}</span>
+                        <span>角色：${skill.role || '通用'}</span>
+                        <span>能力：${(skill.capabilities || []).slice(0, 3).join(', ')}</span>
                     </div>
                     <div class="skill-actions">
-                        <button class="btn-install" onclick="installSkill('${skill.name}')">安装</button>
+                        <button class="${enabled ? 'btn-uninstall' : 'btn-install'}" 
+                                onclick="toggleSkill('${skill.name}', ${!enabled})"
+                                style="background: ${enabled ? '#dc3545' : '#28a745'}">
+                            ${enabled ? '禁用' : '启用'}
+                        </button>
                     </div>
                 `;
                 container.appendChild(card);

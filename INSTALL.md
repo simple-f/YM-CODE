@@ -1,187 +1,219 @@
 # YM-CODE 安装指南
 
-> 快速安装和测试指南
+**版本：** v1.0.0  
+**更新时间：** 2026-03-16
 
 ---
 
-## 📋 前提条件
+## 📋 系统要求
 
-- ✅ Python 3.10+ (推荐 3.11 或 3.12)
-- ✅ Git
-- ✅ pip
+### 最低要求
 
----
+- **Python:** 3.10+
+- **内存:** 2GB
+- **磁盘:** 500MB
 
-## 🚀 安装步骤
+### 推荐配置
 
-### 方法 1：本地安装（推荐）
-
-```bash
-# 1. 进入项目目录
-cd C:\Users\Administrator\.openclaw\workspace-ai2\shared\YM-CODE
-
-# 2. 安装依赖
-pip install -e .
-
-# 3. 验证安装
-python -c "from ymcode import Agent; print('YM-CODE 安装成功！')"
-```
-
-### 方法 2：复制到其他目录
-
-```bash
-# 1. 复制项目到目标目录
-xcopy /E /I C:\Users\Administrator\.openclaw\workspace-ai2\shared\YM-CODE C:\Users\Administrator\YM-CODE
-
-# 2. 进入目标目录
-cd C:\Users\Administrator\YM-CODE
-
-# 3. 安装
-pip install -e .
-```
+- **Python:** 3.13
+- **内存:** 4GB+
+- **磁盘:** 1GB+
 
 ---
 
-## 🧪 快速测试
+## 🚀 快速安装
 
-### 测试 1：导入测试
+### 1. 克隆仓库
 
 ```bash
-python -c "from ymcode import Agent; print('✅ 导入成功')"
+git clone https://github.com/simple-f/YM-CODE.git
+cd YM-CODE
 ```
 
-### 测试 2：工具测试
+### 2. 创建虚拟环境
 
 ```bash
-python -c "
-from ymcode.tools.registry import ToolRegistry
-tools = ToolRegistry()
-print(f'✅ 工具注册表初始化成功，已加载 {len(tools)} 个工具')
-"
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# Linux/Mac
+python -m venv venv
+source venv/bin/activate
 ```
 
-### 测试 3：Agent 测试
+### 3. 安装依赖
 
 ```bash
-python -c "
-from ymcode.core.agent import Agent
-agent = Agent(config={'mock_mode': True})
-print('✅ Agent 初始化成功')
-"
+pip install -r requirements.txt
+```
+
+### 4. 初始化系统
+
+```bash
+python init.py
+```
+
+### 5. 配置 API Key
+
+编辑 `.env` 文件：
+
+```bash
+DASHSCOPE_API_KEY=sk-your-api-key-here
+```
+
+### 6. 启动服务
+
+```bash
+python start-web.py
+```
+
+### 7. 访问 Web 界面
+
+```
+http://localhost:18770
 ```
 
 ---
 
-## ⚠️ 常见问题
+## 🔧 可选安装
 
-### 问题 1：UnicodeDecodeError
+### 代码分析工具
 
-**错误信息：**
-```
-UnicodeDecodeError: 'gbk' codec can't decode byte 0x80
-```
-
-**解决方法：**
 ```bash
-# 确保使用正确的编码
-chcp 65001  # 设置控制台编码为 UTF-8
-pip install -e .
+pip install pylint black flake8
 ```
 
-### 问题 2：找不到模块
+### 本地模型支持
 
-**错误信息：**
-```
-ModuleNotFoundError: No module named 'ymcode'
-```
-
-**解决方法：**
 ```bash
-# 确保在项目目录
-cd C:\Users\Administrator\.openclaw\workspace-ai2\shared\YM-CODE
+pip install llama-cpp-python
+```
+
+### Git 集成
+
+确保 Git 已安装：
+
+```bash
+git --version
+```
+
+### Node.js（VSCode 插件开发）
+
+```bash
+# 安装 Node.js
+# https://nodejs.org/
+
+# 验证
+node --version
+npm --version
+```
+
+---
+
+## 📦 VSCode 插件安装
+
+### 方式 1：从市场安装（待发布）
+
+```bash
+# 在 VSCode 扩展市场搜索 "YM-CODE"
+```
+
+### 方式 2：手动安装
+
+```bash
+cd extensions/vscode
+npm install
+npm run compile
+
+# 在 VSCode 中加载
+# 开发者工具 → 加载未打包的扩展
+```
+
+---
+
+## 🐛 故障排查
+
+### 问题 1：依赖安装失败
+
+**解决：**
+
+```bash
+# 升级 pip
+python -m pip install --upgrade pip
 
 # 重新安装
-pip uninstall ym-code
-pip install -e .
+pip install -r requirements.txt --force-reinstall
 ```
 
-### 问题 3：CLI 无法启动
+### 问题 2：API Key 未配置
 
-**错误信息：**
-```
-'ym-code' is not recognized
-```
+**解决：**
 
-**解决方法：**
 ```bash
-# 检查 Python Scripts 路径
-python -c "import sys; print(sys.path)"
+# 检查 .env 文件
+cat .env
 
-# 将 Scripts 添加到 PATH
-# Windows: 添加 C:\Users\Administrator\AppData\Local\Programs\Python\Python313\Scripts
+# 确保 API Key 正确
+DASHSCOPE_API_KEY=sk-xxx
+```
+
+### 问题 3：端口被占用
+
+**解决：**
+
+```bash
+# 修改端口
+echo "YM_CODE_PORT=18771" >> .env
+
+# 或杀死占用端口的进程
+netstat -ano | findstr :18770
+taskkill /PID <pid> /F
+```
+
+### 问题 4：中文乱码
+
+**解决：**
+
+```bash
+# Windows 设置控制台编码
+chcp 65001
+
+# 或在 .env 中添加
+PYTHONIOENCODING=utf-8
 ```
 
 ---
 
-## 🎯 使用示例
+## 🎯 验证安装
 
-### 示例 1：文件操作
+### 运行测试
 
-```python
-from ymcode.tools.file_tools import ReadFileTool, WriteFileTool
-import asyncio
+```bash
+# 运行所有测试
+pytest tests/ -v
 
-async def test():
-    # 写入
-    write = WriteFileTool()
-    await write.execute(path="test.txt", content="hello")
-    
-    # 读取
-    read = ReadFileTool()
-    result = await read.execute(path="test.txt")
-    print(result)
-
-asyncio.run(test())
+# 运行特定版本测试
+python tests/test_v070.py
+python tests/test_v080.py
+python tests/test_v090.py
 ```
 
-### 示例 2：Git 操作
+### 检查系统状态
 
-```python
-from ymcode.tools.git_tools import GitTool
-import asyncio
-
-async def test():
-    git = GitTool()
-    result = await git.execute(operation="status")
-    print(result)
-
-asyncio.run(test())
-```
-
-### 示例 3：Agent 工作流
-
-```python
-from ymcode.core.agent import Agent
-import asyncio
-
-async def test():
-    agent = Agent(config={"mock_mode": True})
-    result = await agent.run("帮我创建一个文件")
-    print(result)
-
-asyncio.run(test())
+```bash
+# 访问健康检查端点
+curl http://localhost:18770/health
 ```
 
 ---
 
-## 📖 相关文档
+## 📝 下一步
 
-- [TESTING_GUIDE.md](./docs/TESTING_GUIDE.md) - 完整测试指南
-- [PHASE3_SUMMARY.md](./docs/PHASE3_SUMMARY.md) - Phase 3 总结
-- [README.md](./README.md) - 项目说明
+- [ ] 阅读 [使用指南](docs/USAGE.md)
+- [ ] 查看 [技能系统](docs/SKILLS.md)
+- [ ] 配置 [VSCode 插件](extensions/vscode/README.md)
 
 ---
 
-_最后更新：2026-03-12_
-
-_作者：YM-CODE Team_
+**安装完成！开始使用 YM-CODE！** 🎉

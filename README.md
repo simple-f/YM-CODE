@@ -1,353 +1,289 @@
-# YM-CODE - 下一代 AI 编程助手
+# YM-CODE
 
-> **全面对标 Claude Code，打造更强大的 AI 编程体验**
+**你的 AI 编程助手** - 本地部署、功能强大、安全可控
+
+![Version](https://img.shields.io/badge/version-0.5.0-blue)
+![Python](https://img.shields.io/badge/python-3.10+-green)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Tests](https://img.shields.io/badge/tests-138%20passed-brightgreen)
 
 ---
 
-## 🎯 项目愿景
+## 🌟 特性
 
-**YM-CODE** 是一个**生产级 AI 编程助手**，基于 learn-claude-code 12 课的核心知识，融合 Final Agent 的完整架构，**全面对标 Claude Code**。
+- 🤖 **AI 驱动** - 基于 LLM 的智能编程助手
+- 🛠️ **11 个技能** - 文件操作、代码分析、Shell 命令等
+- 💬 **自然对话** - 理解你的需求，自动调用工具
+- 📁 **文件管理** - 可视化文件浏览器
+- ⌨️ **Web 终端** - 浏览器中的命令行
+- 📋 **任务管理** - 看板视图，追踪进度
+- 🔐 **本地部署** - 数据完全可控，安全隐私
+- 🚀 **开箱即用** - 一键初始化，快速上手
 
-**设计目标：**
-- ✅ **功能完整** - 20+ 内置工具，覆盖开发全流程
-- ✅ **用户体验** - 精美 CLI 界面，实时进度反馈
-- ✅ **工程完善** - npm 包管理，自动更新，插件系统
-- ✅ **生态丰富** - MCP 协议支持，工具市场，IDE 集成
+---
+
+## 🚀 快速开始
+
+### 1. 克隆项目
+
+```bash
+git clone https://github.com/your-username/ym-code.git
+cd ym-code
+```
+
+### 2. 安装依赖
+
+```bash
+# 创建虚拟环境
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/Mac
+
+# 安装依赖
+pip install -r requirements.txt
+```
+
+### 3. 初始化系统
+
+```bash
+# 运行初始化脚本
+python init.py
+
+# 编辑 .env 文件，配置你的 API Key
+# DASHSCOPE_API_KEY=sk-your-api-key-here
+```
+
+### 4. 启动服务
+
+```bash
+python start-web.py
+```
+
+访问 http://localhost:18770
+
+---
+
+## 📖 文档
+
+- [快速开始](QUICKSTART.md) - 安装和配置指南
+- [系统架构](docs/SYSTEM_ARCHITECTURE.md) - 技术架构说明
+- [使用指南](docs/USAGE.md) - 功能使用说明
+- [技能系统](docs/SKILLS.md) - 技能开发指南
+- [API 文档](http://localhost:18770/docs) - REST API 文档
+
+---
+
+## 🛠️ 功能模块
+
+### 1. AI 聊天
+- 自然语言对话
+- 自动工具调用
+- 上下文记忆
+- 多 Session 管理
+
+### 2. 文件浏览器
+- 文件树导航
+- 文件预览
+- 文件操作（读/写/删除）
+- 目录管理
+
+### 3. Web 终端
+- PowerShell 集成
+- 实时命令执行
+- 多会话支持
+- 历史记录
+
+### 4. 任务管理
+- 看板视图
+- 状态流转（Inbox → Done）
+- 优先级管理
+- 任务追踪
+
+### 5. 技能市场
+- 11 个内置技能
+- 技能扩展系统
+- MCP 协议支持
+- 自定义技能
+
+---
+
+## 📊 测试
+
+```bash
+# 运行所有测试
+pytest tests/ -v
+
+# 查看覆盖率
+pytest tests/ --cov=ymcode --cov-report=html
+
+# 运行特定测试
+pytest tests/test_mcp_server.py -v
+```
+
+**当前状态：** 138 个测试通过，2 个跳过，0 个失败 ✅
+
+---
+
+## 🔧 配置
+
+### 环境变量（.env）
+
+```bash
+# LLM API 配置（必需）
+DASHSCOPE_API_KEY=sk-your-api-key-here
+
+# 服务器配置
+YM_CODE_PORT=18770
+YM_CODE_DEBUG=false
+
+# 功能开关
+YM_CODE_FEATURE_FILE_BROWSER=true
+YM_CODE_FEATURE_WEB_TERMINAL=true
+```
+
+### 配置文件（config.json）
+
+```json
+{
+  "model": {
+    "primary": "qwen3.5-plus",
+    "fallback": "qwen-plus"
+  },
+  "features": {
+    "file_browser": true,
+    "web_terminal": true,
+    "task_manager": true
+  }
+}
+```
 
 ---
 
 ## 🏗️ 系统架构
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         YM-CODE System                          │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   Core       │  │   Tools      │  │   Memory     │          │
-│  │   核心引擎   │  │   工具系统   │  │   记忆系统   │          │
-│  │              │  │              │  │              │          │
-│  │ - Agent Loop │  │ - 20+ Tools  │  │ - Session    │          │
-│  │ - LLM Client │  │ - MCP Client │  │ - Context    │          │
-│  │ - State Mgr  │  │ - Registry   │  │ - Compress   │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-│                                                                  │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │   CLI        │  │   Skills     │  │   Utils      │          │
-│  │   命令行界面 │  │   技能系统   │  │   工具库     │          │
-│  │              │  │              │  │              │          │
-│  │ - TUI        │  │ - Code Review│  │ - Logger     │          │
-│  │ - Progress   │  │ - Debug      │  │ - Metrics    │          │
-│  │ - AutoComplete│ │ - Test       │  │ - Helpers    │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│          Web UI (React/Vue)             │
+└─────────────────────────────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────────┐
+│          FastAPI Server                  │
+│  /api/chat  /api/files  /api/terminal   │
+└─────────────────────────────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────────┐
+│          Core Agent Engine              │
+│  - Agent Loop  - State Manager          │
+│  - LLM Client - Context Manager         │
+└─────────────────────────────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────────┐
+│          Skills Layer (11 skills)       │
+│  memory, search, shell, code_analysis   │
+│  http, database, formatter, docker      │
+│  chat, llm, self_improvement            │
+└─────────────────────────────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────────┐
+│          Data Layer                     │
+│  SQLite (sessions) + File System        │
+└─────────────────────────────────────────┘
 ```
 
 ---
 
-## 🚀 核心特性
+## 🤝 贡献
 
-### 1. 精美 CLI 界面
+### 开发环境设置
 
 ```bash
-$ ym-code
+# 克隆项目
+git clone https://github.com/your-username/ym-code.git
+cd ym-code
 
-┌────────────────────────────────────────────┐
-│  YM-CODE v1.0.0                            │
-│  AI Programming Assistant                  │
-└────────────────────────────────────────────┘
+# 安装开发依赖
+pip install -r requirements-dev.txt
 
-🤖 Ready to help! Type your request or 'help' for commands.
+# 运行测试
+pytest tests/ -v
 
-> 帮我修复这个 bug
+# 代码格式化
+black ymcode/
+flake8 ymcode/
 ```
 
-**特性：**
-- ✅ 彩色输出
-- ✅ 进度条显示
-- ✅ 实时状态更新
-- ✅ 错误友好提示
-
----
-
-### 2. 20+ 内置工具
-
-| 类别 | 工具 | 说明 |
-|------|------|------|
-| **文件操作** | `read_file` | 读取文件 |
-| | `write_file` | 写入文件 |
-| | `edit_file` | 编辑文件 |
-| | `smart_edit` | 智能编辑（局部修改） |
-| | `list_dir` | 列出目录 |
-| | `search_file` | 搜索文件 |
-| **Git 操作** | `git_status` | Git 状态 |
-| | `git_diff` | Git 差异 |
-| | `git_commit` | Git 提交 |
-| | `git_push` | Git 推送 |
-| | `git_log` | Git 日志 |
-| **开发工具** | `bash` | 执行命令 |
-| | `run_test` | 运行测试 |
-| | `run_linter` | 运行 linter |
-| | `debug` | 调试代码 |
-| | `explain` | 解释代码 |
-| **网络工具** | `fetch` | HTTP 请求 |
-| | `search_web` | 网络搜索 |
-
----
-
-### 3. 智能技能系统
-
-```python
-# 内置技能示例
-skills = {
-    "code-review": "代码审查",
-    "bug-fix": "Bug 修复",
-    "refactor": "代码重构",
-    "test-gen": "测试生成",
-    "doc-gen": "文档生成",
-    "security-audit": "安全审计",
-}
-```
-
-**每个技能包含：**
-- 多步骤流程
-- 业务逻辑
-- 最佳实践
-- 领域知识
-
----
-
-### 4. MCP 协议支持
-
-```python
-# 接入 MCP 工具市场
-from ymcode import MCPClient
-
-client = MCPClient()
-await client.connect("https://mcp.example.com")
-
-# 获取远程工具
-tools = await client.list_tools()
-
-# 调用远程工具
-result = await client.call_tool("advanced-tool", param="value")
-```
-
-**好处：**
-- ✅ 接入丰富工具生态
-- ✅ 支持第三方工具
-- ✅ 持续扩展
-
----
-
-## 📁 项目结构
+### 提交规范
 
 ```
-YM-CODE/
-├── README.md                 # 本文件
-├── pyproject.toml           # Python 项目配置
-├── requirements.txt         # 依赖
-├── setup.py                 # 安装脚本
-│
-├── ymcode/                  # 主模块
-│   ├── __init__.py
-│   ├── cli.py               # CLI 入口
-│   │
-│   ├── core/                # 核心引擎
-│   │   ├── agent.py
-│   │   ├── llm.py
-│   │   └── state.py
-│   │
-│   ├── tools/               # 工具系统
-│   │   ├── registry.py
-│   │   ├── base.py
-│   │   ├── file_tools.py
-│   │   ├── git_tools.py
-│   │   └── dev_tools.py
-│   │
-│   ├── skills/              # 技能系统
-│   │   ├── base.py
-│   │   ├── code_review.py
-│   │   ├── bug_fix.py
-│   │   └── test_gen.py
-│   │
-│   ├── memory/              # 记忆系统
-│   │   ├── session.py
-│   │   └── compressor.py
-│   │
-│   ├── mcp/                 # MCP 客户端
-│   │   ├── client.py
-│   │   └── protocol.py
-│   │
-│   └── utils/               # 工具库
-│       ├── logger.py
-│       ├── progress.py
-│       └── helpers.py
-│
-├── tests/                   # 测试
-│   ├── test_core.py
-│   ├── test_tools.py
-│   └── test_skills.py
-│
-└── docs/                    # 文档
-    ├── installation.md
-    ├── usage.md
-    └── api.md
+feat: 新功能
+fix: Bug 修复
+docs: 文档更新
+style: 代码格式
+refactor: 重构
+test: 测试
+chore: 构建/工具
 ```
 
 ---
 
-## 🚀 快速开始
+## 📝 更新日志
 
-### 1. 安装（开发中）
+### v0.5.0 (2026-03-16)
 
-```bash
-# 方式 1：pip 安装（计划中）
-pip install ym-code
+**新功能：**
+- ✅ 完整 Web 界面（聊天、文件、终端、任务、技能）
+- ✅ 文件浏览器（文件树 + 预览 + 操作）
+- ✅ Web 终端（PowerShell + 命令执行）
+- ✅ 任务管理看板
+- ✅ 技能市场展示
 
-# 方式 2：源码安装
-git clone https://github.com/simple-f/YM-CODE.git
-cd YM-CODE
-pip install -e .
+**改进：**
+- ✅ 现代化深色主题 UI
+- ✅ 响应式布局
+- ✅ 性能优化
 
-# 方式 3：npm 安装（计划中）
-npm install -g ym-code
-```
+**测试：**
+- ✅ 138 个测试通过
+- ✅ 98.6% 通过率
 
-### 2. 配置
+### v0.3.5 (2026-03-16)
 
-```bash
-# 初始化配置
-ym-code init
+- ✅ MCP 服务器本地化
+- ✅ 集成测试修复
+- ✅ 测试覆盖率提升
 
-# 编辑配置
-vim ~/.ymcode/config.yaml
-```
+### v0.1.0 (2026-03-07)
 
-### 3. 使用
-
-```bash
-# 交互式
-ym-code
-
-# 单次执行
-ym-code "帮我修复这个 bug"
-
-# 指定文件
-ym-code "审查这个文件" --file main.py
-
-# 使用技能
-ym-code "审查代码" --skill code-review
-```
+- ✅ 核心功能完成
+- ✅ 11 个内置技能
+- ✅ CLI 工具
 
 ---
 
-## 📊 对比 Claude Code
+## 📄 许可证
 
-| 特性 | Claude Code | YM-CODE | 状态 |
-|------|-------------|---------|------|
-| **Agent 循环** | ✅ | ✅ | ✅ 持平 |
-| **工具数量** | 20+ | 20+（计划） | 🔄 开发中 |
-| **CLI 界面** | ✅ 精美 | ✅ 精美（计划） | 🔄 开发中 |
-| **Git 集成** | ✅ 深度 | ✅ 深度（计划） | 🔄 开发中 |
-| **测试运行** | ✅ | ✅（计划） | 🔄 开发中 |
-| **智能编辑** | ✅ | ✅（计划） | 🔄 开发中 |
-| **MCP 协议** | ✅ | ✅（计划） | 🔄 开发中 |
-| **插件系统** | ✅ | ✅（计划） | 🔄 开发中 |
-| **自动更新** | ✅ | ✅（计划） | 🔄 开发中 |
-| **IDE 集成** | ✅ VSCode | ✅ VSCode（计划） | 🔄 开发中 |
-
-**我们的优势：**
-- ✅ 开源免费
-- ✅ 可定制性强
-- ✅ 学习友好
-- ✅ 社区驱动
-
----
-
-## 🗺️ 开发路线图
-
-### Phase 1：核心功能（2 周）
-
-- [x] 项目创建
-- [ ] CLI 界面美化（rich 库）
-- [ ] Git 深度集成
-- [ ] 测试运行器
-- [ ] 智能文件编辑
-
-### Phase 2：工程完善（2 周）
-
-- [ ] npm 包管理
-- [ ] 自动更新
-- [ ] 配置管理优化
-- [ ] 错误友好提示
-- [ ] 进度显示
-
-### Phase 3：生态建设（4 周）
-
-- [ ] MCP 协议支持
-- [ ] 工具市场
-- [ ] VSCode 插件
-- [ ] GitHub Actions
-- [ ] 文档完善
-
-### Phase 4：社区运营（持续）
-
-- [ ] 社区建设
-- [ ] 工具征集
-- [ ] 最佳实践
-- [ ] 案例分享
-
----
-
-## 🤝 贡献指南
-
-欢迎贡献！
-
-```bash
-# 1. Fork 项目
-git fork https://github.com/simple-f/YM-CODE
-
-# 2. 克隆到本地
-git clone git@github.com:your-username/YM-CODE.git
-
-# 3. 创建分支
-git checkout -b feature/your-feature
-
-# 4. 开发 + 测试
-# ...
-
-# 5. 提交 PR
-git push origin feature/your-feature
-```
-
----
-
-## 📜 许可证
-
-MIT
+MIT License - 详见 [LICENSE](LICENSE)
 
 ---
 
 ## 🙏 致谢
 
-- [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) - 12 课教程
-- [OpenClaw](https://github.com/openclaw/openclaw) - 生产经验
-- [Claude Code](https://claude.ai/code) - 对标目标
+- **阿里云百炼** - LLM 支持
+- **OpenClaw** - 架构参考
+- **社区贡献者** - 感谢所有贡献
 
 ---
 
-## 📞 联系方式
+## 📬 联系方式
 
-- **GitHub Issues**: https://github.com/simple-f/YM-CODE/issues
-- **Discord**: （待创建）
-- **微信群**: （待创建）
+- **GitHub Issues:** 提交 Bug 或功能建议
+- **Email:** your-email@example.com
+- **Discord:** 加入社区讨论
 
 ---
 
-_最后更新：2026-03-12_
-
-_作者：YM-CODE Team_
-
-_状态：开发中 🚧_
+**🌟 如果这个项目对你有帮助，请给个 Star！**

@@ -1,215 +1,252 @@
-# YM-CODE 快速开始指南
+# YM-CODE 快速开始
 
-> 5 分钟快速上手，像 Claude Code 一样好用的 AI 编程助手
-
----
-
-## ✅ 配置完成状态
-
-**当前配置：**
-- ✅ API Key: `sk-sp-90fc02607ed448...`
-- ✅ 模型：通义千问 Plus（qwen-plus）
-- ✅ Base URL: `https://dashscope.aliyuncs.com/compatible-mode/v1`
-- ✅ 模型切换：已实现
+**版本：** v0.5.0  
+**更新时间：** 2026-03-16
 
 ---
 
-## 🚀 快速使用
+## 🚀 快速安装
 
-### 1. 启动 YM-CODE
-
-```bash
-ym-code
-```
-
-### 2. 测试对话
+### 1. 克隆项目
 
 ```bash
-YM-CODE> 你好
-YM-CODE> 你是什么模型
-YM-CODE> 帮我创建一个文件 test.py
+git clone https://github.com/your-username/ym-code.git
+cd ym-code
 ```
 
-### 3. 切换模型
+### 2. 安装依赖
 
 ```bash
-# 查看当前模型
-YM-CODE> model
-当前模型：qwen-plus
+# 创建虚拟环境（推荐）
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/Mac
 
-# 列出所有模型
-YM-CODE> models
-
-# 切换到通义千问 Turbo（更快）
-YM-CODE> model qwen-turbo
-已切换到模型：qwen-turbo
-
-# 切换到通义千问 Max（最强）
-YM-CODE> model qwen-max
-已切换到模型：qwen-max
+# 安装依赖
+pip install -r requirements.txt
 ```
+
+### 3. 配置环境
+
+```bash
+# 复制环境配置模板
+cp .env.example .env
+
+# 编辑 .env 文件，配置你的 API Key
+# DASHSCOPE_API_KEY=sk-your-api-key-here
+```
+
+### 4. 初始化系统
+
+```bash
+# 运行初始化脚本
+python init.py
+```
+
+### 5. 启动服务
+
+```bash
+# 启动 Web 服务
+python start-web.py
+
+# 或使用 CLI
+ym-code start
+```
+
+访问 http://localhost:18770
 
 ---
 
-## 📊 可用模型列表
+## 📋 系统要求
 
-| 模型 ID | 模型名称 | Base URL | 特点 |
-|--------|----------|----------|------|
-| `qwen-plus` | 通义千问 Plus | dashscope | 平衡（默认） |
-| `qwen-turbo` | 通义千问 Turbo | dashscope | 快速 |
-| `qwen-max` | 通义千问 Max | dashscope | 最强 |
-| `glm-5` | 智谱 GLM-5 | bigmodel.cn | 中文强 |
-| `glm-4` | 智谱 GLM-4 | bigmodel.cn | 中文强 |
-| `moonshot-v1` | Moonshot V1 | moonshot.cn | 长上下文 |
+### 最低要求
 
----
+- **Python:** 3.10+
+- **内存:** 2GB
+- **磁盘:** 500MB
 
-## 🔧 命令速查
+### 推荐配置
 
-### 基本命令
-
-```bash
-YM-CODE> help              # 查看帮助
-YM-CODE> clear             # 清屏
-YM-CODE> quit              # 退出程序
-```
-
-### 模型切换
-
-```bash
-YM-CODE> model             # 查看当前模型
-YM-CODE> models            # 列出所有模型
-YM-CODE> model qwen-plus   # 切换模型
-```
-
-### 编程任务
-
-```bash
-YM-CODE> 帮我创建 test.py
-YM-CODE> 写入 print("hello")
-YM-CODE> 读取 test.py
-YM-CODE> 运行 python test.py
-YM-CODE> 解释这段代码
-YM-CODE> 优化这个函数
-YM-CODE> 添加注释
-```
-
-### Git 操作
-
-```bash
-YM-CODE> git status
-YM-CODE> git add .
-YM-CODE> git commit -m "更新代码"
-YM-CODE> git push
-```
+- **Python:** 3.13
+- **内存:** 4GB+
+- **磁盘:** 1GB+
 
 ---
 
-## 📝 配置文件
+## 🔧 配置说明
 
-**位置：** `C:\Users\Administrator\.openclaw\workspace-ai2\shared\YM-CODE\.env`
+### 环境变量（.env）
 
-**配置项：**
+```bash
+# LLM API 配置（必需）
+DASHSCOPE_API_KEY=sk-your-api-key-here
 
-```env
-# API Key
-DASHSCOPE_API_KEY=sk-sp-xxx
-
-# 模型配置
-OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
-OPENAI_MODEL=qwen-plus
+# 可选配置
+OPENAI_API_KEY=sk-xxx
+MOONSHOT_API_KEY=sk-xxx
 
 # YM-CODE 配置
 YM_CODE_MAX_ITERATIONS=30
 YM_CODE_TIMEOUT=300
+YM_CODE_LOG_LEVEL=INFO
+
+# 服务器配置
+YM_CODE_HOST=0.0.0.0
+YM_CODE_PORT=18770
+YM_CODE_DEBUG=false
+```
+
+### 配置文件（config.json）
+
+```json
+{
+  "model": {
+    "primary": "qwen3.5-plus",
+    "fallback": "qwen-plus"
+  },
+  "features": {
+    "file_browser": true,
+    "web_terminal": true,
+    "task_manager": true,
+    "skills_market": true
+  },
+  "storage": {
+    "sessions_db": "~/.ymcode/sessions.db",
+    "memory_dir": "~/.ymcode/memory"
+  }
+}
 ```
 
 ---
 
-## 💡 使用技巧
+## 📁 目录结构
 
-### 1. 根据场景选择模型
-
-```bash
-# 日常开发 - 用 qwen-plus（平衡）
-YM-CODE> model qwen-plus
-
-# 快速响应 - 用 qwen-turbo
-YM-CODE> model qwen-turbo
-
-# 复杂任务 - 用 qwen-max
-YM-CODE> model qwen-max
 ```
-
-### 2. 文件操作
-
-```bash
-# 创建并写入
-YM-CODE> 创建 test.py，写入 print("hello")
-
-# 读取文件
-YM-CODE> 读取 test.py
-
-# 修改文件
-YM-CODE> 在 test.py 中添加一个函数
-```
-
-### 3. 代码审查
-
-```bash
-YM-CODE> 审查这个文件
-YM-CODE> 检查代码规范
-YM-CODE> 找出潜在 bug
+ym-code/
+├── ymcode/              # 核心代码
+│   ├── agents/          # 多 Agent 系统
+│   ├── api/             # Web API
+│   ├── cli/             # 命令行工具
+│   ├── core/            # 核心引擎
+│   ├── mcp/             # MCP 协议
+│   ├── skills/          # 技能系统
+│   └── storage/         # 数据存储
+├── tests/               # 测试套件
+├── web/                 # Web 前端
+├── docs/                # 文档
+├── .env.example         # 环境配置模板
+├── config.json          # 配置文件
+├── init.py              # 初始化脚本
+├── requirements.txt     # Python 依赖
+└── start-web.py         # 启动脚本
 ```
 
 ---
 
-## 🐛 故障排查
+## 🧪 验证安装
 
-### 问题 1：API Key 错误
+### 运行测试
 
-**错误信息：** `Error code: 401 - Incorrect API key provided`
+```bash
+# 运行所有测试
+pytest tests/ -v
+
+# 运行特定测试
+pytest tests/test_mcp_server.py -v
+```
+
+### 检查系统状态
+
+```bash
+# 使用 CLI 检查
+ym-code doctor
+
+# 或手动检查
+python -c "from ymcode import check_system; check_system()"
+```
+
+---
+
+## ❓ 常见问题
+
+### 1. API Key 配置错误
+
+**错误：** `API key not configured`
 
 **解决：**
-1. 检查 `.env` 文件中的 API Key 是否正确
-2. 访问 https://dashscope.console.aliyun.com/apiKey 确认 Key 有效
-3. 确认有足够的额度
-
-### 问题 2：模型不存在
-
-**错误信息：** `Model not found`
-
-**解决：**
 ```bash
-# 查看可用模型
-YM-CODE> models
+# 检查 .env 文件
+cat .env
 
-# 使用正确的模型 ID
-YM-CODE> model qwen-plus
+# 确保 API Key 正确
+DASHSCOPE_API_KEY=sk-xxx
 ```
 
-### 问题 3：命令不生效
+### 2. 端口被占用
+
+**错误：** `Address already in use`
 
 **解决：**
 ```bash
-# 重启 YM-CODE
-YM-CODE> quit
+# 修改端口
+echo "YM_CODE_PORT=18771" >> .env
 
-# 重新启动
-ym-code
+# 或杀死占用端口的进程
+netstat -ano | findstr :18770
+taskkill /PID <pid> /F
+```
+
+### 3. 依赖安装失败
+
+**错误：** `Failed to install dependencies`
+
+**解决：**
+```bash
+# 升级 pip
+python -m pip install --upgrade pip
+
+# 重新安装
+pip install -r requirements.txt --force-reinstall
+```
+
+### 4. 中文乱码
+
+**错误：** Windows 控制台中文乱码
+
+**解决：**
+```bash
+# 设置控制台编码
+chcp 65001
+
+# 或在 .env 中添加
+PYTHONIOENCODING=utf-8
 ```
 
 ---
 
-## 📖 相关文档
+## 🆘 获取帮助
 
-- [MODELS_GUIDE.md](./MODELS_GUIDE.md) - 模型切换指南
-- [CONFIG_GUIDE.md](./CONFIG_GUIDE.md) - 配置指南
-- [INSTALL.md](./INSTALL.md) - 安装指南
-- [TESTING_GUIDE.md](./docs/TESTING_GUIDE.md) - 测试指南
+### 文档
+
+- [系统架构](docs/SYSTEM_ARCHITECTURE.md)
+- [API 文档](http://localhost:18770/docs)
+- [使用指南](docs/USAGE.md)
+
+### 社区
+
+- GitHub Issues: 提交 Bug 或功能建议
+- Discord: 加入社区讨论
 
 ---
 
-_最后更新：2026-03-13_
+## 📝 下一步
 
-_作者：YM-CODE Team_
+- ✅ 完成快速安装
+- ✅ 配置 API Key
+- ✅ 启动 Web 服务
+- 📖 阅读 [使用指南](docs/USAGE.md)
+- 🛠️ 探索 [技能系统](docs/SKILLS.md)
+
+---
+
+**祝你使用愉快！** 🎉

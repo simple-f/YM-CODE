@@ -1,0 +1,20 @@
+{
+  "model": {
+    "primary": "qwen3.5-plus",
+    "fallback": "qwen-plus"
+  },
+  "features": {
+    "file_browser": true,
+    "web_terminal": true,
+    "task_manager": true,
+    "skills_market": true
+  },
+  "storage": {
+    "sessions_db": "C:\\Users\\Administrator\\.ymcode\\sessions.db",
+    "memory_dir": "C:\\Users\\Administrator\\.ymcode\\memory"
+  },
+  "ui": {
+    "theme": "dark",
+    "language": "zh-CN"
+  }
+}

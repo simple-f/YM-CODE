@@ -7,6 +7,7 @@ from .shell import ShellSkill
 from .code_analysis import CodeAnalysisSkill
 from .code_analyzer import CodeAnalyzerSkill
 from .git_integration import GitIntegrationSkill
+from .batch_project import BatchProjectSkill
 from .memory import MemorySkill
 from .self_improvement import SelfImprovementSkill
 from .database import DatabaseSkill
@@ -29,6 +30,7 @@ __all__ = [
     "CodeAnalysisSkill",
     "CodeAnalyzerSkill",
     "GitIntegrationSkill",
+    "BatchProjectSkill",
     "MemorySkill",
     "SelfImprovementSkill",
     "ChatSkill",

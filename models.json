@@ -1,12 +1,76 @@
 {
   "models": {
+    "qwen3.5-plus": {
+      "name": "通义千问 3.5 Plus",
+      "provider": "dashscope",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "api_key_env": "DASHSCOPE_API_KEY",
+      "max_tokens": 8000,
+      "description": "通义千问 3.5 Plus（文本生成、深度思考、视觉理解）"
+    },
+    "qwen3-max-2026-01-23": {
+      "name": "通义千问 3 Max",
+      "provider": "dashscope",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "api_key_env": "DASHSCOPE_API_KEY",
+      "max_tokens": 8000,
+      "description": "通义千问 3 Max（文本生成、深度思考）"
+    },
+    "qwen3-coder-next": {
+      "name": "通义千问 3 Coder Next",
+      "provider": "dashscope",
+      "base_url": "https://coding.dashscope.aliyuncs.com/v1",
+      "api_key_env": "DASHSCOPE_API_KEY",
+      "max_tokens": 8000,
+      "description": "通义千问 3 Coder Next（文本生成、编程）"
+    },
+    "qwen3-coder-plus": {
+      "name": "通义千问 3 Coder Plus",
+      "provider": "dashscope",
+      "base_url": "https://coding.dashscope.aliyuncs.com/v1",
+      "api_key_env": "DASHSCOPE_API_KEY",
+      "max_tokens": 8000,
+      "description": "通义千问 3 Coder Plus（文本生成、编程专用）"
+    },
+    "glm-5": {
+      "name": "智谱 GLM-5",
+      "provider": "zhipu",
+      "base_url": "https://open.bigmodel.cn/api/paas/v4",
+      "api_key_env": "ZHIPU_API_KEY",
+      "max_tokens": 8000,
+      "description": "智谱 GLM-5（文本生成、深度思考）"
+    },
+    "glm-4.7": {
+      "name": "智谱 GLM-4.7",
+      "provider": "zhipu",
+      "base_url": "https://open.bigmodel.cn/api/paas/v4",
+      "api_key_env": "ZHIPU_API_KEY",
+      "max_tokens": 8000,
+      "description": "智谱 GLM-4.7（文本生成、深度思考）"
+    },
+    "kimi-k2.5": {
+      "name": "Kimi K2.5",
+      "provider": "moonshot",
+      "base_url": "https://api.moonshot.cn/v1",
+      "api_key_env": "MOONSHOT_API_KEY",
+      "max_tokens": 8000,
+      "description": "Kimi K2.5（文本生成、深度思考、视觉理解）"
+    },
+    "minimax-m2.5": {
+      "name": "MiniMax M2.5",
+      "provider": "minimax",
+      "base_url": "https://api.minimax.chat/v1",
+      "api_key_env": "MINIMAX_API_KEY",
+      "max_tokens": 8000,
+      "description": "MiniMax M2.5（文本生成、深度思考）"
+    },
     "qwen-coder-plus": {
       "name": "通义灵码 Plus",
       "provider": "dashscope",
       "base_url": "https://coding.dashscope.aliyuncs.com/v1",
       "api_key_env": "DASHSCOPE_API_KEY",
       "max_tokens": 8000,
-      "description": "通义灵码 Plus（编程专用，最强）"
+      "description": "通义灵码 Plus（编程专用）"
     },
     "qwen-coder-turbo": {
       "name": "通义灵码 Turbo",
@@ -14,71 +78,15 @@
       "base_url": "https://coding.dashscope.aliyuncs.com/v1",
       "api_key_env": "DASHSCOPE_API_KEY",
       "max_tokens": 8000,
-      "description": "通义灵码 Turbo（编程专用，快速经济）"
+      "description": "通义灵码 Turbo（编程专用、快速经济）"
     },
-    "qwen3-coder-plus": {
-      "name": "Qwen3 Coder Plus",
-      "provider": "dashscope",
-      "base_url": "https://coding.dashscope.aliyuncs.com/v1",
-      "api_key_env": "DASHSCOPE_API_KEY",
+    "deepseek-coder": {
+      "name": "DeepSeek Coder",
+      "provider": "deepseek",
+      "base_url": "https://api.deepseek.com/v1",
+      "api_key_env": "DEEPSEEK_API_KEY",
       "max_tokens": 8000,
-      "description": "Qwen3 编程专用版 Plus（最新）"
-    },
-    "qwen3-coder-turbo": {
-      "name": "Qwen3 Coder Turbo",
-      "provider": "dashscope",
-      "base_url": "https://coding.dashscope.aliyuncs.com/v1",
-      "api_key_env": "DASHSCOPE_API_KEY",
-      "max_tokens": 8000,
-      "description": "Qwen3 编程专用版 Turbo（快速）"
-    },
-    "qwen2.5-coder-32b": {
-      "name": "Qwen2.5 Coder 32B",
-      "provider": "dashscope",
-      "base_url": "https://coding.dashscope.aliyuncs.com/v1",
-      "api_key_env": "DASHSCOPE_API_KEY",
-      "max_tokens": 8000,
-      "description": "Qwen2.5 编程专用版 32B"
-    },
-    "qwen2.5-coder-7b": {
-      "name": "Qwen2.5 Coder 7B",
-      "provider": "dashscope",
-      "base_url": "https://coding.dashscope.aliyuncs.com/v1",
-      "api_key_env": "DASHSCOPE_API_KEY",
-      "max_tokens": 8000,
-      "description": "Qwen2.5 编程专用版 7B（轻量）"
-    },
-    "qwen3.5-plus": {
-      "name": "通义千问 3.5 Plus",
-      "provider": "dashscope",
-      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-      "api_key_env": "DASHSCOPE_API_KEY",
-      "max_tokens": 8000,
-      "description": "通义千问 3.5 Plus（通用，推荐）"
-    },
-    "qwen3-plus": {
-      "name": "通义千问 3 Plus",
-      "provider": "dashscope",
-      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-      "api_key_env": "DASHSCOPE_API_KEY",
-      "max_tokens": 8000,
-      "description": "通义千问 3 Plus"
-    },
-    "qwen-plus": {
-      "name": "通义千问 Plus",
-      "provider": "dashscope",
-      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-      "api_key_env": "DASHSCOPE_API_KEY",
-      "max_tokens": 8000,
-      "description": "通义千问 Plus（通用）"
-    },
-    "qwen-turbo": {
-      "name": "通义千问 Turbo",
-      "provider": "dashscope",
-      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-      "api_key_env": "DASHSCOPE_API_KEY",
-      "max_tokens": 8000,
-      "description": "通义千问 Turbo（快速经济）"
+      "description": "DeepSeek Coder（编程专用）"
     },
     "gpt-4": {
       "name": "GPT-4",
@@ -87,104 +95,8 @@
       "api_key_env": "OPENAI_API_KEY",
       "max_tokens": 8000,
       "description": "OpenAI GPT-4"
-    },
-    "gpt-3.5-turbo": {
-      "name": "GPT-3.5 Turbo",
-      "provider": "openai",
-      "base_url": "https://api.openai.com/v1",
-      "api_key_env": "OPENAI_API_KEY",
-      "max_tokens": 4000,
-      "description": "OpenAI GPT-3.5 Turbo"
-    },
-    "moonshot-v1-8k": {
-      "name": "Kimi v1 8K",
-      "provider": "moonshot",
-      "base_url": "https://api.moonshot.cn/v1",
-      "api_key_env": "MOONSHOT_API_KEY",
-      "max_tokens": 8000,
-      "description": "月之暗面 Kimi v1 8K"
-    },
-    "moonshot-v1-32k": {
-      "name": "Kimi v1 32K",
-      "provider": "moonshot",
-      "base_url": "https://api.moonshot.cn/v1",
-      "api_key_env": "MOONSHOT_API_KEY",
-      "max_tokens": 32000,
-      "description": "月之暗面 Kimi v1 32K（长文本）"
-    },
-    "moonshot-v1-128k": {
-      "name": "Kimi v1 128K",
-      "provider": "moonshot",
-      "base_url": "https://api.moonshot.cn/v1",
-      "api_key_env": "MOONSHOT_API_KEY",
-      "max_tokens": 128000,
-      "description": "月之暗面 Kimi v1 128K（超长文本）"
-    },
-    "glm-4": {
-      "name": "智谱 GLM-4",
-      "provider": "zhipu",
-      "base_url": "https://open.bigmodel.cn/api/paas/v4",
-      "api_key_env": "ZHIPU_API_KEY",
-      "max_tokens": 8000,
-      "description": "智谱 AI GLM-4"
-    },
-    "glm-4-flash": {
-      "name": "智谱 GLM-4 Flash",
-      "provider": "zhipu",
-      "base_url": "https://open.bigmodel.cn/api/paas/v4",
-      "api_key_env": "ZHIPU_API_KEY",
-      "max_tokens": 8000,
-      "description": "智谱 AI GLM-4 Flash（快速）"
-    },
-    "glm-3-turbo": {
-      "name": "智谱 GLM-3 Turbo",
-      "provider": "zhipu",
-      "base_url": "https://open.bigmodel.cn/api/paas/v4",
-      "api_key_env": "ZHIPU_API_KEY",
-      "max_tokens": 8000,
-      "description": "智谱 AI GLM-3 Turbo"
-    },
-    "coglm-4": {
-      "name": "智谱 CodeGLM-4",
-      "provider": "zhipu",
-      "base_url": "https://open.bigmodel.cn/api/paas/v4",
-      "api_key_env": "ZHIPU_API_KEY",
-      "max_tokens": 8000,
-      "description": "智谱 AI CodeGLM-4（编程专用）"
-    },
-    "deepseek-chat": {
-      "name": "DeepSeek Chat",
-      "provider": "deepseek",
-      "base_url": "https://api.deepseek.com/v1",
-      "api_key_env": "DEEPSEEK_API_KEY",
-      "max_tokens": 8000,
-      "description": "深度求索 DeepSeek Chat"
-    },
-    "deepseek-coder": {
-      "name": "DeepSeek Coder",
-      "provider": "deepseek",
-      "base_url": "https://api.deepseek.com/v1",
-      "api_key_env": "DEEPSEEK_API_KEY",
-      "max_tokens": 8000,
-      "description": "深度求索 DeepSeek Coder（编程专用）"
-    },
-    "minimax-abab6": {
-      "name": "MiniMax Abab6",
-      "provider": "minimax",
-      "base_url": "https://api.minimax.chat/v1",
-      "api_key_env": "MINIMAX_API_KEY",
-      "max_tokens": 8000,
-      "description": "迷你冰 MiniMax Abab6"
-    },
-    "minimax-abab5": {
-      "name": "MiniMax Abab5",
-      "provider": "minimax",
-      "base_url": "https://api.minimax.chat/v1",
-      "api_key_env": "MINIMAX_API_KEY",
-      "max_tokens": 8000,
-      "description": "迷你冰 MiniMax Abab5"
     }
   },
-  "default": "qwen-coder-plus",
-  "fallback": "qwen3.5-plus"
+  "default": "qwen3.5-plus",
+  "fallback": "qwen3-coder-plus"
 }

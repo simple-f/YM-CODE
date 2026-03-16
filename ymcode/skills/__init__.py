@@ -5,6 +5,7 @@ from .search import SearchSkill
 from .http import HTTPSkill
 from .shell import ShellSkill
 from .code_analysis import CodeAnalysisSkill
+from .code_analyzer import CodeAnalyzerSkill
 from .memory import MemorySkill
 from .self_improvement import SelfImprovementSkill
 from .database import DatabaseSkill
@@ -25,6 +26,7 @@ __all__ = [
     "HTTPSkill",
     "ShellSkill",
     "CodeAnalysisSkill",
+    "CodeAnalyzerSkill",
     "MemorySkill",
     "SelfImprovementSkill",
     "ChatSkill",

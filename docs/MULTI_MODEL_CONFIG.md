@@ -99,6 +99,11 @@ client = LLMClient({
 3. 进入 API Key 管理
 4. 创建/复制 API Key
 
+**灵码专用 API（编程优化）：**
+1. 访问 https://dashscope.console.aliyun.com/lingma
+2. 开通灵码服务
+3. 使用相同的 API Key
+
 **配置：**
 ```bash
 # .env 文件
@@ -106,20 +111,27 @@ DASHSCOPE_API_KEY=sk-xxx
 
 # models.json
 {
-  "default": "qwen3.5-plus"
+  "default": "qwen-coder-plus"  // 灵码专用（编程推荐）
+  // 或 "qwen3.5-plus"  // 通用模型
 }
 ```
 
 **支持模型：**
-- qwen3.5-plus（推荐）
-- qwen-plus
-- qwen-turbo
+- qwen-coder-plus（灵码专用，编程推荐）⭐
+- qwen3.5-plus（通用，推荐）
+- qwen-plus（通用）
+- qwen-turbo（快速）
+
+**Base URL 区别：**
+- 灵码专用：`https://coding.dashscope.aliyuncs.com/v1` ⭐ 编程优化
+- 通用 API：`https://dashscope.aliyuncs.com/compatible-mode/v1`
 
 **优点：**
 - ✅ 中文支持好
 - ✅ 价格实惠
 - ✅ 国内访问快
 - ✅ 支持长上下文
+- ✅ 灵码专用 API 针对编程优化
 
 ---
 

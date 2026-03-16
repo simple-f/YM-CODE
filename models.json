@@ -16,6 +16,14 @@
       "max_tokens": 8000,
       "description": "通义灵码专用 API（编程场景优化，推荐）"
     },
+    "qwen-coder-turbo": {
+      "name": "通义灵码 Turbo",
+      "provider": "dashscope",
+      "base_url": "https://coding.dashscope.aliyuncs.com/v1",
+      "api_key_env": "DASHSCOPE_API_KEY",
+      "max_tokens": 8000,
+      "description": "通义灵码 Turbo（经济快速，编程优化）"
+    },
     "qwen-plus": {
       "name": "通义千问 Plus",
       "provider": "dashscope",

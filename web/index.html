@@ -31,10 +31,7 @@
         .sidebar-header h1 { font-size: 20px; margin-bottom: 5px; }
         .sidebar-header p { font-size: 12px; opacity: 0.8; }
         
-        .nav-menu {
-            flex: 1;
-            padding: 10px;
-        }
+        .nav-menu { flex: 1; padding: 10px; }
         .nav-item {
             padding: 12px 15px;
             margin: 5px 0;
@@ -49,34 +46,8 @@
         .nav-item.active { background: #667eea; }
         .nav-item .icon { font-size: 18px; }
         
-        .sessions-panel {
-            border-top: 1px solid #0f3460;
-            padding: 10px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .sessions-title {
-            font-size: 12px;
-            color: #888;
-            padding: 10px;
-            text-transform: uppercase;
-        }
-        .session-item {
-            padding: 10px;
-            margin: 5px 0;
-            background: #0f3460;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        .session-item:hover { background: #1a4a7a; }
-        
         /* 主内容区 */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+        .main { flex: 1; display: flex; flex-direction: column; }
         
         /* 顶部栏 */
         .topbar {
@@ -96,1190 +67,796 @@
             color: #eee;
             font-size: 13px;
         }
-        .status-indicator {
+        
+        /* 内容面板 */
+        .content-panel {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        .panel {
+            display: none;
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .panel.active { display: block; }
+        
+        /* 聊天面板 */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+        .message.user {
+            align-self: flex-end;
+            background: #667eea;
+        }
+        .message.assistant {
+            align-self: flex-start;
+            background: #0f3460;
+        }
+        .chat-input {
+            padding: 20px;
+            background: #16213e;
+            border-top: 1px solid #0f3460;
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            background: #0f3460;
+            border: 1px solid #1a4a7a;
+            border-radius: 8px;
+            color: #eee;
+            font-size: 14px;
+        }
+        .chat-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .chat-input button {
+            padding: 12px 24px;
+            background: #667eea;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .chat-input button:hover { background: #5568d3; }
+        
+        /* 文件浏览器面板 */
+        .file-browser {
+            display: flex;
+            gap: 20px;
+            height: 100%;
+        }
+        .file-tree {
+            width: 300px;
+            background: #16213e;
+            border-radius: 8px;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .file-tree-header {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-tree-header button {
+            padding: 4px 8px;
+            background: #667eea;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .file-item {
+            padding: 8px 12px;
+            margin: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 13px;
-            color: #888;
         }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4ade80;
-        }
-        
-        /* 聊天区 */
-        .chat-container {
+        .file-item:hover { background: #0f3460; }
+        .file-item.folder { color: #ffd700; }
+        .file-item.file { color: #eee; }
+        .file-item .icon { font-size: 16px; }
+        .file-preview {
             flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        .welcome-screen {
-            text-align: center;
-            padding: 60px 20px;
-        }
-        .welcome-screen h2 {
-            font-size: 32px;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .welcome-screen p { color: #888; margin-bottom: 30px; }
-        .suggestions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .suggestion-card {
-            padding: 20px;
             background: #16213e;
-            border: 1px solid #0f3460;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
+            border-radius: 8px;
+            padding: 20px;
+            overflow: auto;
         }
-        .suggestion-card:hover {
-            background: #0f3460;
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
-        .suggestion-card .icon { font-size: 24px; margin-bottom: 10px; }
-        .suggestion-card h3 { font-size: 14px; margin-bottom: 5px; }
-        .suggestion-card p { font-size: 12px; color: #888; }
-        
-        .message {
-            margin-bottom: 20px;
+        .file-preview-header {
             display: flex;
-            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #0f3460;
         }
-        .message.user { justify-content: flex-end; }
-        .message-avatar {
-            width: 36px;
-            height: 36px;
+        .file-preview-content {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 6px;
+            overflow: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        /* 终端面板 */
+        .terminal-container {
+            background: #0a0a0a;
+            border-radius: 8px;
+            padding: 15px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        .terminal-output {
+            flex: 1;
+            background: #0a0a0a;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #00ff00;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+        .terminal-input-line {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .terminal-prompt {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #eee;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            padding: 8px;
+        }
+        .terminal-input:focus { outline: none; }
+        .terminal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .terminal-actions button {
+            padding: 6px 12px;
+            background: #333;
+            border: none;
+            border-radius: 4px;
+            color: #eee;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .terminal-actions button:hover { background: #444; }
+        .terminal-actions button.danger { background: #dc3545; }
+        .terminal-actions button.danger:hover { background: #c82333; }
+        
+        /* 任务面板 */
+        .task-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            height: 100%;
+        }
+        .task-column {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .task-column-header {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0f3460;
+        }
+        .task-column.inbox .task-column-header { border-color: #667eea; }
+        .task-column.spec .task-column-header { border-color: #ffd700; }
+        .task-column.build .task-column-header { border-color: #00ff00; }
+        .task-column.review .task-column-header { border-color: #ff6b6b; }
+        .task-column.done .task-column-header { border-color: #28a745; }
+        .task-card {
+            background: #0f3460;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .task-card:hover { background: #1a4a7a; }
+        .task-card-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .task-card-meta {
+            font-size: 11px;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* 技能市场面板 */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .skill-card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #0f3460;
+        }
+        .skill-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .skill-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
+            font-size: 20px;
         }
-        .message.assistant .message-avatar { background: #667eea; }
-        .message.user .message-avatar { background: #764ba2; }
-        .message-content {
-            max-width: 70%;
-            padding: 15px 20px;
-            border-radius: 12px;
-            line-height: 1.6;
+        .skill-name {
+            font-size: 16px;
+            font-weight: bold;
         }
-        .message.assistant .message-content {
-            background: #16213e;
-            border: 1px solid #0f3460;
-        }
-        .message.user .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .message-content pre {
-            background: #0f3460;
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-            margin: 10px 0;
+        .skill-desc {
             font-size: 13px;
+            color: #aaa;
+            margin-bottom: 15px;
+            line-height: 1.5;
         }
-        .message-content code {
-            font-family: 'Consolas', 'Monaco', monospace;
+        .skill-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 15px;
         }
-        
-        /* 输入区 */
-        .input-container {
-            padding: 20px;
-            background: #16213e;
-            border-top: 1px solid #0f3460;
-        }
-        .input-form {
+        .skill-actions {
             display: flex;
             gap: 10px;
-            max-width: 900px;
-            margin: 0 auto;
         }
-        .input-wrapper {
+        .skill-actions button {
             flex: 1;
-            position: relative;
-        }
-        #messageInput {
-            width: 100%;
-            padding: 15px 20px;
-            background: #0f3460;
-            border: 2px solid #1a4a7a;
-            border-radius: 12px;
-            color: #eee;
-            font-size: 14px;
-            outline: none;
-            resize: none;
-            font-family: inherit;
-        }
-        #messageInput:focus { border-color: #667eea; }
-        #sendBtn {
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            padding: 8px;
             border: none;
-            border-radius: 12px;
-            font-size: 14px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: transform 0.2s;
-            font-weight: 600;
+            font-weight: bold;
         }
-        #sendBtn:hover { transform: scale(1.05); }
-        #sendBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-install {
+            background: #667eea;
+            color: white;
+        }
+        .btn-installed {
+            background: #28a745;
+            color: white;
+            cursor: not-allowed;
+        }
+        .btn-uninstall {
+            background: #dc3545;
+            color: white;
+        }
         
-        /* 工具面板 */
-        .tools-panel {
-            position: absolute;
-            bottom: 100px;
-            right: 20px;
-            background: #16213e;
-            border: 1px solid #0f3460;
-            border-radius: 12px;
-            padding: 15px;
-            display: none;
-        }
-        .tools-panel.show { display: block; }
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-        .tool-btn {
-            padding: 10px;
-            background: #0f3460;
-            border: 1px solid #1a4a7a;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        .tool-btn:hover { background: #1a4a7a; border-color: #667eea; }
-        .tool-btn .icon { font-size: 20px; display: block; margin-bottom: 5px; }
-        
-        /* 打字指示器 */
+        /* 加载动画 */
         .typing-indicator {
-            display: none;
-            padding: 15px 20px;
-            background: #16213e;
-            border: 1px solid #0f3460;
-            border-radius: 12px;
-            max-width: 70px;
+            display: flex;
+            gap: 4px;
+            padding: 10px;
         }
-        .typing-indicator.show { display: inline-block; }
         .typing-indicator span {
-            height: 8px;
             width: 8px;
+            height: 8px;
             background: #667eea;
             border-radius: 50%;
-            display: inline-block;
-            margin: 0 2px;
-            animation: typing 1.4s infinite;
+            animation: typing 1s infinite;
         }
         .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
         .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-10px); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
         
-        /* 页面切换 */
-        .page { display: none; height: 100%; }
-        .page.active { display: flex; flex-direction: column; }
+        /* 滚动条 */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a2e; }
+        ::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5568d3; }
     </style>
 </head>
 <body>
     <div class="app">
         <!-- 侧边栏 -->
-        <aside class="sidebar">
+        <div class="sidebar">
             <div class="sidebar-header">
                 <h1>🤖 YM-CODE</h1>
-                <p>AI 编程助手</p>
+                <p>AI 编程助手 v0.3.5</p>
             </div>
-            
-            <nav class="nav-menu">
-                <div class="nav-item active" data-page="chat">
+            <div class="nav-menu">
+                <div class="nav-item active" data-panel="chat">
                     <span class="icon">💬</span>
                     <span>聊天</span>
                 </div>
-                <div class="nav-item" data-page="files">
+                <div class="nav-item" data-panel="files">
                     <span class="icon">📁</span>
                     <span>文件浏览器</span>
                 </div>
-                <div class="nav-item" data-page="terminal">
+                <div class="nav-item" data-panel="terminal">
                     <span class="icon">⌨️</span>
-                    <span>终端</span>
+                    <span>Web 终端</span>
                 </div>
-                <div class="nav-item" data-page="skills">
+                <div class="nav-item" data-panel="tasks">
+                    <span class="icon">📋</span>
+                    <span>任务管理</span>
+                </div>
+                <div class="nav-item" data-panel="skills">
                     <span class="icon">🛠️</span>
                     <span>技能市场</span>
                 </div>
-                <div class="nav-item" data-page="settings">
-                    <span class="icon">⚙️</span>
-                    <span>设置</span>
-                </div>
-            </nav>
-            
+            </div>
             <div class="sessions-panel">
                 <div class="sessions-title">最近会话</div>
                 <div id="sessionsList"></div>
             </div>
-        </aside>
+        </div>
         
         <!-- 主内容区 -->
-        <main class="main">
-            <!-- 顶部栏 -->
+        <div class="main">
             <div class="topbar">
-                <select class="workspace-select" id="workspaceSelect" onchange="loadWorkspaceAgents()">
-                    <option>默认工作区</option>
+                <select class="workspace-select" id="workspaceSelect">
+                    <option value="default">默认工作空间</option>
                 </select>
-                <select class="workspace-select" id="agentSelect" style="width: 180px;">
-                    <option value="">默认 Agent</option>
-                </select>
-                <a href="/multi-agent.html" style="padding: 8px 15px; background: #667eea; color: white; border-radius: 6px; text-decoration: none; font-size: 13px; margin-left: 10px;">🤖 多 Agent 协作</a>
-                <div class="status-indicator" style="margin-left: auto;">
-                    <span class="status-dot"></span>
-                    <span id="statusText">在线</span>
+                <div class="status-indicator">
+                    <span style="color: #00ff00;">●</span>
+                    <span style="font-size: 12px; margin-left: 5px;">在线</span>
                 </div>
             </div>
             
-            <!-- 聊天页面 -->
-            <div class="page active" id="chatPage" style="flex-direction: column;">
-                <div class="chat-container" id="chatContainer">
-                    <div class="welcome-screen" id="welcomeScreen">
-                        <h2>欢迎使用 YM-CODE</h2>
-                        <p>您的智能编程助手，支持代码编写、调试、审查等功能</p>
-                        
-                        <div class="suggestions">
-                            <div class="suggestion-card" onclick="sendSuggestion('帮我分析这个项目结构')">
-                                <span class="icon">📊</span>
-                                <h3>分析项目</h3>
-                                <p>理解代码结构和架构</p>
-                            </div>
-                            <div class="suggestion-card" onclick="sendSuggestion('帮我写一个 Python 快速排序')">
-                                <span class="icon">💻</span>
-                                <h3>生成代码</h3>
-                                <p>快速创建代码片段</p>
-                            </div>
-                            <div class="suggestion-card" onclick="sendSuggestion('帮我找出代码中的 bug')">
-                                <span class="icon">🐛</span>
-                                <h3>调试代码</h3>
-                                <p>定位并修复问题</p>
-                            </div>
-                            <div class="suggestion-card" onclick="sendSuggestion('审查这个文件的代码质量')">
-                                <span class="icon">✅</span>
-                                <h3>代码审查</h3>
-                                <p>检查最佳实践</p>
-                            </div>
-                            <div class="suggestion-card" onclick="sendSuggestion('为这个函数写单元测试')">
-                                <span class="icon">🧪</span>
-                                <h3>生成测试</h3>
-                                <p>自动化测试覆盖</p>
-                            </div>
-                            <div class="suggestion-card" onclick="sendSuggestion('解释这段代码的作用')">
-                                <span class="icon">📖</span>
-                                <h3>解释代码</h3>
-                                <p>理解复杂逻辑</p>
-                            </div>
+            <div class="content-panel">
+                <!-- 聊天面板 -->
+                <div class="panel active" id="chatPanel">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="输入消息..." onkeypress="if(event.key==='Enter') sendMessage()">
+                            <button onclick="sendMessage()">发送</button>
                         </div>
                     </div>
                 </div>
                 
-                <div class="input-container">
-                    <form class="input-form" id="chatForm">
-                        <div class="input-wrapper">
-                            <input 
-                                type="text" 
-                                id="messageInput" 
-                                placeholder="输入你的问题，例如：帮我分析这个项目..." 
-                                autocomplete="off"
-                            />
+                <!-- 文件浏览器面板 -->
+                <div class="panel" id="filesPanel">
+                    <div class="file-browser">
+                        <div class="file-tree">
+                            <div class="file-tree-header">
+                                <span>📁 文件树</span>
+                                <button onclick="refreshFiles()">🔄</button>
+                            </div>
+                            <div id="fileTreeContent"></div>
                         </div>
-                        <button type="submit" id="sendBtn">发送</button>
-                    </form>
+                        <div class="file-preview">
+                            <div class="file-preview-header">
+                                <span id="fileName">选择文件预览</span>
+                                <div class="terminal-actions">
+                                    <button onclick="downloadFile()">⬇️ 下载</button>
+                                    <button onclick="deleteFile()" class="danger">🗑️ 删除</button>
+                                </div>
+                            </div>
+                            <div class="file-preview-content" id="fileContent"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Web 终端面板 -->
+                <div class="panel" id="terminalPanel">
+                    <div class="terminal-container">
+                        <div class="terminal-header">
+                            <span>⌨️ Web 终端 - PowerShell</span>
+                            <div class="terminal-actions">
+                                <button onclick="clearTerminal()">🧹 清屏</button>
+                                <button onclick="newTerminal()">➕ 新建</button>
+                            </div>
+                        </div>
+                        <div class="terminal-output" id="terminalOutput"></div>
+                        <div class="terminal-input-line">
+                            <span class="terminal-prompt">PS&gt;</span>
+                            <input type="text" class="terminal-input" id="terminalInput" 
+                                   placeholder="输入命令..." onkeypress="if(event.key==='Enter') executeCommand()">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 任务管理面板 -->
+                <div class="panel" id="tasksPanel">
+                    <div class="task-board">
+                        <div class="task-column inbox">
+                            <div class="task-column-header">📥 收件箱</div>
+                            <div id="tasksInbox"></div>
+                        </div>
+                        <div class="task-column spec">
+                            <div class="task-column-header">📝 规格</div>
+                            <div id="tasksSpec"></div>
+                        </div>
+                        <div class="task-column build">
+                            <div class="task-column-header">🔨 构建</div>
+                            <div id="tasksBuild"></div>
+                        </div>
+                        <div class="task-column review">
+                            <div class="task-column-header">👀 审查</div>
+                            <div id="tasksReview"></div>
+                        </div>
+                        <div class="task-column done">
+                            <div class="task-column-header">✅ 完成</div>
+                            <div id="tasksDone"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 技能市场面板 -->
+                <div class="panel" id="skillsPanel">
+                    <div class="skills-grid" id="skillsGrid"></div>
                 </div>
             </div>
-            
-            <!-- 其他页面占位 -->
-            <div class="page" id="filesPage" style="flex-direction: column;">
-                <!-- 文件浏览器工具栏 -->
-                <div style="padding: 15px 20px; background: #16213e; border-bottom: 1px solid #0f3460; display: flex; gap: 10px; align-items: center;">
-                    <button id="backBtn" style="padding: 8px 15px; background: #0f3460; border: 1px solid #1a4a7a; color: #eee; border-radius: 6px; cursor: pointer;">← 返回</button>
-                    <input type="text" id="currentPath" style="flex: 1; padding: 8px 15px; background: #0f3460; border: 1px solid #1a4a7a; color: #eee; border-radius: 6px;" readonly />
-                    <button id="refreshBtn" style="padding: 8px 15px; background: #667eea; border: none; color: white; border-radius: 6px; cursor: pointer;">🔄 刷新</button>
-                    <button id="newFileBtn" style="padding: 8px 15px; background: #4ade80; border: none; color: #1a1a2e; border-radius: 6px; cursor: pointer;">📄 新建</button>
-                </div>
-                
-                <!-- 文件列表 -->
-                <div id="fileList" style="flex: 1; overflow-y: auto; padding: 20px;">
-                    <!-- 动态加载 -->
-                </div>
-            </div>
-            
-            <div class="page" id="terminalPage" style="flex-direction: column;">
-                <!-- 终端工具栏 -->
-                <div style="padding: 15px 20px; background: #16213e; border-bottom: 1px solid #0f3460; display: flex; gap: 10px; align-items: center;">
-                    <span style="color:#888;font-size:13px;">💡 提示：输入命令后按 Enter 执行，输入 exit 退出</span>
-                    <button id="clearTerminalBtn" style="padding: 8px 15px;background:#0f3460;border:1px solid #1a4a7a;color:#eee;border-radius:6px;cursor:pointer;margin-left:auto;">🗑️ 清屏</button>
-                    <button id="newTerminalBtn" style="padding: 8px 15px;background:#667eea;border:none;color:white;border-radius:6px;cursor:pointer;">➕ 新建</button>
-                </div>
-                
-                <!-- 终端输出区 -->
-                <div id="terminalOutput" style="flex:1;overflow-y:auto;padding:20px;background:#0f3460;font-family:monospace;font-size:14px;color:#e5e7eb;"></div>
-                
-                <!-- 命令输入区 -->
-                <div style="padding: 15px 20px; background: #16213e; border-top: 1px solid #0f3460;">
-                    <div style="display:flex;gap:10px;">
-                        <span style="color:#4ade80;font-weight:bold;">$</span>
-                        <input 
-                            type="text" 
-                            id="terminalInput" 
-                            placeholder="输入命令..." 
-                            style="flex:1;background:transparent;border:none;color:#e5e7eb;font-family:monospace;font-size:14px;outline:none;"
-                            autocomplete="off"
-                        />
-                    </div>
-                </div>
-            </div>
-            
-            <div class="page" id="skillsPage" style="flex-direction: column;">
-                <!-- 技能市场头部 -->
-                <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <h2 style="margin-bottom: 10px;">🛠️ 技能市场</h2>
-                    <p style="opacity: 0.9;">发现、安装和管理技能，扩展 YM-CODE 的能力</p>
-                </div>
-                
-                <!-- 分类筛选 -->
-                <div style="padding: 15px 20px; display: flex; gap: 10px; overflow-x: auto; border-bottom: 1px solid #0f3460;">
-                    <button class="category-btn active" data-category="all" style="padding: 8px 16px; background: #667eea; border: none; border-radius: 20px; color: white; cursor: pointer; white-space: nowrap;">全部</button>
-                    <button class="category-btn" data-category="core" style="padding: 8px 16px; background: #0f3460; border: 1px solid #1a4a7a; border-radius: 20px; color: #eee; cursor: pointer; white-space: nowrap;">⭐ 核心</button>
-                    <button class="category-btn" data-category="dev" style="padding: 8px 16px; background: #0f3460; border: 1px solid #1a4a7a; border-radius: 20px; color: #eee; cursor: pointer; white-space: nowrap;">💻 开发</button>
-                    <button class="category-btn" data-category="tools" style="padding: 8px 16px; background: #0f3460; border: 1px solid #1a4a7a; border-radius: 20px; color: #eee; cursor: pointer; white-space: nowrap;">🛠️ 工具</button>
-                    <button class="category-btn" data-category="ai" style="padding: 8px 16px; background: #0f3460; border: 1px solid #1a4a7a; border-radius: 20px; color: #eee; cursor: pointer; white-space: nowrap;">🤖 AI</button>
-                </div>
-                
-                <!-- 技能列表 -->
-                <div id="skillsList" style="flex: 1; overflow-y: auto; padding: 20px;">
-                    <div style="text-align: center; padding: 40px; color: #888;">加载中...</div>
-                </div>
-            </div>
-            
-            <div class="page" id="settingsPage" style="flex-direction: column;">
-                <!-- 设置头部 -->
-                <div style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <h2 style="margin-bottom: 10px;">⚙️ 设置</h2>
-                    <p style="opacity: 0.9;">配置 YM-CODE 的各项参数</p>
-                </div>
-                
-                <!-- 设置内容 -->
-                <div style="flex: 1; overflow-y: auto; padding: 20px;">
-                    <!-- API 配置 -->
-                    <div style="background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                        <h3 style="margin-bottom: 15px; font-size: 18px;">🔑 API 配置</h3>
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 8px; color: #aaa; font-size: 14px;">DASHSCOPE_API_KEY</label>
-                            <input type="password" id="apiKeyInput" placeholder="sk-..." style="width: 100%; padding: 12px; background: #0f3460; border: 1px solid #1a4a7a; border-radius: 8px; color: #eee; font-size: 14px;" />
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 8px; color: #aaa; font-size: 14px;">模型</label>
-                            <select id="modelSelect" style="width: 100%; padding: 12px; background: #0f3460; border: 1px solid #1a4a7a; border-radius: 8px; color: #eee; font-size: 14px;">
-                                <option value="qwen3.5-plus">qwen3.5-plus (推荐)</option>
-                                <option value="qwen-plus">qwen-plus</option>
-                                <option value="qwen-turbo">qwen-turbo (快速)</option>
-                            </select>
-                        </div>
-                        <button onclick="saveApiSettings()" style="padding: 12px 24px; background: #667eea; border: none; border-radius: 8px; color: white; cursor: pointer; font-size: 14px;">💾 保存配置</button>
-                    </div>
-                    
-                    <!-- 界面设置 -->
-                    <div style="background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                        <h3 style="margin-bottom: 15px; font-size: 18px;">🎨 界面设置</h3>
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="darkTheme" checked style="width: 18px; height: 18px;" />
-                                <span style="color: #eee;">深色主题</span>
-                            </label>
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="autoSave" checked style="width: 18px; height: 18px;" />
-                                <span style="color: #eee;">自动保存会话</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- 系统信息 -->
-                    <div style="background: #16213e; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                        <h3 style="margin-bottom: 15px; font-size: 18px;">📊 系统信息</h3>
-                        <div style="display: grid; gap: 10px;">
-                            <div style="display: flex; justify-content: space-between; padding: 10px; background: #0f3460; border-radius: 8px;">
-                                <span style="color: #aaa;">版本</span>
-                                <span style="color: #eee;">v0.2.0</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 10px; background: #0f3460; border-radius: 8px;">
-                                <span style="color: #aaa;">API 状态</span>
-                                <span style="color: #4ade80;">✅ 正常</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding: 10px; background: #0f3460; border-radius: 8px;">
-                                <span style="color: #aaa;">数据库</span>
-                                <span style="color: #4ade80;">✅ 已连接</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 关于 -->
-                    <div style="text-align: center; padding: 20px; color: #888;">
-                        <p>YM-CODE v0.2.0</p>
-                        <p style="font-size: 13px; margin-top: 10px;">AI 编程助手 - 让编程更高效</p>
-                    </div>
-                </div>
-            </div>
-        </main>
+        </div>
     </div>
-
+    
     <script>
-        const API_BASE = '/api';
-        let welcomeShown = false;
-        let currentSessionId = null;
+        // API 基础 URL
+        const API_BASE = 'http://localhost:18770/api';
         
-        // 文件浏览器状态
-        let currentPath = '';
-        let pathHistory = [];
-        
-        // 获取或创建 Session ID
-        function getSessionId() {
-            if (!currentSessionId) {
-                currentSessionId = localStorage.getItem('ymcode_session_id');
-                if (!currentSessionId) {
-                    currentSessionId = 'session_' + Math.random().toString(36).substr(2, 9);
-                    localStorage.setItem('ymcode_session_id', currentSessionId);
-                }
-            }
-            return currentSessionId;
-        }
-        
-        // ==================== 工作空间和 Agent 管理 ====================
-        
-        async function loadWorkspaceAgents() {
-            const workspaceSelect = document.getElementById('workspaceSelect');
-            const agentSelect = document.getElementById('agentSelect');
-            const workspaceId = workspaceSelect.value;
-            
-            if (!workspaceId || workspaceId === '默认工作区') {
-                agentSelect.innerHTML = '<option value="">默认 Agent</option>';
-                return;
-            }
-            
-            try {
-                const resp = await fetch(`${API_BASE}/workspaces/${workspaceId}`);
-                const data = await resp.json();
-                
-                agentSelect.innerHTML = '<option value="">默认 Agent</option>' + 
-                    data.agents.map(agent => 
-                        `<option value="${agent.id}">${escapeHtml(agent.name)} (${agent.model})</option>`
-                    ).join('');
-                
-            } catch (error) {
-                console.error('加载 Agent 失败:', error);
-                agentSelect.innerHTML = '<option value="">加载失败</option>';
-            }
-        }
-        
-        // ==================== 文件浏览器功能 ====================
-        
-        // 加载文件列表
-        async function loadFiles(path = null) {
-            const fileList = document.getElementById('fileList');
-            const pathInput = document.getElementById('currentPath');
-            
-            if (!path) {
-                // 默认显示工作目录
-                path = currentPath || '.';
-            }
-            
-            try {
-                fileList.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">加载中...</div>';
-                
-                const resp = await fetch(`${API_BASE}/files/list?path=${encodeURIComponent(path)}`);
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                
-                const data = await resp.json();
-                currentPath = data.path;
-                pathInput.value = data.path;
-                
-                // 渲染文件列表
-                renderFileList(data.files);
-                
-            } catch (error) {
-                fileList.innerHTML = `<div style="text-align:center;padding:40px;color:#f87171;">加载失败：${error.message}</div>`;
-            }
-        }
-        
-        // 渲染文件列表
-        function renderFileList(files) {
-            const fileList = document.getElementById('fileList');
-            
-            if (!files || files.length === 0) {
-                fileList.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">空目录</div>';
-                return;
-            }
-            
-            fileList.innerHTML = files.map(file => {
-                const icon = file.type === 'directory' ? '📁' : getFileIcon(file.ext);
-                const size = file.type === 'file' ? formatSize(file.size) : '';
-                
-                return `
-                    <div class="file-item" onclick="handleFileClick('${escapeHtml(file.path)}', '${file.type}')" 
-                         style="display:flex;align-items:center;padding:12px 15px;margin:5px 0;background:#0f3460;border-radius:8px;cursor:pointer;transition:background 0.2s;"
-                         onmouseover="this.style.background='#1a4a7a'" onmouseout="this.style.background='#0f3460'">
-                        <span style="font-size:20px;margin-right:15px;">${icon}</span>
-                        <div style="flex:1;">
-                            <div style="font-size:14px;margin-bottom:4px;">${escapeHtml(file.name)}</div>
-                            <div style="font-size:12px;color:#888;">${file.modified ? new Date(file.modified).toLocaleString() : ''} ${size ? '· ' + size : ''}</div>
-                        </div>
-                        ${file.type === 'directory' ? '<span style="color:#888;font-size:12px;">→</span>' : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        // 处理文件点击
-        function handleFileClick(path, type) {
-            if (type === 'directory') {
-                // 进入目录
-                pathHistory.push(currentPath);
-                loadFiles(path);
-            } else {
-                // 查看文件内容
-                viewFile(path);
-            }
-        }
-        
-        // 查看文件
-        async function viewFile(path) {
-            try {
-                const resp = await fetch(`${API_BASE}/files/read?path=${encodeURIComponent(path)}&lines=200`);
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                
-                const data = await resp.json();
-                
-                // 创建模态框显示文件内容
-                const modal = document.createElement('div');
-                modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;display:flex;align-items:center;justify-content:center;';
-                modal.innerHTML = `
-                    <div style="background:#16213e;border-radius:12px;width:80%;max-width:900px;height:80%;display:flex;flex-direction:column;">
-                        <div style="padding:15px 20px;border-bottom:1px solid #0f3460;display:flex;justify-content:space-between;align-items:center;">
-                            <strong style="font-size:16px;">${escapeHtml(path)}</strong>
-                            <button onclick="this.closest('div[style*=fixed]').remove()" style="padding:8px 15px;background:#ef4444;border:none;color:white;border-radius:6px;cursor:pointer;">关闭</button>
-                        </div>
-                        <pre style="flex:1;overflow:auto;padding:20px;background:#0f3460;color:#e5e7eb;font-size:13px;font-family:monospace;">${escapeHtml(data.content)}</pre>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-                
-            } catch (error) {
-                alert(`读取文件失败：${error.message}`);
-            }
-        }
-        
-        // 获取文件图标
-        function getFileIcon(ext) {
-            const icons = {
-                '.txt': '📄', '.md': '📝', '.py': '🐍', '.js': '📜', '.html': '🌐',
-                '.css': '🎨', '.json': '📋', '.xml': '📑', '.yml': '⚙️', '.yaml': '⚙️',
-                '.png': '🖼️', '.jpg': '🖼️', '.gif': '🖼️', '.svg': '🖼️',
-                '.zip': '📦', '.rar': '📦', '.7z': '📦',
-                '.pdf': '📕', '.doc': '📘', '.docx': '📘', '.xls': '📗', '.xlsx': '📗'
-            };
-            return icons[ext?.toLowerCase()] || '📄';
-        }
-        
-        // 格式化文件大小
-        function formatSize(bytes) {
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-            return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
-        }
-        
-        // HTML 转义
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // 页面切换
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                
-                const page = item.dataset.page;
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(page + 'Page').classList.add('active');
-                
-                // 如果是文件浏览器页面，加载文件列表
-                if (page === 'files') {
-                    loadFiles();
-                }
-                // 如果是终端页面，初始化终端
-                if (page === 'terminal') {
-                    initTerminal();
-                }
-                // 如果是技能市场页面，加载技能列表
-                if (page === 'skills') {
-                    loadSkills();
-                }
-            });
-        });
-        
-        // ==================== 终端功能 ====================
-        
-        let terminalWs = null;
+        // 当前状态
+        let currentSession = null;
+        let currentFile = null;
         let terminalSessionId = null;
         
-        // 初始化终端
-        function initTerminal() {
-            const terminalOutput = document.getElementById('terminalOutput');
-            const terminalInput = document.getElementById('terminalInput');
-            
-            if (!terminalSessionId) {
-                terminalSessionId = 'terminal_' + Math.random().toString(36).substr(2, 9);
-            }
-            
-            // 连接 WebSocket
-            const wsUrl = `ws://${window.location.host}/api/terminal/ws?session_id=${terminalSessionId}`;
-            terminalWs = new WebSocket(wsUrl);
-            
-            terminalWs.onopen = () => {
-                appendToTerminal('✅ 终端已连接\n');
-                appendToTerminal('欢迎使用 YM-CODE 终端！\n');
-                appendToTerminal('输入命令后按 Enter 执行。\n\n');
-            };
-            
-            terminalWs.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                
-                if (data.type === 'output') {
-                    if (data.stdout) appendToTerminal(data.stdout);
-                    if (data.stderr) appendToTerminal(data.stderr, 'text-red-400');
-                } else if (data.type === 'close') {
-                    appendToTerminal('\n👋 终端已断开连接\n');
-                } else if (data.type === 'error') {
-                    appendToTerminal(`❌ 错误：${data.error}\n`, 'text-red-400');
-                }
-            };
-            
-            terminalWs.onerror = (error) => {
-                appendToTerminal(`❌ WebSocket 错误\n`, 'text-red-400');
-            };
-            
-            terminalWs.onclose = () => {
-                appendToTerminal('\n🔌 连接已关闭\n');
-            };
-            
-            // 命令输入
-            terminalInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const command = terminalInput.value.trim();
-                    if (command) {
-                        appendToTerminal(`$ ${command}\n`, 'text-green-400');
-                        
-                        if (terminalWs && terminalWs.readyState === WebSocket.OPEN) {
-                            terminalWs.send(JSON.stringify({ command: command }));
-                        } else {
-                            appendToTerminal('❌ 终端未连接\n', 'text-red-400');
-                        }
-                        
-                        terminalInput.value = '';
-                    }
-                }
-            });
-        }
-        
-        // 添加到终端输出
-        function appendToTerminal(text, colorClass = '') {
-            const terminalOutput = document.getElementById('terminalOutput');
-            const span = document.createElement('span');
-            span.textContent = text;
-            if (colorClass) span.className = colorClass;
-            terminalOutput.appendChild(span);
-            terminalOutput.scrollTop = terminalOutput.scrollHeight;
-        }
-        
-        // ==================== 技能市场功能 ====================
-        
-        let currentCategory = 'all';
-        
-        // 加载技能市场
-        async function loadSkills(category = 'all') {
-            const skillsList = document.getElementById('skillsList');
-            
-            try {
-                skillsList.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">加载中...</div>';
-                
-                const url = category === 'all' 
-                    ? `${API_BASE}/skills/market`
-                    : `${API_BASE}/skills/market?category=${category}`;
-                
-                const resp = await fetch(url);
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                
-                const data = await resp.json();
-                renderSkills(data.skills);
-                
-            } catch (error) {
-                skillsList.innerHTML = `<div style="text-align:center;padding:40px;color:#f87171;">加载失败：${error.message}</div>`;
-            }
-        }
-        
-        // 渲染技能列表
-        function renderSkills(skills) {
-            const skillsList = document.getElementById('skillsList');
-            
-            if (!skills || skills.length === 0) {
-                skillsList.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">暂无技能</div>';
-                return;
-            }
-            
-            skillsList.innerHTML = `
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;">
-                    ${skills.map(skill => `
-                        <div class="skill-card" style="background:#16213e;border:1px solid #0f3460;border-radius:12px;padding:20px;transition:all 0.3s;">
-                            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px;">
-                                <div>
-                                    <h3 style="margin-bottom:5px;font-size:18px;">${getSkillIcon(skill.category)} ${skill.name}</h3>
-                                    <span style="font-size:12px;color:#888;">v${skill.version} · ${skill.author}</span>
-                                </div>
-                                <span style="padding:4px 12px;background:${skill.installed ? '#4ade80' : '#0f3460'};color:${skill.installed ? '#1a1a2e' : '#eee'};border-radius:12px;font-size:12px;">
-                                    ${skill.installed ? '✅ 已安装' : '📥 安装'}
-                                </span>
-                            </div>
-                            <p style="color:#aaa;margin-bottom:15px;font-size:14px;line-height:1.5;">${skill.description}</p>
-                            <div style="display:flex;justify-content:space-between;align-items:center;">
-                                <div style="display:flex;gap:15px;font-size:13px;color:#888;">
-                                    <span>⬇️ ${skill.downloads}</span>
-                                    <span>⭐ ${skill.rating}</span>
-                                    <span>🏷️ ${getCategoryName(skill.category)}</span>
-                                </div>
-                                <button onclick="viewSkillDetail('${skill.id}')" 
-                                        style="padding:8px 16px;background:#667eea;border:none;border-radius:8px;color:white;cursor:pointer;font-size:13px;">
-                                    📖 查看文档
-                                </button>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-        
-        // 获取技能图标
-        function getSkillIcon(category) {
-            const icons = {
-                'core': '⭐',
-                'system': '🔧',
-                'tools': '🛠️',
-                'dev': '💻',
-                'devops': '🐳',
-                'ai': '🤖'
-            };
-            return icons[category] || '📦';
-        }
-        
-        // 获取分类名称
-        function getCategoryName(category) {
-            const names = {
-                'core': '核心',
-                'system': '系统',
-                'tools': '工具',
-                'dev': '开发',
-                'devops': '运维',
-                'ai': 'AI'
-            };
-            return names[category] || category;
-        }
-        
-        // 查看技能文档
-        function viewSkillDetail(skillId) {
-            const skillDocs = {
-                'memory': '记忆管理技能 - 用于保存、加载和搜索记忆。\n\n使用方法：\n- 保存记忆：action=save, content=内容\n- 加载记忆：action=load, session_id=会话 ID\n- 搜索记忆：action=search, query=关键词',
-                'shell': 'Shell 命令执行技能 - 安全地执行系统命令。\n\n使用方法：\n- command: 要执行的命令\n- args: 命令参数\n- timeout: 超时时间（秒）',
-                'search': '网络搜索技能 - 搜索网络信息和文档。\n\n使用方法：\n- query: 搜索关键词\n- count: 结果数量（1-10）',
-                'http': 'HTTP 请求技能 - 发送 HTTP/HTTPS 请求。\n\n使用方法：\n- method: GET/POST/PUT/DELETE\n- url: 请求 URL\n- headers: 请求头\n- body: 请求体',
-                'code_analysis': '代码分析技能 - 分析代码结构和质量。\n\n使用方法：\n- path: 文件路径\n- language: 编程语言',
-                'database': '数据库技能 - 数据库查询和管理。\n\n使用方法：\n- sql: SQL 查询语句\n- params: 参数',
-                'formatter': '格式化技能 - 代码和文本格式化。\n\n使用方法：\n- code: 代码内容\n- lang: 编程语言',
-                'docker': 'Docker 技能 - Docker 容器操作。\n\n使用方法：\n- action: list/run/stop/rm\n- container: 容器名',
-                'chat': '自然对话技能 - 自然语言对话。\n\n使用方法：\n- message: 对话内容',
-                'llm': '大模型技能 - 阿里云百炼大模型接入。\n\n使用方法：\n- message: 问题\n- use_tools: 是否使用工具'
-            };
-            
-            const doc = skillDocs[skillId] || '暂无文档';
-            alert(`📖 ${skillId} 使用文档\n\n${doc}`);
-        }
-        
-        // 文件浏览器事件绑定
+        // 初始化
         document.addEventListener('DOMContentLoaded', () => {
-            // 返回按钮
-            const backBtn = document.getElementById('backBtn');
-            if (backBtn) {
-                backBtn.addEventListener('click', () => {
-                    if (pathHistory.length > 0) {
-                        const prevPath = pathHistory.pop();
-                        loadFiles(prevPath);
-                    }
-                });
-            }
-            
-            // 刷新按钮
-            const refreshBtn = document.getElementById('refreshBtn');
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', () => loadFiles(currentPath));
-            }
-            
-            // 新建文件按钮
-            const newFileBtn = document.getElementById('newFileBtn');
-            if (newFileBtn) {
-                newFileBtn.addEventListener('click', () => {
-                    const name = prompt('请输入文件名或目录名：');
-                    if (name) {
-                        createFileOrDir(name);
-                    }
-                });
-            }
-            
-            // 终端清屏按钮
-            const clearTerminalBtn = document.getElementById('clearTerminalBtn');
-            if (clearTerminalBtn) {
-                clearTerminalBtn.addEventListener('click', () => {
-                    const terminalOutput = document.getElementById('terminalOutput');
-                    terminalOutput.innerHTML = '';
-                    appendToTerminal('🧹 屏幕已清空\n\n');
-                });
-            }
-            
-            // 终端新建按钮
-            const newTerminalBtn = document.getElementById('newTerminalBtn');
-            if (newTerminalBtn) {
-                newTerminalBtn.addEventListener('click', () => {
-                    if (terminalWs) {
-                        terminalWs.close();
-                    }
-                    terminalSessionId = null;
-                    const terminalOutput = document.getElementById('terminalOutput');
-                    terminalOutput.innerHTML = '';
-                    initTerminal();
-                });
-            }
-            
-            // 技能市场分类按钮
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.category-btn').forEach(b => {
-                        b.classList.remove('active');
-                        b.style.background = '#0f3460';
-                    });
-                    btn.classList.add('active');
-                    btn.style.background = '#667eea';
+            initNavigation();
+            loadSessions();
+            loadTasks();
+            loadSkills();
+            addMessage('assistant', '你好！我是 YM-CODE，你的 AI 编程助手。有什么可以帮你的吗？');
+        });
+        
+        // 导航切换
+        function initNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    // 更新导航状态
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
                     
-                    currentCategory = btn.dataset.category;
-                    loadSkills(currentCategory);
+                    // 切换面板
+                    const panelId = item.dataset.panel;
+                    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                    document.getElementById(panelId + 'Panel').classList.add('active');
+                    
+                    // 加载对应数据
+                    if (panelId === 'files') loadFiles();
+                    if (panelId === 'terminal') initTerminal();
                 });
             });
-            
-            // 加载设置
-            loadSettings();
-        });
+        }
         
-        // 保存配置
-        async function saveApiSettings() {
-            const apiKey = document.getElementById('apiKeyInput').value;
-            const model = document.getElementById('modelSelect').value;
-            const darkTheme = document.getElementById('darkTheme').checked;
-            const autoSave = document.getElementById('autoSave').checked;
+        // ========== 聊天功能 ==========
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${role}`;
+            msgDiv.textContent = content;
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
             
-            if (!apiKey) {
-                alert('请输入 API Key');
-                return;
-            }
+            addMessage('user', message);
+            input.value = '';
+            
+            // 显示加载动画
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message assistant';
+            loadingDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+            document.getElementById('chatMessages').appendChild(loadingDiv);
             
             try {
-                const resp = await fetch(`${API_BASE}/settings/user`, {
+                const response = await fetch(`${API_BASE}/chat`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        api_key: apiKey,
-                        model: model,
-                        theme: darkTheme ? 'dark' : 'light',
-                        auto_save: autoSave
+                        message: message,
+                        session_id: currentSession
                     })
                 });
                 
-                const data = await resp.json();
-                if (data.success) {
-                    alert('配置已保存到后端！重启后生效。');
-                    // 同时也保存到 localStorage 以便立即生效
-                    localStorage.setItem('ymcode_api_key', apiKey);
-                    localStorage.setItem('ymcode_model', model);
-                } else {
-                    alert('保存失败：' + (data.message || '未知错误'));
+                const data = await response.json();
+                loadingDiv.remove();
+                addMessage('assistant', data.response || '处理完成');
+                
+                if (data.session_id) {
+                    currentSession = data.session_id;
+                    loadSessions();
                 }
             } catch (error) {
-                alert('保存失败：' + error.message);
+                loadingDiv.remove();
+                addMessage('assistant', '错误：' + error.message);
             }
         }
         
-        // 加载配置
-        async function loadSettings() {
+        // ========== 文件浏览器功能 ==========
+        async function loadFiles(path = '') {
             try {
-                const resp = await fetch(`${API_BASE}/settings/user`);
-                const data = await resp.json();
-                const settings = data.settings;
-                
-                if (settings.api_key) {
-                    document.getElementById('apiKeyInput').value = settings.api_key;
-                }
-                if (settings.model) {
-                    document.getElementById('modelSelect').value = settings.model;
-                }
-                if (settings.theme) {
-                    document.getElementById('darkTheme').checked = settings.theme === 'dark';
-                }
-                if (settings.auto_save !== undefined) {
-                    document.getElementById('autoSave').checked = settings.auto_save;
-                }
-                
-                // 加载系统信息
-                loadSystemInfo();
-                
+                const response = await fetch(`${API_BASE}/files/list?path=${encodeURIComponent(path)}`);
+                const data = await response.json();
+                renderFileTree(data.files || [], path);
             } catch (error) {
-                console.error('加载配置失败:', error);
-                // 降级到 localStorage
-                const apiKey = localStorage.getItem('ymcode_api_key') || '';
-                const model = localStorage.getItem('ymcode_model') || 'qwen3.5-plus';
-                
-                if (apiKey) {
-                    document.getElementById('apiKeyInput').value = apiKey;
-                }
-                document.getElementById('modelSelect').value = model;
+                console.error('加载文件失败:', error);
             }
         }
         
-        // 加载系统信息
-        async function loadSystemInfo() {
+        function refreshFiles() {
+            loadFiles();
+        }
+        
+        function renderFileTree(files, basePath) {
+            const container = document.getElementById('fileTreeContent');
+            container.innerHTML = '';
+            
+            // 返回上级目录
+            if (basePath) {
+                const parentDiv = document.createElement('div');
+                parentDiv.className = 'file-item folder';
+                parentDiv.innerHTML = '<span class="icon">📁</span><span>..</span>';
+                parentDiv.onclick = () => loadFiles(getParentPath(basePath));
+                container.appendChild(parentDiv);
+            }
+            
+            // 先显示文件夹
+            files.filter(f => f.type === 'folder').forEach(folder => {
+                const div = document.createElement('div');
+                div.className = 'file-item folder';
+                div.innerHTML = `<span class="icon">📁</span><span>${folder.name}</span>`;
+                div.onclick = () => loadFiles(joinPath(basePath, folder.name));
+                container.appendChild(div);
+            });
+            
+            // 再显示文件
+            files.filter(f => f.type === 'file').forEach(file => {
+                const div = document.createElement('div');
+                div.className = 'file-item file';
+                div.innerHTML = `<span class="icon">📄</span><span>${file.name}</span>`;
+                div.onclick = () => previewFile(joinPath(basePath, file.name));
+                container.appendChild(div);
+            });
+        }
+        
+        function getParentPath(path) {
+            const parts = path.split(/[\\/]/);
+            return parts.slice(0, -1).join('/');
+        }
+        
+        function joinPath(base, name) {
+            return base ? `${base}/${name}` : name;
+        }
+        
+        async function previewFile(filePath) {
+            currentFile = filePath;
+            document.getElementById('fileName').textContent = filePath;
+            
             try {
-                const resp = await fetch(`${API_BASE}/settings/system`);
-                const data = await resp.json();
-                const system = data.system;
-                
-                // 更新系统信息显示
-                console.log('系统信息:', system);
-                
+                const response = await fetch(`${API_BASE}/files/read?path=${encodeURIComponent(filePath)}`);
+                const data = await response.json();
+                document.getElementById('fileContent').textContent = data.content || '';
             } catch (error) {
-                console.error('加载系统信息失败:', error);
+                document.getElementById('fileContent').textContent = '错误：' + error.message;
             }
         }
         
-        // 创建文件或目录
-        async function createFileOrDir(name) {
+        async function downloadFile() {
+            if (!currentFile) return alert('请先选择文件');
+            window.open(`${API_BASE}/files/read?path=${encodeURIComponent(currentFile)}&download=1`, '_blank');
+        }
+        
+        async function deleteFile() {
+            if (!currentFile) return alert('请先选择文件');
+            if (!confirm(`确定要删除 ${currentFile} 吗？`)) return;
+            
             try {
-                const isDir = name.endsWith('/') || confirm('是否创建目录？\n\n点击"确定"创建目录，点击"取消"创建文件');
-                const targetPath = isDir ? name.replace(/\/$/, '') : name;
-                
-                const resp = await fetch(`${API_BASE}/files/create`, {
+                await fetch(`${API_BASE}/files/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: currentFile })
+                });
+                alert('删除成功');
+                loadFiles();
+            } catch (error) {
+                alert('删除失败：' + error.message);
+            }
+        }
+        
+        // ========== Web 终端功能 ==========
+        function initTerminal() {
+            if (!terminalSessionId) {
+                terminalSessionId = 'term_' + Date.now();
+            }
+            document.getElementById('terminalInput').focus();
+        }
+        
+        async function executeCommand() {
+            const input = document.getElementById('terminalInput');
+            const command = input.value.trim();
+            if (!command) return;
+            
+            const output = document.getElementById('terminalOutput');
+            output.textContent += `PS> ${command}\n`;
+            
+            try {
+                const response = await fetch(`${API_BASE}/terminal/execute`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        source: currentPath + '/' + targetPath
+                        command: command,
+                        session_id: terminalSessionId
                     })
                 });
                 
-                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                
-                const data = await resp.json();
-                alert(`${data.type === 'directory' ? '目录' : '文件'}已创建：${data.path}`);
-                loadFiles(currentPath);
-                
+                const data = await response.json();
+                output.textContent += (data.output || data.stdout || '') + '\n';
+                if (data.stderr) output.textContent += `错误：${data.stderr}\n`;
             } catch (error) {
-                alert(`创建失败：${error.message}`);
-            }
-        }
-        
-        // 聊天相关
-        const chatContainer = document.getElementById('chatContainer');
-        const chatForm = document.getElementById('chatForm');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const welcomeScreen = document.getElementById('welcomeScreen');
-        
-        function sendSuggestion(text) {
-            messageInput.value = text;
-            chatForm.dispatchEvent(new Event('submit'));
-        }
-        
-        function addMessage(content, isUser = false) {
-            if (!welcomeShown) {
-                welcomeScreen.style.display = 'none';
-                welcomeShown = true;
+                output.textContent += `错误：${error.message}\n`;
             }
             
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = isUser ? '👤' : '🤖';
-            
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-            
-            // 简单 Markdown 处理
-            let formatted = content
-                .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
-                .replace(/`([^`]+)`/g, '<code>$1</code>')
-                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-                .replace(/\n/g, '<br>');
-            
-            contentDiv.innerHTML = formatted;
-            
-            messageDiv.appendChild(avatar);
-            messageDiv.appendChild(contentDiv);
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            input.value = '';
+            output.scrollTop = output.scrollHeight;
         }
         
-        function showTyping() {
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'message assistant';
-            typingDiv.id = 'typingIndicator';
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = '🤖';
-            
-            const indicator = document.createElement('div');
-            indicator.className = 'typing-indicator show';
-            indicator.innerHTML = '<span></span><span></span><span></span>';
-            
-            typingDiv.appendChild(avatar);
-            typingDiv.appendChild(indicator);
-            chatContainer.appendChild(typingDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+        function clearTerminal() {
+            document.getElementById('terminalOutput').textContent = '';
         }
         
-        function hideTyping() {
-            const typing = document.getElementById('typingIndicator');
-            if (typing) typing.remove();
+        function newTerminal() {
+            terminalSessionId = 'term_' + Date.now();
+            clearTerminal();
+            document.getElementById('terminalOutput').textContent = '新终端会话已创建\n\n';
         }
         
-        async function sendMessage(message) {
-            if (!message.trim()) return;
-            
-            addMessage(message, true);
-            messageInput.value = '';
-            sendBtn.disabled = true;
-            showTyping();
-            
+        // ========== 任务管理功能 ==========
+        async function loadTasks() {
             try {
-                const sessionId = getSessionId();
-                const agentId = document.getElementById('agentSelect').value;
-                
-                // 如果选择了 Agent，使用 Agent 独立配置
-                if (agentId) {
-                    const response = await fetch(`${API_BASE}/workspaces/agents/chat`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            agent_id: agentId,
-                            message: message,
-                            history: []
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.detail || `HTTP ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    addMessage(data.message);
-                    
-                } else {
-                    // 使用默认聊天
-                    const response = await fetch(`${API_BASE}/chat`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            message: message, 
-                            session_id: sessionId,
-                            agent: 'ym-code' 
-                        })
-                    });
-                    
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    
-                    const data = await response.json();
-                    addMessage(data.message);
-                }
-                
-                // 刷新会话列表
-                loadSessions();
-                
+                const response = await fetch(`${API_BASE}/tasks/list`);
+                const data = await response.json();
+                renderTasks(data.tasks || []);
             } catch (error) {
-                hideTyping();
-                addMessage(`错误：${error.message}`);
-            } finally {
-                sendBtn.disabled = false;
-                messageInput.focus();
+                console.error('加载任务失败:', error);
             }
         }
         
-        chatForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            sendMessage(messageInput.value);
-        });
+        function renderTasks(tasks) {
+            // 清空所有列
+            ['Inbox', 'Spec', 'Build', 'Review', 'Done'].forEach(status => {
+                document.getElementById(`tasks${status}`).innerHTML = '';
+            });
+            
+            // 渲染任务
+            tasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = 'task-card';
+                card.innerHTML = `
+                    <div class="task-card-title">${task.title}</div>
+                    <div class="task-card-meta">
+                        <span>${task.priority || '普通'}</span>
+                        <span>${new Date(task.created_at).toLocaleDateString()}</span>
+                    </div>
+                `;
+                
+                const column = document.getElementById(`tasks${task.status || 'Inbox'}`);
+                if (column) column.appendChild(card);
+            });
+        }
         
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                sendMessage(messageInput.value);
+        // ========== 技能市场功能 ==========
+        async function loadSkills() {
+            try {
+                const response = await fetch(`${API_BASE}/skills/list`);
+                const data = await response.json();
+                renderSkills(data.skills || []);
+            } catch (error) {
+                console.error('加载技能失败:', error);
             }
-        });
+        }
         
-        // 加载会话列表
+        function renderSkills(skills) {
+            const container = document.getElementById('skillsGrid');
+            container.innerHTML = '';
+            
+            skills.forEach(skill => {
+                const card = document.createElement('div');
+                card.className = 'skill-card';
+                card.innerHTML = `
+                    <div class="skill-card-header">
+                        <div class="skill-icon">🛠️</div>
+                        <div class="skill-name">${skill.name}</div>
+                    </div>
+                    <div class="skill-desc">${skill.description || '暂无描述'}</div>
+                    <div class="skill-meta">
+                        <span>版本：${skill.version || '1.0.0'}</span>
+                        <span>作者：${skill.author || '官方'}</span>
+                    </div>
+                    <div class="skill-actions">
+                        <button class="btn-install" onclick="installSkill('${skill.name}')">安装</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        async function installSkill(skillName) {
+            alert(`安装技能：${skillName}\n（功能开发中）`);
+        }
+        
+        // ========== Session 管理 ==========
         async function loadSessions() {
-            try {
-                const resp = await fetch(`${API_BASE}/sessions`);
-                const data = await resp.json();
-                const container = document.getElementById('sessionsList');
-                
-                if (data.sessions && data.sessions.length > 0) {
-                    container.innerHTML = data.sessions.map(s => 
-                        `<div class="session-item">${s.title}</div>`
-                    ).join('');
-                } else {
-                    container.innerHTML = '<div style="color:#666;padding:10px;">暂无会话</div>';
-                }
-            } catch (e) {
-                console.log('加载会话失败', e);
-            }
+            // TODO: 实现 session 列表加载
         }
-        
-        loadSessions();
-        messageInput.focus();
     </script>
 </body>
 </html>

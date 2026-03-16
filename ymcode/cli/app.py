@@ -6,7 +6,8 @@ CLI App - YM-CODE 主应用程序
 
 import asyncio
 import sys
-from typing import Optional, List
+import os
+from typing import Optional, List, Dict
 from pathlib import Path
 
 from rich.console import Console
@@ -43,6 +44,7 @@ class YMCodeApp:
         # 注册表
         self.mcp_registry = None
         self.skills_registry = None
+        self.llm_skill = None  # LLM 技能（大脑）
         
         logger.info("YM-CODE App 初始化完成")
     
@@ -59,6 +61,16 @@ class YMCodeApp:
             self.skills_registry = get_skills_registry()
             skills = self.skills_registry.list_skills()
             self.status_panel.update("Skills", str(len(skills)))
+            
+            # 初始化 LLM 技能（大脑）
+            self.llm_skill = self.skills_registry.get('llm')
+            if self.llm_skill:
+                # 构建工具定义供 LLM 调用
+                tools = self._build_llm_tools()
+                self.llm_skill.set_available_tools(tools)
+                # 设置技能注册表（用于工具调用）
+                self.llm_skill.set_skills_registry(self.skills_registry)
+                logger.info(f"LLM 技能已初始化，可用工具：{len(tools)} 个")
             
             self.info_panel.add_success("初始化完成")
             
@@ -182,10 +194,18 @@ class YMCodeApp:
             result = await self.execute_skill_command(command)
             
             if result:
-                self.info_panel.add_success(f"执行完成")
                 if isinstance(result, dict):
-                    for key, value in result.items():
-                        self.info_panel.add_message(f"{key}: {value}")
+                    # 特殊处理响应字段
+                    if 'response' in result:
+                        self.info_panel.add_message(result['response'], style="white")
+                    if 'success' in result and result['success']:
+                        pass  # 成功时不重复显示
+                    elif 'error' in result:
+                        self.info_panel.add_error(result['error'])
+                    else:
+                        self.info_panel.add_success("执行完成")
+                else:
+                    self.info_panel.add_message(str(result), style="white")
             else:
                 self.info_panel.add_warning(f"未知命令：{command}")
             
@@ -195,6 +215,52 @@ class YMCodeApp:
         
         finally:
             self.progress_panel.complete_task()
+    
+    def _build_llm_tools(self) -> List[Dict]:
+        """构建 LLM 可调用的工具定义"""
+        tools = []
+        
+        skills = self.skills_registry.list_skills()
+        for skill_info in skills:
+            skill_name = skill_info['name']
+            
+            # 跳过 LLM 自身和 chat
+            if skill_name in ['llm', 'chat']:
+                continue
+            
+            # 构建工具定义（OpenAI 兼容格式）
+            tool_def = {
+                "type": "function",
+                "function": {
+                    "name": f"skill_{skill_name}",
+                    "description": skill_info.get('description', f'执行{skill_name}技能'),
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {
+                                "type": "string",
+                                "description": "用户输入或查询内容"
+                            },
+                            "command": {
+                                "type": "string",
+                                "description": "要执行的命令"
+                            },
+                            "message": {
+                                "type": "string",
+                                "description": "消息内容"
+                            }
+                        },
+                        "required": []
+                    }
+                }
+            }
+            tools.append(tool_def)
+        
+        logger.info(f"构建 LLM 工具定义：{len(tools)} 个工具")
+        for tool in tools:
+            logger.debug(f"  - {tool['function']['name']}: {tool['function']['description'][:50]}")
+        
+        return tools
     
     async def execute_skill_command(self, command: str) -> Optional[dict]:
         """执行技能命令"""
@@ -209,7 +275,7 @@ class YMCodeApp:
         cmd = parts[0].lower()
         args = parts[1:] if len(parts) > 1 else []
         
-        # 尝试匹配技能
+        # 如果是明确的技能命令，直接执行
         skills = self.skills_registry.list_skills()
         for skill_info in skills:
             skill_name = skill_info['name']
@@ -227,6 +293,21 @@ class YMCodeApp:
                     # 执行技能
                     result = await skill.execute(arguments)
                     return result
+        
+        # 优先使用 LLM 处理自然语言（如果有配置 API Key）
+        if self.llm_skill and self.llm_skill.api_key:
+            try:
+                result = await self.llm_skill.execute({'message': command, 'use_tools': True})
+                if result.get('success'):
+                    return result
+            except Exception as e:
+                logger.warning(f"LLM 执行失败，降级到 chat 技能：{e}")
+        
+        # 降级到 chat 技能
+        chat_skill = self.skills_registry.get('chat')
+        if chat_skill:
+            result = await chat_skill.execute({'message': command})
+            return result
         
         return None
     

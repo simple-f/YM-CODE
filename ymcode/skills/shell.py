@@ -36,16 +36,33 @@ class ShellSkill(BaseSkill):
     
     # 允许的命令白名单
     ALLOWED_COMMANDS = [
+        # 文件操作
         'ls', 'dir', 'pwd', 'cd',
-        'cat', 'head', 'tail', 'less', 'more',
+        'cat', 'head', 'tail', 'less', 'more', 'type',
         'grep', 'find', 'which', 'whereis',
-        'git', 'npm', 'pip', 'python', 'node',
-        'echo', 'printf',
-        'mkdir', 'rmdir', 'cp', 'mv',
+        # 开发工具
+        'git', 'npm', 'pip', 'python', 'python3', 'node', 'nodejs',
+        'echo', 'echo.', 'printf',
+        # 目录操作
+        'mkdir', 'rmdir', 'cp', 'mv', 'copy', 'move', 'del', 'rm',
         'chmod', 'chown',
-        'ps', 'top', 'htop', 'kill',
+        # 系统命令
+        'ps', 'top', 'htop', 'kill', 'tasklist', 'taskkill',
         'netstat', 'ping', 'curl', 'wget',
-        'docker', 'docker-compose',
+        'docker', 'docker-compose', 'docker-compose',
+        # Windows 特殊命令
+        'type', 'copy', 'move', 'del', 'ren',
+        'tasklist', 'taskkill', 'systeminfo', 'ipconfig',
+        'hostname', 'whoami', 'ver', 'wmic', 'powershell', 'cmd',
+        'findstr', 'cls', 'timeout', 'sleep',
+        # 创建文件命令
+        'touch', 'ni', 'new-item',
+        # Linux/Mac 命令
+        'uname', 'df', 'du', 'free', 'pkill', 'clear',
+        # 网络命令
+        'nslookup', 'tracert', 'traceroute', 'ssh', 'scp', 'ftp',
+        # 环境变量
+        'set', 'env', 'export',
     ]
     
     def __init__(self):
@@ -126,33 +143,64 @@ class ShellSkill(BaseSkill):
         if not command:
             return {"error": "命令不能为空"}
         
-        # 跨平台命令转换
+        # 提取实际命令（处理 "dir D:\" 和 "echo." 这种情况）
+        actual_command = command.split()[0] if command else ''
+        command_args = command.split(maxsplit=1)[1] if ' ' in command else ''
+        
+        # 特殊处理：echo. -> echo (Windows 创建空文件语法)
+        if actual_command == 'echo.':
+            actual_command = 'echo'
+        
+        # 如果有 args 参数，合并到命令参数中
+        if args and command_args:
+            all_args = [command_args] + args
+        elif args:
+            all_args = args
+        elif command_args:
+            all_args = [command_args]
+        else:
+            all_args = []
+        
+        # 跨平台命令转换（使用实际命令）
         if self.os_type in self.command_aliases:
             aliases = self.command_aliases[self.os_type]
-            if command in aliases:
-                original_command = command
-                command = aliases[command]
-                logger.debug(f"命令转换：{original_command} -> {command} ({self.os_type})")
+            if actual_command in aliases:
+                original_command = actual_command
+                actual_command = aliases[actual_command]
+                logger.debug(f"命令转换：{original_command} -> {actual_command} ({self.os_type})")
         
-        # 安全检查
-        safety_check = self._check_safety(command, args)
+        # 安全检查（使用实际命令 + 所有参数）
+        safety_check = self._check_safety(actual_command, all_args)
         if not safety_check['safe']:
             return {
                 "error": f"危险命令被阻止：{safety_check['reason']}"
             }
         
-        logger.info(f"执行 Shell 命令：{command} {' '.join(args)} [{self.os_type}]")
+        logger.info(f"执行 Shell 命令：{actual_command} {' '.join(all_args)} [{self.os_type}]")
         
         try:
+            # Windows 内置命令需要用 shell 执行
+            windows_builtin = [
+                'dir', 'cd', 'cls', 'copy', 'del', 'move', 'type', 
+                'mkdir', 'rmdir', 'echo', 'ren', 'tasklist', 
+                'taskkill', 'systeminfo', 'ipconfig', 'ni', 'new-item'
+            ]
+            # 检测是否包含特殊字符（管道、重定向等）
+            full_cmd_str = f"{actual_command} {' '.join(all_args)}"
+            has_special_chars = any(c in full_cmd_str for c in ['>', '<', '|', '&'])
+            needs_shell = use_shell or (self.os_type == 'Windows' and (actual_command in windows_builtin or has_special_chars))
+            
             # 构建完整命令
-            if use_shell:
-                full_command = f"{command} {' '.join(args)}" if args else command
+            if needs_shell:
+                full_command = f"{actual_command} {' '.join(all_args)}" if all_args else actual_command
                 cmd = full_command
                 shell = True
+                logger.debug(f"使用 shell 执行：{cmd}")
             else:
                 # 不使用 shell 时用 exec（更安全）
-                cmd = [command] + args
+                cmd = [actual_command] + all_args
                 shell = False
+                logger.debug(f"使用 exec 执行：{cmd}")
             
             # 执行命令
             if shell:
@@ -160,8 +208,7 @@ class ShellSkill(BaseSkill):
                     cmd,
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE,
-                    cwd=cwd,
-                    shell=True
+                    cwd=cwd
                 )
             else:
                 process = await asyncio.create_subprocess_exec(
@@ -183,11 +230,19 @@ class ShellSkill(BaseSkill):
                     "command": command
                 }
             
+            # Windows 平台使用 GBK 编码解码
+            if self.os_type == 'Windows':
+                stdout_text = stdout.decode('gbk', errors='replace')
+                stderr_text = stderr.decode('gbk', errors='replace')
+            else:
+                stdout_text = stdout.decode('utf-8', errors='replace')
+                stderr_text = stderr.decode('utf-8', errors='replace')
+            
             return {
                 "success": process.returncode == 0,
                 "returncode": process.returncode,
-                "stdout": stdout.decode('utf-8', errors='replace'),
-                "stderr": stderr.decode('utf-8', errors='replace'),
+                "stdout": stdout_text,
+                "stderr": stderr_text,
                 "command": command,
                 "cwd": cwd
             }
@@ -206,10 +261,17 @@ class ShellSkill(BaseSkill):
         """
         检查命令安全性
         
+        支持两种模式:
+        1. command='dir', args=['D:\\'] -> 检查 'dir'
+        2. command='dir D:\\', args=[] -> 提取 'dir' 并检查
+        
         返回:
             {'safe': bool, 'reason': str}
         """
-        full_command = f"{command} {' '.join(args)}"
+        full_command = f"{command} {' '.join(args)}" if args else command
+        
+        # 提取实际命令（处理 "dir D:\" 这种情况）
+        actual_command = command.split()[0] if command else ''
         
         # 检查黑名单
         for dangerous in self.DANGEROUS_COMMANDS:
@@ -219,9 +281,9 @@ class ShellSkill(BaseSkill):
                     'reason': f"命令包含危险模式：{dangerous}"
                 }
         
-        # 检查命令是否在白名单
-        if command not in self.ALLOWED_COMMANDS:
-            logger.warning(f"命令不在白名单：{command}")
+        # 检查命令是否在白名单（使用提取后的实际命令）
+        if actual_command not in self.ALLOWED_COMMANDS:
+            logger.warning(f"命令不在白名单：{command} (实际命令：{actual_command})")
             # 不在白名单不一定禁止，但需要记录
         
         # 检查管道和重定向

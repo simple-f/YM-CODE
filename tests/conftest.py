@@ -144,6 +144,40 @@ def skills_registry():
 
 
 @pytest.fixture
+def all_skills():
+    """提供所有技能实例"""
+    from ymcode.skills import get_all_skills
+    return get_all_skills()
+
+
+@pytest.fixture
+def mcp_skills_server(all_skills):
+    """提供 MCP Skills Server 实例"""
+    from ymcode.mcp.skills_server import SkillsMCPServer
+    server = SkillsMCPServer(all_skills)
+    return server
+
+
+@pytest.fixture
+def mock_docker_available():
+    """Mock Docker 可用性（如果未安装）"""
+    import shutil
+    from unittest.mock import patch, MagicMock
+    
+    if not shutil.which('docker'):
+        # Docker 未安装，使用 Mock
+        with patch('ymcode.skills.docker_skill.DockerClient') as mock:
+            mock_client = MagicMock()
+            mock_client.containers.list.return_value = []
+            mock_client.images.list.return_value = []
+            mock.return_value = mock_client
+            yield mock
+    else:
+        # Docker 已安装，不使用 Mock
+        yield None
+
+
+@pytest.fixture
 def temp_file(tmp_path):
     """创建临时文件"""
     file = tmp_path / "test.txt"

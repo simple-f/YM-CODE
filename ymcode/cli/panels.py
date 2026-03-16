@@ -36,7 +36,7 @@ EMOJI = {
 
 
 class WelcomePanel:
-    """欢迎面板"""
+    """欢迎面板（美化版）"""
     
     def __init__(self, version: str = "1.0.0"):
         self.version = version
@@ -46,24 +46,32 @@ class WelcomePanel:
         """渲染欢迎面板"""
         content = Text()
         content.append("YM-CODE ", style="bold green")
-        content.append(f"v{self.version}\n", style="bold white")
-        content.append("AI Programming Assistant\n", style="dim")
+        content.append(f"v{self.version}\n", style="bold bright_green")
+        content.append("AI Programming Assistant\n", style="italic cyan")
         content.append("\n", style="")
-        content.append("Type your request or 'help' for commands.\n", style="italic")
+        content.append("Type your request or 'help' for commands.\n", style="dim yellow")
         
         return Panel(
             content,
             title=f"[bold green]{EMOJI['welcome']} Welcome[/bold green]",
             subtitle="[dim]Press Ctrl+C to exit[/dim]",
-            border_style="green"
+            border_style="bright_green",
+            box=box.DOUBLE_EDGE
         )
     
     def display(self) -> None:
-        """显示欢迎面板"""
-        # 统一使用纯文本（Windows 兼容）
-        self.console.print("[bold]YM-CODE v0.1.0[/bold]")
-        self.console.print("[dim]AI Programming Assistant[/dim]")
-        self.console.print("[dim]Port: 18770[/dim]")
+        """显示欢迎面板（美化版）"""
+        # 精美横幅
+        self.console.print()
+        self.console.print("[bold green]╔═══════════════════════════════════════════╗[/bold green]")
+        self.console.print("[bold green]║[/bold green]                                           [bold green]║[/bold green]")
+        self.console.print(f"[bold green]║[/bold green]     [bold bright_green]YM-CODE[/bold bright_green] [dim]v{self.version}[/dim]              [bold green]║[/bold green]")
+        self.console.print("[bold green]║[/bold green]                                           [bold green]║[/bold green]")
+        self.console.print("[bold green]║[/bold green]     [italic cyan]AI Programming Assistant[/italic cyan]      [bold green]║[/bold green]")
+        self.console.print("[bold green]║[/bold green]                                           [bold green]║[/bold green]")
+        self.console.print("[bold green]╚═══════════════════════════════════════════╝[/bold green]")
+        self.console.print()
+        self.console.print(f"[dim]{EMOJI['info']} 输入 'help' 查看命令 | 输入 'exit' 退出[/dim]")
         self.console.print()
 
 

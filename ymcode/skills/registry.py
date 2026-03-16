@@ -41,6 +41,8 @@ class SkillRegistry:
             'ymcode.skills.database',
             'ymcode.skills.formatter',
             'ymcode.skills.docker',
+            'ymcode.skills.chat',
+            'ymcode.skills.llm',
         ]
         
         for module_path in skill_modules:
@@ -53,7 +55,13 @@ class SkillRegistry:
                     if (isinstance(attr, type) and 
                         issubclass(attr, BaseSkill) and 
                         attr is not BaseSkill):
-                        skill_name = attr.__name__.lower()
+                        # 尝试实例化获取真实的 name
+                        try:
+                            instance = attr()
+                            skill_name = instance.name.lower()
+                        except:
+                            # 如果实例化失败，使用类名
+                            skill_name = attr.__name__.lower()
                         builtin_skills[skill_name] = attr
                         logger.debug(f"发现技能：{skill_name}")
             except Exception as e:

@@ -64,9 +64,38 @@ class MCPClient:
         
         logger.info("MCP Client 初始化完成")
     
-    async def connect(self, server_name: str, url: str) -> bool:
+    async def connect(self, server_name: str, url: str, timeout: int = 30) -> bool:
         """
         连接到 MCP 服务器
+        
+        参数:
+            server_name: 服务器名称
+            url: 服务器 URL
+            timeout: 连接超时（秒，默认 30 秒）
+        
+        返回:
+            是否成功
+        """
+        logger.info(f"正在连接到 MCP 服务器：{server_name} ({url})，超时={timeout}秒")
+        
+        try:
+            # ✅ 添加超时控制
+            await asyncio.wait_for(
+                self._do_connect(server_name, url),
+                timeout=timeout
+            )
+            return True
+            
+        except asyncio.TimeoutError:
+            logger.error(f"连接超时：{server_name}（超过{timeout}秒）")
+            return False
+        except Exception as e:
+            logger.error(f"连接到 MCP 服务器失败：{e}")
+            return False
+    
+    async def _do_connect(self, server_name: str, url: str) -> bool:
+        """
+        实际连接逻辑（内部方法）
         
         参数:
             server_name: 服务器名称
@@ -75,37 +104,30 @@ class MCPClient:
         返回:
             是否成功
         """
-        logger.info(f"正在连接到 MCP 服务器：{server_name} ({url})")
+        # 创建服务器对象
+        server = MCPServer(name=server_name, url=url)
         
-        try:
-            # 创建服务器对象
-            server = MCPServer(name=server_name, url=url)
-            
-            # TODO: 实际连接到 MCP 服务器
-            # 目前先模拟连接成功
-            server.connected = True
-            
-            # 获取服务器工具列表
-            await self._fetch_tools(server)
-            
-            # 注册服务器
-            self.servers[server_name] = server
-            
-            # 注册工具
-            for tool in server.tools:
-                tool.server_name = server_name
-                self.tools[tool.name] = tool
-            
-            self.connected = True
-            
-            logger.info(f"成功连接到 MCP 服务器：{server_name}")
-            logger.info(f"发现 {len(server.tools)} 个工具")
-            
-            return True
-            
-        except Exception as e:
-            logger.error(f"连接到 MCP 服务器失败：{e}")
-            return False
+        # TODO: 实际连接到 MCP 服务器
+        # 目前先模拟连接成功
+        server.connected = True
+        
+        # 获取服务器工具列表
+        await self._fetch_tools(server)
+        
+        # 注册服务器
+        self.servers[server_name] = server
+        
+        # 注册工具
+        for tool in server.tools:
+            tool.server_name = server_name
+            self.tools[tool.name] = tool
+        
+        self.connected = True
+        
+        logger.info(f"成功连接到 MCP 服务器：{server_name}")
+        logger.info(f"发现 {len(server.tools)} 个工具")
+        
+        return True
     
     async def _fetch_tools(self, server: MCPServer) -> None:
         """

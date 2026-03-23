@@ -85,6 +85,27 @@ class BaseAgent(ABC):
             "enabled": self.enabled,
             "metadata": self.metadata
         }
+    
+    def get_status(self) -> Dict:
+        """获取状态"""
+        return {
+            "name": self.name,
+            "role": self.role,
+            "description": self.description,
+            "enabled": self.enabled,
+            "state": getattr(self, 'state', 'idle')
+        }
+    
+    def add_to_memory(self, content: str, metadata: Dict = None):
+        """添加到记忆（简单实现）"""
+        # 简单存储，实际应该使用记忆系统
+        if not hasattr(self, '_memory'):
+            self._memory = []
+        self._memory.append({
+            "content": content,
+            "metadata": metadata or {},
+            "timestamp": __import__('datetime').datetime.now().isoformat()
+        })
 
 
 class UserAgent(BaseAgent):

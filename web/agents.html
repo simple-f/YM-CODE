@@ -3,553 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YM-CODE - 多 Agent 管理</title>
+    <title>YM-CODE - Agent 选择</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #1a1a2e;
             color: #eee;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-        .sidebar {
-            width: 280px;
-            background: #16213e;
-            border-right: 1px solid #0f3460;
+            min-height: 100vh;
             padding: 20px;
-            overflow-y: auto;
         }
-        .main {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { font-size: 28px; margin-bottom: 10px; }
+        .subtitle { color: #888; margin-bottom: 30px; }
+        
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
-        h1, h2, h3 { margin-bottom: 15px; }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-right: 10px;
-        }
-        .btn-primary { background: #667eea; color: white; }
-        .btn-success { background: #4ade80; color: #1a1a2e; }
-        .btn-danger { background: #ef4444; color: white; }
-        .card {
+        
+        .agent-card {
             background: #16213e;
-            border: 1px solid #0f3460;
+            border: 2px solid #0f3460;
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 20px;
-        }
-        .workspace-item, .agent-item {
-            background: #0f3460;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s;
         }
-        .workspace-item:hover, .agent-item:hover {
+        .agent-card:hover {
+            transform: translateY(-3px);
+            border-color: #667eea;
+        }
+        .agent-card.selected {
+            border-color: #4ade80;
             background: #1a4a7a;
         }
-        .workspace-item.active, .agent-item.active {
-            border: 2px solid #667eea;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            background: #0f3460;
-            border: 1px solid #1a4a7a;
-            border-radius: 8px;
-            color: #eee;
-            font-size: 14px;
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
             margin-bottom: 15px;
         }
-        textarea { min-height: 100px; resize: vertical; }
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: none;
+        .agent-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            font-size: 28px;
+            flex-shrink: 0;
         }
-        .modal.show { display: flex; }
-        .modal-content {
-            background: #16213e;
-            border-radius: 12px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
+        .agent-info h3 { font-size: 18px; margin-bottom: 5px; }
+        .agent-model { font-size: 12px; color: #888; background: #0f3460; padding: 4px 8px; border-radius: 4px; }
+        
+        .agent-role {
+            font-size: 13px;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
-        .form-group { margin-bottom: 15px; }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
+        
+        .agent-desc {
+            font-size: 13px;
             color: #aaa;
-            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
         }
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-left: 10px;
+        
+        .agent-capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        .badge-success { background: #4ade80; color: #1a1a2e; }
-        .badge-warning { background: #fbbf24; color: #1a1a2e; }
+        .capability-tag {
+            font-size: 11px;
+            background: #0f3460;
+            color: #eee;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        
+        .selected-count {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-secondary {
+            background: #0f3460;
+            color: #eee;
+        }
+        .btn-secondary:hover { background: #1a4a7a; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 侧边栏 - 工作空间列表 -->
-        <aside class="sidebar">
-            <h2>📁 工作空间</h2>
-            <button class="btn btn-success" onclick="showCreateWorkspaceModal()" style="width: 100%; margin-bottom: 20px;">
-                ➕ 新建工作空间
-            </button>
-            <div id="workspaceList">
-                <!-- 动态加载 -->
-            </div>
-        </aside>
+        <h1>🤖 选择 Agent</h1>
+        <p class="subtitle">点击卡片选择 Agent（可多选），然后开始对话</p>
         
-        <!-- 主内容区 -->
-        <main class="main">
-            <div id="workspaceDetail" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                    <div>
-                        <h1 id="workspaceName">工作空间名称</h1>
-                        <p id="workspaceDesc" style="color: #888;">描述</p>
-                    </div>
-                    <div>
-                        <button class="btn btn-primary" onclick="showCreateAgentModal()">➕ 创建 Agent</button>
-                        <button class="btn btn-danger" onclick="deleteWorkspace()">🗑️ 删除空间</button>
-                    </div>
-                </div>
-                
-                <h3>🤖 Agents (<span id="agentCount">0</span>)</h3>
-                <div id="agentList">
-                    <!-- 动态加载 -->
-                </div>
-            </div>
-            
-            <div id="noWorkspace" style="text-align: center; padding: 100px 20px; color: #888;">
-                <h2 style="font-size: 48px; margin-bottom: 20px;">📁</h2>
-                <h3>选择一个工作空间</h3>
-                <p>或者创建一个新的工作空间开始</p>
-            </div>
-        </main>
-    </div>
-    
-    <!-- 创建工作空间模态框 -->
-    <div id="createWorkspaceModal" class="modal">
-        <div class="modal-content">
-            <h2>➕ 创建工作空间</h2>
-            <div class="form-group">
-                <label>名称</label>
-                <input type="text" id="newWorkspaceName" placeholder="我的工作空间" />
-            </div>
-            <div class="form-group">
-                <label>描述</label>
-                <textarea id="newWorkspaceDesc" placeholder="这个工作空间用于..."></textarea>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button class="btn" style="background: #0f3460; color: #eee;" onclick="closeModal('createWorkspaceModal')">取消</button>
-                <button class="btn btn-success" onclick="createWorkspace()">创建</button>
-            </div>
+        <div class="agent-grid" id="agentGrid"></div>
+        
+        <div class="actions">
+            <button class="btn btn-primary" onclick="startMultiChat()">👥 多 Agent 协作</button>
+            <button class="btn btn-primary" onclick="startSingleChat()">💬 单个对话</button>
+            <button class="btn btn-secondary" onclick="selectAll()">全选</button>
+            <button class="btn btn-secondary" onclick="clearSelection()">清空</button>
         </div>
     </div>
     
-    <!-- 创建 Agent 模态框 -->
-    <div id="createAgentModal" class="modal">
-        <div class="modal-content">
-            <h2>🤖 创建 Agent</h2>
-            <div class="form-group">
-                <label>名称</label>
-                <input type="text" id="newAgentName" placeholder="助手名称" />
-            </div>
-            <div class="form-group">
-                <label>模型</label>
-                <select id="newAgentModel">
-                    <option value="qwen3.5-plus">qwen3.5-plus (推荐)</option>
-                    <option value="qwen-plus">qwen-plus</option>
-                    <option value="qwen-turbo">qwen-turbo (快速)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>系统提示词</label>
-                <textarea id="newAgentPrompt" placeholder="你是一个友好的 AI 助手..."></textarea>
-            </div>
-            <div class="form-group">
-                <label>性格</label>
-                <select id="newAgentPersonality">
-                    <option value="friendly">友好</option>
-                    <option value="professional">专业</option>
-                    <option value="humorous">幽默</option>
-                    <option value="strict">严格</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>API Key (可选，留空使用全局配置)</label>
-                <input type="password" id="newAgentApiKey" placeholder="sk-..." />
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button class="btn" style="background: #0f3460; color: #eee;" onclick="closeModal('createAgentModal')">取消</button>
-                <button class="btn btn-success" onclick="createAgent()">创建</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 编辑 Agent 模态框 -->
-    <div id="editAgentModal" class="modal">
-        <div class="modal-content">
-            <h2>⚙️ 编辑 Agent 配置</h2>
-            <input type="hidden" id="editAgentId" />
-            <div class="form-group">
-                <label>名称</label>
-                <input type="text" id="editAgentName" />
-            </div>
-            <div class="form-group">
-                <label>系统提示词</label>
-                <textarea id="editAgentPrompt"></textarea>
-            </div>
-            <div class="form-group">
-                <label>模型</label>
-                <select id="editAgentModel">
-                    <option value="qwen3.5-plus">qwen3.5-plus</option>
-                    <option value="qwen-plus">qwen-plus</option>
-                    <option value="qwen-turbo">qwen-turbo</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Temperature: <span id="editAgentTempValue">0.7</span></label>
-                <input type="range" id="editAgentTemp" min="0" max="2" step="0.1" value="0.7" 
-                       oninput="document.getElementById('editAgentTempValue').textContent = this.value" />
-            </div>
-            <div class="form-group">
-                <label>Max Tokens</label>
-                <input type="number" id="editAgentMaxTokens" value="2000" />
-            </div>
-            <div class="form-group">
-                <label>性格</label>
-                <select id="editAgentPersonality">
-                    <option value="friendly">友好</option>
-                    <option value="professional">专业</option>
-                    <option value="humorous">幽默</option>
-                    <option value="strict">严格</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="editAgentEnabled" style="width: auto; margin-right: 10px;" />
-                    启用
-                </label>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button class="btn" style="background: #0f3460; color: #eee;" onclick="closeModal('editAgentModal')">取消</button>
-                <button class="btn btn-primary" onclick="saveAgentConfig()">保存</button>
-                <button class="btn btn-danger" onclick="deleteAgent()">删除</button>
-            </div>
-        </div>
-    </div>
+    <div class="selected-count" id="selectedCount">已选择 0 个 Agent</div>
     
     <script>
-        const API_BASE = '/api';
-        let currentWorkspaceId = null;
-        let currentAgentId = null;
+        const API_BASE = '';
+        let allAgents = [];
+        let selectedAgents = new Set();
         
         // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            loadWorkspaces();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAgents();
         });
         
-        // ========== Workspace 操作 ==========
-        
-        async function loadWorkspaces() {
+        // 加载 Agent 列表
+        async function loadAgents() {
             try {
-                const resp = await fetch(`${API_BASE}/workspaces/list`);
+                const resp = await fetch(`${API_BASE}/api/team/list`);
                 const data = await resp.json();
-                
-                const list = document.getElementById('workspaceList');
-                if (data.workspaces.length === 0) {
-                    list.innerHTML = '<div style="color:#888;padding:20px;text-align:center;">暂无工作空间</div>';
-                    return;
-                }
-                
-                list.innerHTML = data.workspaces.map(ws => `
-                    <div class="workspace-item" onclick="selectWorkspace('${ws.id}')" data-id="${ws.id}">
-                        <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <strong>${escapeHtml(ws.name)}</strong>
-                            <span class="badge badge-success">${ws.agent_count} Agents</span>
+                allAgents = data.team?.agents || [];
+                renderAgents();
+            } catch (error) {
+                console.error('加载 Agent 失败:', error);
+                document.getElementById('agentGrid').innerHTML = '<p style="color: #f87171;">加载失败，请检查服务是否正常运行</p>';
+            }
+        }
+        
+        // 渲染 Agent 列表
+        function renderAgents() {
+            const grid = document.getElementById('agentGrid');
+            if (allAgents.length === 0) {
+                grid.innerHTML = '<p style="color: #888;">暂无 Agent，请检查 configs/team.json 配置</p>';
+                return;
+            }
+            
+            const avatars = {'ai1':'🎨','ai2':'💻','ai3':'🎨','ai4':'🔧','ai5':'✅','ai6':'💡','ai7':'📊'};
+            const roleNames = {'system':'架构师','developer':'开发工程师','reviewer':'测试工程师','advisor':'顾问'};
+            
+            grid.innerHTML = allAgents.map(agent => `
+                <div class="agent-card" onclick="toggleAgent('${agent.id}')" data-id="${agent.id}">
+                    <div class="agent-header">
+                        <div class="agent-avatar">${avatars[agent.id] || '🤖'}</div>
+                        <div class="agent-info">
+                            <h3>${agent.name}</h3>
+                            <span class="agent-model">${agent.model}</span>
                         </div>
-                        <div style="color:#888;font-size:13px;margin-top:5px;">${escapeHtml(ws.description || '无描述')}</div>
                     </div>
-                `).join('');
-                
-            } catch (error) {
-                console.error('加载工作空间失败:', error);
-            }
+                    <div class="agent-role">${roleNames[agent.role] || agent.role}</div>
+                    <div class="agent-desc">${agent.description || '暂无描述'}</div>
+                    <div class="agent-capabilities">
+                        ${(agent.capabilities || []).map(cap => `<span class="capability-tag">${cap}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
         }
         
-        function selectWorkspace(workspaceId) {
-            currentWorkspaceId = workspaceId;
-            
-            // 更新选中状态
-            document.querySelectorAll('.workspace-item').forEach(item => {
-                item.classList.toggle('active', item.dataset.id === workspaceId);
+        // 切换 Agent 选择
+        function toggleAgent(agentId) {
+            if (selectedAgents.has(agentId)) {
+                selectedAgents.delete(agentId);
+                document.querySelector(`[data-id="${agentId}"]`)?.classList.remove('selected');
+            } else {
+                selectedAgents.add(agentId);
+                document.querySelector(`[data-id="${agentId}"]`)?.classList.add('selected');
+            }
+            updateCount();
+        }
+        
+        // 全选
+        function selectAll() {
+            allAgents.forEach(agent => {
+                selectedAgents.add(agent.id);
+                document.querySelector(`[data-id="${agent.id}"]`)?.classList.add('selected');
             });
-            
-            // 加载详情
-            loadWorkspaceDetail();
+            updateCount();
         }
         
-        async function loadWorkspaceDetail() {
-            try {
-                const resp = await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}`);
-                const data = await resp.json();
-                
-                document.getElementById('noWorkspace').style.display = 'none';
-                document.getElementById('workspaceDetail').style.display = 'block';
-                
-                document.getElementById('workspaceName').textContent = data.workspace.name;
-                document.getElementById('workspaceDesc').textContent = data.workspace.description || '无描述';
-                document.getElementById('agentCount').textContent = data.agents.length;
-                
-                // 加载 Agent 列表
-                const agentList = document.getElementById('agentList');
-                if (data.agents.length === 0) {
-                    agentList.innerHTML = '<div style="color:#888;padding:40px;text-align:center;">暂无 Agent，点击右上角创建</div>';
-                } else {
-                    agentList.innerHTML = data.agents.map(agent => `
-                        <div class="agent-item" onclick="editAgent('${agent.id}')">
-                            <div style="display:flex;justify-content:space-between;align-items:center;">
-                                <div>
-                                    <strong>🤖 ${escapeHtml(agent.name)}</strong>
-                                    <span class="badge ${agent.enabled ? 'badge-success' : 'badge-warning'}">
-                                        ${agent.enabled ? '已启用' : '已禁用'}
-                                    </span>
-                                </div>
-                                <div style="color:#888;font-size:13px;">${agent.model}</div>
-                            </div>
-                            <div style="color:#888;font-size:13px;margin-top:5px;">性格：${agent.personality}</div>
-                        </div>
-                    `).join('');
-                }
-                
-            } catch (error) {
-                console.error('加载工作空间详情失败:', error);
-            }
+        // 清空
+        function clearSelection() {
+            selectedAgents.clear();
+            document.querySelectorAll('.agent-card').forEach(card => card.classList.remove('selected'));
+            updateCount();
         }
         
-        function showCreateWorkspaceModal() {
-            document.getElementById('createWorkspaceModal').classList.add('show');
+        // 更新计数
+        function updateCount() {
+            document.getElementById('selectedCount').textContent = `已选择 ${selectedAgents.size} 个 Agent`;
         }
         
-        async function createWorkspace() {
-            const name = document.getElementById('newWorkspaceName').value.trim();
-            const desc = document.getElementById('newWorkspaceDesc').value.trim();
-            
-            if (!name) {
-                alert('请输入工作空间名称');
+        // 开始单个对话
+        function startSingleChat() {
+            if (selectedAgents.size === 0) {
+                alert('请至少选择一个 Agent');
                 return;
             }
             
-            try {
-                const resp = await fetch(`${API_BASE}/workspaces/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, description: desc })
-                });
-                
-                const data = await resp.json();
-                if (data.success) {
-                    alert('工作空间创建成功！');
-                    closeModal('createWorkspaceModal');
-                    document.getElementById('newWorkspaceName').value = '';
-                    document.getElementById('newWorkspaceDesc').value = '';
-                    loadWorkspaces();
-                }
-            } catch (error) {
-                alert('创建失败：' + error.message);
-            }
-        }
-        
-        async function deleteWorkspace() {
-            if (!confirm('确定要删除这个工作空间吗？所有 Agent 也会被删除。')) return;
-            
-            try {
-                await fetch(`${API_BASE}/workspaces/${currentWorkspaceId}`, {
-                    method: 'DELETE'
-                });
-                
-                currentWorkspaceId = null;
-                document.getElementById('workspaceDetail').style.display = 'none';
-                document.getElementById('noWorkspace').style.display = 'block';
-                loadWorkspaces();
-            } catch (error) {
-                alert('删除失败：' + error.message);
-            }
-        }
-        
-        // ========== Agent 操作 ==========
-        
-        function showCreateAgentModal() {
-            document.getElementById('createAgentModal').classList.add('show');
-        }
-        
-        async function createAgent() {
-            const name = document.getElementById('newAgentName').value.trim();
-            const model = document.getElementById('newAgentModel').value;
-            const prompt = document.getElementById('newAgentPrompt').value.trim();
-            const personality = document.getElementById('newAgentPersonality').value;
-            const apiKey = document.getElementById('newAgentApiKey').value.trim();
-            
-            if (!name) {
-                alert('请输入 Agent 名称');
+            if (selectedAgents.size > 1) {
+                alert('单个对话只能选择一个 Agent，请选择一个或使用"多 Agent 协作"');
                 return;
             }
             
-            try {
-                const resp = await fetch(`${API_BASE}/workspaces/agents/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name,
-                        workspace_id: currentWorkspaceId,
-                        config: {
-                            model,
-                            system_prompt: prompt || '你是一个友好的 AI 助手。',
-                            personality,
-                            api_key: apiKey || undefined
-                        }
-                    })
-                });
-                
-                const data = await resp.json();
-                if (data.success) {
-                    alert('Agent 创建成功！');
-                    closeModal('createAgentModal');
-                    // 清空表单
-                    document.getElementById('newAgentName').value = '';
-                    document.getElementById('newAgentPrompt').value = '';
-                    document.getElementById('newAgentApiKey').value = '';
-                    loadWorkspaceDetail();
-                }
-            } catch (error) {
-                alert('创建失败：' + error.message);
-            }
+            const agentId = [...selectedAgents][0];
+            window.location.href = `/web/chat-agent.html?agent=${agentId}`;
         }
         
-        async function editAgent(agentId) {
-            currentAgentId = agentId;
-            
-            try {
-                const resp = await fetch(`${API_BASE}/workspaces/agents/${agentId}/config`);
-                const data = await resp.json();
-                const agent = data.agent;
-                
-                document.getElementById('editAgentId').value = agent.id;
-                document.getElementById('editAgentName').value = agent.name;
-                document.getElementById('editAgentPrompt').value = agent.system_prompt;
-                document.getElementById('editAgentModel').value = agent.model;
-                document.getElementById('editAgentTemp').value = agent.temperature;
-                document.getElementById('editAgentTempValue').textContent = agent.temperature;
-                document.getElementById('editAgentMaxTokens').value = agent.max_tokens;
-                document.getElementById('editAgentPersonality').value = agent.personality;
-                document.getElementById('editAgentEnabled').checked = agent.enabled;
-                
-                document.getElementById('editAgentModal').classList.add('show');
-                
-            } catch (error) {
-                alert('加载 Agent 配置失败：' + error.message);
-            }
-        }
-        
-        async function saveAgentConfig() {
-            const agentId = document.getElementById('editAgentId').value;
-            const config = {
-                name: document.getElementById('editAgentName').value.trim(),
-                system_prompt: document.getElementById('editAgentPrompt').value.trim(),
-                model: document.getElementById('editAgentModel').value,
-                temperature: parseFloat(document.getElementById('editAgentTemp').value),
-                max_tokens: parseInt(document.getElementById('editAgentMaxTokens').value),
-                personality: document.getElementById('editAgentPersonality').value,
-                enabled: document.getElementById('editAgentEnabled').checked
-            };
-            
-            if (!config.name) {
-                alert('请输入 Agent 名称');
+        // 开始多 Agent 协作
+        function startMultiChat() {
+            if (selectedAgents.size === 0) {
+                alert('请至少选择一个 Agent');
                 return;
             }
             
-            try {
-                const resp = await fetch(`${API_BASE}/workspaces/agents/${agentId}/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ config })
-                });
-                
-                const data = await resp.json();
-                if (data.success) {
-                    alert('Agent 配置已保存！');
-                    closeModal('editAgentModal');
-                    loadWorkspaceDetail();
-                }
-            } catch (error) {
-                alert('保存失败：' + error.message);
-            }
-        }
-        
-        async function deleteAgent() {
-            if (!confirm('确定要删除这个 Agent 吗？')) return;
+            // 保存到 localStorage
+            localStorage.setItem('selectedAgents', JSON.stringify([...selectedAgents]));
             
-            const agentId = document.getElementById('editAgentId').value;
-            
-            try {
-                await fetch(`${API_BASE}/workspaces/agents/${agentId}`, {
-                    method: 'DELETE'
-                });
-                
-                alert('Agent 已删除');
-                closeModal('editAgentModal');
-                loadWorkspaceDetail();
-            } catch (error) {
-                alert('删除失败：' + error.message);
-            }
-        }
-        
-        // ========== 工具函数 ==========
-        
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('show');
-        }
-        
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        function switchWorkspace() {
-            // 这个函数可以在聊天页面中使用，用于切换工作空间
-            const select = document.getElementById('workspaceSelect');
-            const workspaceId = select.value;
-            if (workspaceId) {
-                selectWorkspace(workspaceId);
-            }
+            // 跳转到多 Agent 页面
+            window.location.href = `/web/multi-agent.html?agents=${[...selectedAgents].join(',')}`;
         }
     </script>
 </body>

@@ -6,7 +6,8 @@ Reviewer Agent - 负责代码审查
 
 import logging
 from typing import Dict
-from .base import BaseAgent, AgentMessage
+from .base import BaseAgent
+from .message import AgentMessage
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,20 @@ class ReviewerAgent(BaseAgent):
             "可维护性"
         ]
         self.reviewed_tasks = 0
+    
+    @property
+    def role(self) -> str:
+        """Agent 角色"""
+        return "reviewer"
+    
+    async def execute(self, task: str, context: Dict = None) -> Dict:
+        """执行任务（实现基类抽象方法）"""
+        result = await self._review_code(task)
+        return {
+            "success": True,
+            "result": result,
+            "reviewed_tasks": self.reviewed_tasks
+        }
     
     async def process(self, message: AgentMessage) -> AgentMessage:
         """处理审查请求"""

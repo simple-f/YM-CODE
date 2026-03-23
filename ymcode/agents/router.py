@@ -7,7 +7,8 @@ Agent 路由器
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional
-from .base import BaseAgent, AgentMessage
+from .base import BaseAgent
+from .message import AgentMessage
 
 logger = logging.getLogger(__name__)
 

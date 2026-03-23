@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-A2A Coordinator - LangGraph 版本 (已修复)
+A2A Coordinator - LangGraph 版本 (阶段 2 集成)
 
 基于 LangGraph StateGraph 实现的 Agent 协作协调器
 
-修复记录 (2026-03-23):
-- P1: 修复节点函数缺少 self 参数
-- P1: 修复 _get_available_agents() 返回空列表
-- P1: 修复重试逻辑无限循环
-- P2: 修复类型不一致 (使用 TaskStatus Enum)
-- P2: 添加缺失的 Dict 导入
-- P2: 实现 Agent 状态更新
+阶段 2 集成 (2026-03-23):
+- ✅ 集成真实的 ymcode.taskqueue.Task
+- ✅ 集成 ymcode.events.EventBus
+- ✅ 使用真实 EventType 发布事件
+- ✅ 支持异步任务执行
 """
 
 import asyncio
@@ -23,7 +21,7 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
 from ..utils.logger import get_logger
-from ..taskqueue import Task, TaskQueue, TaskPriority
+from ..taskqueue.task import Task, TaskStatus as TaskQueueStatus, TaskPriority
 from ..events import EventBus, EventType
 from .state_tracker import StateTracker, TaskState, get_state_tracker
 
@@ -40,25 +38,25 @@ class AssignmentStrategy(str, Enum):
     CUSTOM = "CUSTOM"
 
 
-class TaskStatus(str, Enum):
-    """任务状态"""
-    PENDING = "pending"
-    SCHEDULED = "scheduled"
-    EXECUTING = "executing"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
+# 使用 taskqueue 的 TaskStatus，避免重复定义
+# class TaskStatus(str, Enum):
+#     PENDING = "pending"
+#     SCHEDULED = "scheduled"
+#     EXECUTING = "executing"
+#     COMPLETED = "completed"
+#     FAILED = "failed"
+#     CANCELLED = "cancelled"
 
 
 class A2AState(TypedDict):
     """
-    LangGraph 状态定义 (已修复类型)
+    LangGraph 状态定义 (阶段 2: 使用真实 Task)
     """
-    task: Optional[Task]                    # 当前任务
+    task: Optional[Task]                    # 当前任务 (ymcode.taskqueue.Task)
     task_id: str                            # 任务 ID
     assigned_agent: Optional[str]           # 分配的 Agent
     strategy: str                           # 分配策略
-    status: TaskStatus                      # 任务状态 (已修复：使用 Enum)
+    status: str                             # 任务状态 (使用字符串避免序列化问题)
     from_agent: Optional[str]               # 源 Agent (交接时使用)
     handoff_reason: Optional[str]           # 交接原因
     error: Optional[str]                    # 错误信息
@@ -168,11 +166,11 @@ class LangGraphA2ACoordinator:
         """
         workflow = StateGraph(A2AState)
         
-        # 添加节点 (已修复：使用 lambda 捕获 self)
+        # 添加节点 (阶段 2: 支持异步)
         workflow.add_node("initialize", self._initialize_task)
         workflow.add_node("route", self._route_task)
         workflow.add_node("select_agent", self._select_agent)
-        workflow.add_node("execute", self._execute_task)
+        workflow.add_node("execute", self._execute_task)  # 异步节点
         workflow.add_node("complete", self._complete_task)
         workflow.add_node("fail", self._handle_failure)
         workflow.add_node("finalize", self._finalize)
@@ -213,7 +211,7 @@ class LangGraphA2ACoordinator:
         """初始化任务状态"""
         logger.info(f"[INIT] 初始化任务：{state['task_id']}")
         
-        state['status'] = TaskStatus.PENDING
+        state['status'] = "pending"
         state['retries'] = 0
         state['error'] = None
         
@@ -232,7 +230,7 @@ class LangGraphA2ACoordinator:
             logger.warning(f"[ROUTE] 任务为空：{state['task_id']}")
             return "finalize"
         
-        if state['status'] == TaskStatus.CANCELLED:
+        if state['status'] == "cancelled":
             logger.info(f"[ROUTE] 任务已取消：{state['task_id']}")
             return "finalize"
         
@@ -280,34 +278,52 @@ class LangGraphA2ACoordinator:
         
         if selected:
             state['assigned_agent'] = selected.name
-            state['status'] = TaskStatus.SCHEDULED
+            state['status'] = "scheduled"
             
-            # 更新 Agent 状态 (已修复：实际更新)
+            # 更新 Agent 状态
             selected.tasks_assigned += 1
             selected.status = "busy"
             selected.last_seen = datetime.now().timestamp()
             
+            # 更新 Task 状态 (阶段 2: 集成真实 Task)
+            if state['task']:
+                state['task'].assigned_to = selected.name
+                state['task'].status = TaskQueueStatus.RUNNING
+            
             logger.info(f"[SELECT] 任务分配：{state['task_id']} -> {selected.name}")
         else:
             state['error'] = "无法选择 Agent"
-            state['status'] = TaskStatus.FAILED
+            state['status'] = "failed"
         
         return state
     
-    def _execute_task(self, state: A2AState) -> A2AState:
+    async def _execute_task(self, state: A2AState) -> A2AState:
         """
-        执行任务 (已修复：添加实际执行逻辑)
+        执行任务 (阶段 2: 异步执行)
         
-        实际由 Agent 执行，这里标记执行状态
+        实际由 Agent 执行，这里标记执行状态并发布事件
         """
         agent_name = state['assigned_agent']
         
         logger.info(f"[EXECUTE] 开始执行：{state['task_id']} by {agent_name}")
         
-        state['status'] = TaskStatus.EXECUTING
+        state['status'] = "executing"
         
-        # TODO: 这里可以调用实际的 Agent 执行逻辑
-        # 当前只是标记状态
+        # 更新 Task 状态
+        if state['task']:
+            state['task'].status = TaskQueueStatus.RUNNING
+            state['task'].started_at = datetime.now()
+        
+        # 发布事件 (阶段 2: 集成 EventBus)
+        asyncio.create_task(self._publish_event(EventType.TASK_STARTED, {
+            "task_id": state['task_id'],
+            "agent": agent_name,
+            "timestamp": datetime.now().isoformat()
+        }))
+        
+        # TODO: 实际调用 Agent 执行
+        # result = await self._call_agent(agent_name, state['task'])
+        # state['result'] = result
         
         return state
     
@@ -335,44 +351,71 @@ class LangGraphA2ACoordinator:
         return "complete"
     
     def _complete_task(self, state: A2AState) -> A2AState:
-        """完成任务 (已修复：更新 Agent 统计)"""
+        """完成任务 (阶段 2: 集成 EventBus)"""
         logger.info(f"[COMPLETE] 任务完成：{state['task_id']}")
         
-        state['status'] = TaskStatus.COMPLETED
+        state['status'] = "completed"
         
-        # 更新 Agent 状态 (已修复：实际更新)
+        # 更新 Task 状态
+        if state['task']:
+            state['task'].status = TaskQueueStatus.COMPLETED
+            state['task'].completed_at = datetime.now()
+        
+        # 更新 Agent 状态
         agent_name = state['assigned_agent']
         if agent_name and agent_name in self._agents:
             self._agents[agent_name].tasks_completed += 1
             self._agents[agent_name].status = "idle"
             self._agents[agent_name].last_seen = datetime.now().timestamp()
         
+        # 发布事件
+        asyncio.create_task(self._publish_event(EventType.TASK_COMPLETED, {
+            "task_id": state['task_id'],
+            "agent": agent_name,
+            "timestamp": datetime.now().isoformat()
+        }))
+        
         return state
     
     def _handle_failure(self, state: A2AState) -> A2AState:
-        """处理失败 (已修复：更新 Agent 统计)"""
+        """处理失败 (阶段 2: 集成 EventBus)"""
         logger.error(f"[FAIL] 任务失败：{state['task_id']}, error={state.get('error')}")
         
-        state['status'] = TaskStatus.FAILED
+        state['status'] = "failed"
         
-        # 更新 Agent 状态 (已修复：实际更新)
+        # 更新 Task 状态
+        if state['task']:
+            state['task'].status = TaskQueueStatus.FAILED
+            state['task'].error = state.get('error')
+            state['task'].completed_at = datetime.now()
+        
+        # 更新 Agent 状态
         agent_name = state['assigned_agent']
         if agent_name and agent_name in self._agents:
             self._agents[agent_name].tasks_failed += 1
             self._agents[agent_name].status = "idle"
             self._agents[agent_name].last_seen = datetime.now().timestamp()
         
+        # 发布事件
+        asyncio.create_task(self._publish_event(EventType.TASK_FAILED, {
+            "task_id": state['task_id'],
+            "agent": agent_name,
+            "error": state.get('error'),
+            "timestamp": datetime.now().isoformat()
+        }))
+        
         return state
     
     def _finalize(self, state: A2AState) -> A2AState:
         """最终清理"""
-        logger.info(f"[FINALIZE] 任务结束：{state['task_id']}, status={state['status'].value}")
+        logger.info(f"[FINALIZE] 任务结束：{state['task_id']}, status={state['status']}")
         
-        # 发布完成事件
+        # 发布事件 (阶段 2: 使用真实 EventType)
         asyncio.create_task(self._publish_event(EventType.TASK_COMPLETED, {
             "task_id": state['task_id'],
-            "status": state['status'].value,
-            "agent": state['assigned_agent']
+            "status": state['status'],
+            "agent": state['assigned_agent'],
+            "timestamp": datetime.now().isoformat()
         }))
         
         return state
@@ -431,12 +474,12 @@ class LangGraphA2ACoordinator:
         agents: List[AgentInfo],
         task: Task
     ) -> Optional[AgentInfo]:
-        """优先级匹配"""
+        """优先级匹配 (阶段 2: 使用真实 TaskPriority)"""
         if not agents:
             return None
         
         # 高优先级任务分配给完成率高的 Agent
-        if task and task.priority in [TaskPriority.CRITICAL, TaskPriority.HIGH]:
+        if task and task.priority in [TaskPriority.HIGH, TaskPriority.URGENT]:
             def success_rate(agent: AgentInfo) -> float:
                 total = agent.tasks_completed + agent.tasks_failed
                 if total == 0:

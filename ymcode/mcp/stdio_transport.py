@@ -79,24 +79,56 @@ class STDIOTransport:
             return False
     
     async def disconnect(self) -> None:
-        """断开连接"""
+        """断开连接（增强版 - 确保资源正确释放）"""
+        logger.info("正在断开 STDIO 连接...")
+        
         self._running = False
         
-        # 取消读取任务
+        # ✅ 1. 取消读取任务
         if self._read_task:
             self._read_task.cancel()
             try:
                 await self._read_task
             except asyncio.CancelledError:
                 pass
+            except Exception as e:
+                logger.error(f"取消读取任务失败：{e}")
+            self._read_task = None
         
-        # 关闭进程
+        # ✅ 2. 正确关闭进程
         if self.process:
-            self.process.terminate()
-            self.process.wait()
-            self.process = None
+            try:
+                # 先尝试优雅终止
+                self.process.terminate()
+                
+                # 等待进程退出（最多 5 秒）
+                try:
+                    self.process.wait(timeout=5)
+                    logger.info("STDIO 进程已正常退出")
+                except subprocess.TimeoutExpired:
+                    # 超时后强制终止
+                    logger.warning("STDIO 进程未在 5 秒内退出，强制终止...")
+                    self.process.kill()
+                    self.process.wait(timeout=2)
+                    logger.info("STDIO 进程已被强制终止")
+                
+            except Exception as e:
+                logger.error(f"关闭 STDIO 进程失败：{e}")
+            finally:
+                self.process = None
         
-        logger.info("STDIO 断开连接")
+        # ✅ 3. 关闭管道
+        try:
+            if self.process and self.process.stdin:
+                self.process.stdin.close()
+            if self.process and self.process.stdout:
+                self.process.stdout.close()
+            if self.process and self.process.stderr:
+                self.process.stderr.close()
+        except:
+            pass
+        
+        logger.info("STDIO 已断开连接")
     
     async def send_request(self, message: MCPMessage) -> None:
         """

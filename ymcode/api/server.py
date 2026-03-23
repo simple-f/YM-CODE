@@ -18,12 +18,20 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 # 导入 YM-CODE 模块
-from ..utils.logger import get_logger
-from ..skills import get_registry as get_skills_registry
-from ..skills.skill_marketplace import get_skill_marketplace
-from ..workspace import get_workspace_manager, create_workspace, add_agent_to_current_workspace
-from ..skills.llm import LLMSkill
-from ..storage import get_store, init_store
+import sys
+from pathlib import Path
+
+# 添加项目根目录到路径（解决相对导入问题）
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from ymcode.utils.logger import get_logger
+from ymcode.skills import get_registry as get_skills_registry
+from ymcode.skills.skill_marketplace import get_skill_marketplace
+from ymcode.workspace import get_workspace_manager, create_workspace, add_agent_to_current_workspace
+from ymcode.skills.llm import LLMSkill
+from ymcode.storage import get_store, init_store
 
 logger = get_logger(__name__)
 

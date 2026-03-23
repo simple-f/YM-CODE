@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YM-CODE - AI 编程助手</title>
+    <title>YM-CODE - AI 编程助手 v0.7.0</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -603,6 +603,29 @@
                             </button>
                             <p style="margin-top: 20px; color: #8b98a5;">或访问：<code style="background: #0f3460; padding: 5px 10px; border-radius: 4px;">http://localhost:18770/agent-config.html</code></p>
                         </div>
+                        
+                        <h3 style="margin-top: 40px; margin-bottom: 15px;">📊 系统监控</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div style="background: #16213e; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">📈</div>
+                                <div style="font-size: 14px; color: #aaa; margin-bottom: 10px;">Dashboard</div>
+                                <button onclick="window.open('/dashboard', '_blank')" style="background: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
+                                    打开监控面板
+                                </button>
+                            </div>
+                            <div style="background: #16213e; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">🤖</div>
+                                <div style="font-size: 14px; color: #aaa; margin-bottom: 10px;">工作流引擎</div>
+                                <div style="font-size: 12px; color: #666;">状态追踪 + 级联取消 + 任务调度 + A2A 协调</div>
+                            </div>
+                            <div style="background: #16213e; padding: 20px; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 32px; margin-bottom: 10px;">💬</div>
+                                <div style="font-size: 14px; color: #aaa; margin-bottom: 10px;">对话页面</div>
+                                <button onclick="window.open('/web/chat.html', '_blank')" style="background: #17a2b8; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; width: 100%;">
+                                    打开对话
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -611,7 +634,7 @@
     
     <script>
         // API 基础 URL
-        const API_BASE = 'http://localhost:18770/api';
+        const API_BASE = 'http://localhost:8080/api';
         
         // 当前状态
         let currentSession = null;

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard 测试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { margin: 5px; padding: 8px 16px; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 10px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 YM-CODE Dashboard 集成测试</h1>
+    
+    <div class="test-section">
+        <h2>1. API 连接测试</h2>
+        <button onclick="testHealth()">测试健康检查</button>
+        <button onclick="testMetrics()">测试系统指标</button>
+        <button onclick="testTasks()">测试任务 API</button>
+        <button onclick="testAgents()">测试 Agent API</button>
+        <button onclick="testAlerts()">测试告警 API</button>
+        <button onclick="testMcp()">测试 MCP 状态</button>
+        <div id="api-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. WebSocket 测试</h2>
+        <button onclick="testWebSocket()">连接 WebSocket</button>
+        <button onclick="sendHeartbeat()">发送心跳</button>
+        <button onclick="disconnectWebSocket()">断开连接</button>
+        <div id="ws-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 功能测试</h2>
+        <button onclick="testCreateTask()">创建测试任务</button>
+        <button onclick="testCancelTask()">取消任务</button>
+        <button onclick="testSearchKnowledge()">搜索知识库</button>
+        <div id="func-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 性能测试</h2>
+        <button onclick="testLoadTime()">测试加载时间</button>
+        <button onclick="testRefreshPerformance()">测试刷新性能</button>
+        <div id="perf-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>测试结果</h2>
+        <button onclick="exportResults()">导出结果</button>
+        <button onclick="clearResults()">清除结果</button>
+        <pre id="all-results"></pre>
+    </div>
+    
+    <script>
+        const API_BASE = window.location.origin;
+        const results = {
+            api: [],
+            ws: [],
+            func: [],
+            perf: []
+        };
+        
+        let ws = null;
+        
+        function log(category, message, success = true) {
+            const container = document.getElementById(`${category}-results`);
+            const div = document.createElement('div');
+            div.className = `test-result ${success ? 'success' : 'error'}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            container.appendChild(div);
+            
+            results[category].push({
+                timestamp: new Date().toISOString(),
+                message,
+                success
+            });
+            
+            updateAllResults();
+        }
+        
+        function updateAllResults() {
+            document.getElementById('all-results').textContent = JSON.stringify(results, null, 2);
+        }
+        
+        function clearResults() {
+            ['api', 'ws', 'func', 'perf'].forEach(cat => {
+                document.getElementById(`${cat}-results`).innerHTML = '';
+                results[cat] = [];
+            });
+            updateAllResults();
+        }
+        
+        function exportResults() {
+            const blob = new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dashboard-test-${new Date().toISOString()}.json`;
+            a.click();
+        }
+        
+        // API 测试
+        async function testHealth() {
+            try {
+                const start = performance.now();
+                const res = await fetch(`${API_BASE}/health`);
+                const data = await res.json();
+                const duration = (performance.now() - start).toFixed(2);
+                log('api', `健康检查成功 (${duration}ms): ${data.status}`, res.ok);
+            } catch (e) {
+                log('api', `健康检查失败：${e.message}`, false);
+            }
+        }
+        
+        async function testMetrics() {
+            try {
+                const start = performance.now();
+                const res = await fetch(`${API_BASE}/api/metrics/system`);
+                const data = await res.json();
+                const duration = (performance.now() - start).toFixed(2);
+                log('api', `系统指标成功 (${duration}ms): ${JSON.stringify(data)}`, res.ok);
+            } catch (e) {
+                log('api', `系统指标失败：${e.message}`, false);
+            }
+        }
+        
+        async function testTasks() {
+            try {
+                const start = performance.now();
+                const res = await fetch(`${API_BASE}/api/tasks?limit=10`);
+                const data = await res.json();
+                const duration = (performance.now() - start).toFixed(2);
+                log('api', `任务列表成功 (${duration}ms): ${data.length} 个任务`, res.ok);
+            } catch (e) {
+                log('api', `任务列表失败：${e.message}`, false);
+            }
+        }
+        
+        async function testAgents() {
+            try {
+                const start = performance.now();
+                const res = await fetch(`${API_BASE}/api/metrics/agents`);
+                const data = await res.json();
+                const duration = (performance.now() - start).toFixed(2);
+                log('api', `Agent 指标成功 (${duration}ms): ${data.agents?.length || 0} 个 Agent`, res.ok);
+            } catch (e) {
+                log('api', `Agent 指标失败：${e.message}`, false);
+            }
+        }
+        
+        async function testAlerts() {
+            try {
+                const start = performance.now();
+                const res = await fetch(`${API_BASE}/api/alerts?active=true`);
+                const data = await res.json();
+                const duration = (performance.now() - start).toFixed(2);
+                log('api', `告警列表成功 (${duration}ms): ${data.alerts?.length || 0} 个告警`, res.ok);
+            } catch (e) {
+                log('api', `告警列表失败：${e.message}`, false);
+            }
+        }
+        
+        async function testMcp() {
+            try {
+                const start = performance.now();
+                const res = await fetch(`${API_BASE}/api/mcp/status`);
+                const data = await res.json();
+                const duration = (performance.now() - start).toFixed(2);
+                log('api', `MCP 状态成功 (${duration}ms): ${data.client_count || 0} 个客户端`, res.ok);
+            } catch (e) {
+                log('api', `MCP 状态失败：${e.message}`, false);
+            }
+        }
+        
+        // WebSocket 测试
+        function testWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/events`;
+            
+            log('ws', `正在连接 WebSocket: ${wsUrl}`);
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                log('ws', 'WebSocket 连接成功', true);
+            };
+            
+            ws.onmessage = (event) => {
+                log('ws', `收到消息：${event.data}`, true);
+            };
+            
+            ws.onclose = () => {
+                log('ws', 'WebSocket 已断开', false);
+            };
+            
+            ws.onerror = (error) => {
+                log('ws', `WebSocket 错误：${error}`, false);
+            };
+        }
+        
+        function sendHeartbeat() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
+                log('ws', '心跳已发送', true);
+            } else {
+                log('ws', 'WebSocket 未连接', false);
+            }
+        }
+        
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                log('ws', 'WebSocket 已断开', true);
+                ws = null;
+            }
+        }
+        
+        // 功能测试
+        async function testCreateTask() {
+            try {
+                const task = {
+                    title: `测试任务 ${Date.now()}`,
+                    description: '集成测试自动创建',
+                    priority: 'NORMAL',
+                    assigned_to: 'test-agent'
+                };
+                
+                const res = await fetch(`${API_BASE}/api/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(task)
+                });
+                
+                const data = await res.json();
+                log('func', `创建任务成功: ${data.id}`, res.ok);
+            } catch (e) {
+                log('func', `创建任务失败：${e.message}`, false);
+            }
+        }
+        
+        async function testCancelTask() {
+            const taskId = prompt('输入要取消的任务 ID:');
+            if (!taskId) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/tasks/${taskId}`, {
+                    method: 'DELETE'
+                });
+                
+                log('func', `取消任务${res.ok ? '成功' : '失败'}`, res.ok);
+            } catch (e) {
+                log('func', `取消任务失败：${e.message}`, false);
+            }
+        }
+        
+        async function testSearchKnowledge() {
+            const query = prompt('输入搜索关键词:', '架构');
+            if (!query) return;
+            
+            try {
+                const start = performance.now();
+                const res = await fetch(`${API_BASE}/api/knowledge/search?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                const duration = (performance.now() - start).toFixed(2);
+                log('func', `搜索成功 (${duration}ms): ${data.results?.length || 0} 个结果`, res.ok);
+            } catch (e) {
+                log('func', `搜索失败：${e.message}`, false);
+            }
+        }
+        
+        // 性能测试
+        function testLoadTime() {
+            const navigation = performance.getEntriesByType('navigation')[0];
+            if (navigation) {
+                const loadTime = navigation.loadEventEnd - navigation.startTime;
+                const domContentLoaded = navigation.domContentLoadedEventEnd - navigation.startTime;
+                log('perf', `页面加载时间：${loadTime.toFixed(2)}ms`, loadTime < 2000);
+                log('perf', `DOM 加载时间：${domContentLoaded.toFixed(2)}ms`, domContentLoaded < 1000);
+            }
+        }
+        
+        async function testRefreshPerformance() {
+            const iterations = 5;
+            const times = [];
+            
+            for (let i = 0; i < iterations; i++) {
+                const start = performance.now();
+                await Promise.all([
+                    fetch(`${API_BASE}/api/metrics/system`),
+                    fetch(`${API_BASE}/api/tasks?limit=10`),
+                    fetch(`${API_BASE}/api/metrics/agents`)
+                ]);
+                times.push(performance.now() - start);
+            }
+            
+            const avg = times.reduce((a, b) => a + b, 0) / times.length;
+            const min = Math.min(...times);
+            const max = Math.max(...times);
+            
+            log('perf', `刷新性能测试 (${iterations} 次迭代)`);
+            log('perf', `平均：${avg.toFixed(2)}ms`, avg < 1000);
+            log('perf', `最小：${min.toFixed(2)}ms`);
+            log('perf', `最大：${max.toFixed(2)}ms`);
+        }
+        
+        // 自动运行基础测试
+        window.addEventListener('load', () => {
+            log('api', '页面加载完成，开始自动测试');
+            testHealth();
+            testMetrics();
+            testLoadTime();
+        });
+    </script>
+</body>
+</html>

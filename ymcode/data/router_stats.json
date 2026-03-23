@@ -1,0 +1,44 @@
+{
+  "ai1": {
+    "total_tasks": 3,
+    "successful_tasks": 3,
+    "avg_response_time": 3.8333333333333335,
+    "accuracy_rate": 1.0
+  },
+  "ai2": {
+    "total_tasks": 2,
+    "successful_tasks": 2,
+    "avg_response_time": 2.6,
+    "accuracy_rate": 1.0
+  },
+  "ai3": {
+    "total_tasks": 1,
+    "successful_tasks": 1,
+    "avg_response_time": 2.4000000000000004,
+    "accuracy_rate": 1.0
+  },
+  "ai4": {
+    "total_tasks": 1,
+    "successful_tasks": 1,
+    "avg_response_time": 2.4000000000000004,
+    "accuracy_rate": 1.0
+  },
+  "ai5": {
+    "total_tasks": 2,
+    "successful_tasks": 2,
+    "avg_response_time": 3.2,
+    "accuracy_rate": 1.0
+  },
+  "ai6": {
+    "total_tasks": 0,
+    "successful_tasks": 0,
+    "avg_response_time": 0.0,
+    "accuracy_rate": 0.95
+  },
+  "ai7": {
+    "total_tasks": 1,
+    "successful_tasks": 1,
+    "avg_response_time": 3.2,
+    "accuracy_rate": 1.0
+  }
+}

@@ -65,6 +65,16 @@ class YMCodeCLI:
         self.completer = YMCodeCompleter()
         self.history = []
         self.config = self._load_config()
+        
+        # 初始化智能路由器
+        try:
+            from ymcode.router import SmartRouter
+            self.router = SmartRouter()
+            console.print("[green][✓] 智能路由已加载[/green]\n")
+        except Exception as e:
+            console.print(f"[yellow][!] 智能路由加载失败：{e}[/yellow]")
+            console.print("[dim]提示：将使用默认 Agent[/dim]\n")
+            self.router = None
     
     def _load_config(self) -> dict:
         """加载配置"""
@@ -255,19 +265,85 @@ class YMCodeCLI:
                 self.switch_model(model_id)
             return
         
+        # ========== 智能路由 ==========
+        route_result = None
+        if self.router:
+            try:
+                import time
+                route_start = time.time()
+                route_result = self.router.route(command)
+                route_time = (time.time() - route_start) * 1000
+                
+                # 显示路由信息
+                console.print()
+                
+                # 置信度表情
+                if route_result.confidence > 0.7:
+                    emoji = "🟢"
+                elif route_result.confidence > 0.4:
+                    emoji = "🟡"
+                else:
+                    emoji = "🔴"
+                
+                console.print(f"[bold blue]{emoji} 智能路由[/bold blue] [dim]{route_time:.1f}ms[/dim]")
+                console.print(f"  [bold]Agent:[/bold] [cyan]{route_result.agent_name}[/cyan] ({route_result.selected_agent})")
+                console.print(f"  [bold]置信度:[/bold] {emoji} {route_result.confidence:.0%}")
+                console.print(f"  [bold]预计响应:[/bold] {route_result.response_time_estimate}s")
+                
+                if route_result.matched_keywords:
+                    console.print(f"  [bold]关键词:[/bold] {', '.join(route_result.matched_keywords)}")
+                
+                if route_result.alternative_agents:
+                    alt_names = [self.router.get_agent_info(aid)["name"] for aid in route_result.alternative_agents if self.router.get_agent_info(aid)]
+                    if alt_names:
+                        console.print(f"  [bold]备选:[/bold] {', '.join(alt_names)}")
+                
+                console.print()
+            except Exception as e:
+                console.print(f"[yellow][!] 路由失败：{e}，使用默认 Agent[/yellow]\n")
+                route_result = None
+        
         # 执行 Agent 命令
-        console.print()
         console.print("[bold blue][AI] YM-CODE:[/bold blue]\n")
         
         try:
-            # 调用 Agent
+            import time
+            start_time = time.time()
+            
+            # 调用 Agent（如果有路由结果，使用选定的 Agent）
+            if route_result:
+                # 更新配置使用路由选定的模型
+                agent_info = self.router.get_agent_info(route_result.selected_agent)
+                if agent_info:
+                    old_model = self.config.get('model')
+                    self.config['model'] = agent_info.get('model', old_model)
+                    # 重新初始化 Agent（如果需要）
+                    if self.agent and hasattr(self.agent, 'model') and self.agent.model != self.config['model']:
+                        from ymcode.core.agent import Agent
+                        self.agent = Agent(config=self.config)
+            
             result = await self.agent.run(command)
+            
+            response_time = time.time() - start_time
             
             # 流式输出结果
             await self.stream_output(str(result))
             
+            # 记录路由结果
+            if self.router and route_result:
+                try:
+                    self.router.record_result(route_result.selected_agent, True, response_time)
+                except:
+                    pass
+            
         except Exception as e:
             console.print(f"[red][!] 错误：{e}[/red]")
+            # 记录失败
+            if self.router and route_result:
+                try:
+                    self.router.record_result(route_result.selected_agent, False, 0)
+                except:
+                    pass
     
     async def run(self):
         """运行 CLI"""

@@ -1,0 +1,18 @@
+{
+  "states": {
+    "test-1": "PENDING"
+  },
+  "history": {
+    "test-1": [
+      {
+        "task_id": "test-1",
+        "from_state": null,
+        "to_state": "PENDING",
+        "timestamp": "2026-03-19T20:23:24.200038",
+        "reason": null,
+        "metadata": null
+      }
+    ]
+  },
+  "updated_at": "2026-03-19T20:23:24.200255"
+}

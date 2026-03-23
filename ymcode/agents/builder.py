@@ -6,7 +6,8 @@ Builder Agent - 负责代码实现
 
 import logging
 from typing import Dict
-from .base import BaseAgent, AgentMessage
+from .base import BaseAgent
+from .message import AgentMessage
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,20 @@ class BuilderAgent(BaseAgent):
         super().__init__("builder", "Builder")
         self.skills = {}
         self.completed_tasks = 0
+    
+    @property
+    def role(self) -> str:
+        """Agent 角色"""
+        return "builder"
+    
+    async def execute(self, task: str, context: Dict = None) -> Dict:
+        """执行任务（实现基类抽象方法）"""
+        result = await self._execute_task(task)
+        return {
+            "success": True,
+            "result": result,
+            "completed_tasks": self.completed_tasks
+        }
     
     async def process(self, message: AgentMessage) -> AgentMessage:
         """处理构建请求"""

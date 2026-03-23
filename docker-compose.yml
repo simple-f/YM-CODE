@@ -1,21 +1,89 @@
+# YM-CODE Docker Compose
+# 一键部署多 Agent 协作系统
+
 version: '3.8'
 
 services:
-  ym-code:
-    build: .
-    container_name: ym-code
+  # YM-CODE 主服务
+  ymcode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ymcode
+    ports:
+      - "18770:18770"  # Web Dashboard
+      - "8080:8080"    # API
     volumes:
-      # 挂载工作目录
-      - ./workspace:/workspace
       # 持久化数据
-      - ymcode-data:/root/.ymcode
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./docs:/app/docs
+      - ./shared/YM-CODE:/app/shared/YM-CODE
     environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+      - DATABASE_URL=sqlite:///app/data/ymcode.db
+      - RAG_DATABASE_URL=sqlite:///app/data/rag.db
+      # API Keys（从.env 文件加载）
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
-      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
-    stdin_open: true
-    tty: true
-    working_dir: /workspace
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:18770/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ymcode-network
+
+  # PostgreSQL（可选，用于生产环境）
+  postgres:
+    image: postgres:15-alpine
+    container_name: ymcode-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=ymcode
+      - POSTGRES_USER=ymcode
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-ymcode123}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ymcode"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ymcode-network
+    profiles:
+      - production  # 仅在生产环境启动
+
+  # Redis（可选，用于缓存）
+  redis:
+    image: redis:7-alpine
+    container_name: ymcode-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ymcode-network
+    profiles:
+      - production  # 仅在生产环境启动
 
 volumes:
-  ymcode-data:
+  postgres_data:
+  redis_data:
+
+networks:
+  ymcode-network:
+    driver: bridge

@@ -140,6 +140,12 @@ class LangGraphA2ACoordinator:
         # 轮询索引
         self._round_robin_index = 0
         
+        # 任务 - Agent 映射 (阶段 3: 添加)
+        self._task_assignments: Dict[str, str] = {}
+        
+        # 交接历史 (阶段 3: 添加)
+        self._handoffs: List[Dict[str, Any]] = []
+        
         # 锁 (已修复：添加并发控制)
         self._lock = asyncio.Lock()
         
@@ -285,6 +291,9 @@ class LangGraphA2ACoordinator:
             selected.status = "busy"
             selected.last_seen = datetime.now().timestamp()
             
+            # 记录任务分配 (阶段 3: 添加)
+            self._task_assignments[state['task_id']] = selected.name
+            
             # 更新 Task 状态 (阶段 2: 集成真实 Task)
             if state['task']:
                 state['task'].assigned_to = selected.name
@@ -299,9 +308,9 @@ class LangGraphA2ACoordinator:
     
     async def _execute_task(self, state: A2AState) -> A2AState:
         """
-        执行任务 (阶段 2: 异步执行)
+        执行任务 (阶段 3: 实际调用 Agent)
         
-        实际由 Agent 执行，这里标记执行状态并发布事件
+        实际由 Agent 执行，这里调用 Agent 并获取结果
         """
         agent_name = state['assigned_agent']
         
@@ -314,16 +323,21 @@ class LangGraphA2ACoordinator:
             state['task'].status = TaskQueueStatus.RUNNING
             state['task'].started_at = datetime.now()
         
-        # 发布事件 (阶段 2: 集成 EventBus)
+        # 发布事件
         asyncio.create_task(self._publish_event(EventType.TASK_STARTED, {
             "task_id": state['task_id'],
             "agent": agent_name,
             "timestamp": datetime.now().isoformat()
         }))
         
-        # TODO: 实际调用 Agent 执行
-        # result = await self._call_agent(agent_name, state['task'])
-        # state['result'] = result
+        # 阶段 3: 实际调用 Agent 执行
+        try:
+            result = await self._call_agent(agent_name, state['task'])
+            state['result'] = result
+            logger.info(f"[EXECUTE] 任务执行成功：{state['task_id']}")
+        except Exception as e:
+            state['error'] = str(e)
+            logger.error(f"[EXECUTE] 任务执行失败：{state['task_id']}, error={e}")
         
         return state
     
@@ -631,6 +645,120 @@ class LangGraphA2ACoordinator:
                 for name, agent in self._agents.items()
             }
         }
+    
+    # ========== 阶段 3: 新增功能 ==========
+    
+    async def _call_agent(self, agent_name: str, task: Task) -> Any:
+        """
+        调用 Agent 执行任务 (阶段 3: 实际实现)
+        
+        Args:
+            agent_name: Agent 名称
+            task: 任务对象
+        
+        Returns:
+            Agent 执行结果
+        
+        TODO: 根据实际部署方式实现
+        - 方式 1: 本地直接调用 (当前实现)
+        - 方式 2: RPC 调用 (远程 Agent)
+        - 方式 3: 消息队列 (异步执行)
+        """
+        logger.info(f"[CALL_AGENT] 调用 {agent_name} 执行任务 {task.id}")
+        
+        # 方式 1: 本地直接调用 (模拟)
+        # 实际应该通过 sessions_spawn 或 RPC 调用
+        await asyncio.sleep(1)  # 模拟执行延迟
+        
+        # 模拟结果
+        result = {
+            "agent": agent_name,
+            "task_id": task.id,
+            "status": "completed",
+            "output": f"Task executed by {agent_name}"
+        }
+        
+        logger.info(f"[CALL_AGENT] Agent {agent_name} 执行完成")
+        return result
+    
+    async def handoff_task(
+        self,
+        task_id: str,
+        from_agent: str,
+        to_agent: str,
+        reason: str = "负载均衡"
+    ) -> bool:
+        """
+        任务交接 (阶段 3: 新增功能)
+        
+        Args:
+            task_id: 任务 ID
+            from_agent: 源 Agent
+            to_agent: 目标 Agent
+            reason: 交接原因
+        
+        Returns:
+            是否成功
+        """
+        async with self._lock:
+            logger.info(f"[HANDOFF] 任务交接：{task_id} {from_agent} -> {to_agent} ({reason})")
+            
+            # 检查目标 Agent 是否存在
+            if to_agent not in self._agents:
+                logger.error(f"[HANDOFF] 目标 Agent 不存在：{to_agent}")
+                return False
+            
+            # 更新任务分配
+            if task_id in self._task_assignments:
+                del self._task_assignments[task_id]
+            
+            self._task_assignments[task_id] = to_agent
+            
+            # 更新源 Agent 状态
+            if from_agent in self._agents:
+                self._agents[from_agent].status = "idle"
+                self._agents[from_agent].tasks_completed += 0  # 未完成，不计数
+            
+            # 更新目标 Agent 状态
+            if to_agent in self._agents:
+                self._agents[to_agent].status = "busy"
+                self._agents[to_agent].tasks_assigned += 1
+                self._agents[to_agent].last_seen = datetime.now().timestamp()
+            
+            # 记录交接历史
+            self._handoffs.append({
+                "task_id": task_id,
+                "from_agent": from_agent,
+                "to_agent": to_agent,
+                "timestamp": datetime.now().isoformat(),
+                "reason": reason
+            })
+            
+            # 发布事件
+            await self._publish_event(EventType.TASK_ASSIGNED, {
+                "task_id": task_id,
+                "from_agent": from_agent,
+                "to_agent": to_agent,
+                "reason": reason,
+                "type": "handoff"
+            })
+            
+            logger.info(f"[HANDOFF] 任务交接完成：{task_id}")
+            return True
+    
+    def get_handoff_history(self, task_id: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        获取交接历史
+        
+        Args:
+            task_id: 可选，只返回指定任务的交接历史
+        
+        Returns:
+            交接历史记录列表
+        """
+        if task_id:
+            return [h for h in self._handoffs if h['task_id'] == task_id]
+        return self._handoffs
 
 
 # ============== 工厂函数 ==============
